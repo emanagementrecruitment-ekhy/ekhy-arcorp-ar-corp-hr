@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
 
 interface EmpRow {
+  id: string;
   name: string;
   code: string;
   role: string;
@@ -17,20 +19,37 @@ interface EmpRow {
 
 export default function KaryawanPage() {
   const [rows, setRows] = useState<EmpRow[]>([]);
+  const [canEdit, setCanEdit] = useState(false);
 
-  useEffect(() => {
+  function load() {
     fetch("/api/admin/employees")
       .then((r) => r.json())
       .then((d) => setRows(d.employees ?? []));
+  }
+
+  useEffect(() => {
+    load();
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((d) => setCanEdit(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
   }, []);
 
   const cols = "1.6fr 1fr 1.5fr .9fr .9fr 1.1fr";
 
   return (
     <div>
-      <AdminPageHeader title="Data Karyawan" subtitle="6 karyawan terdaftar · login dengan email atau nomor HP" />
+      <AdminPageHeader title="Data Karyawan" subtitle={`${rows.length || 6} karyawan terdaftar · login dengan email atau nomor HP`} />
 
       <div className="pt-5.5">
+        {canEdit && (
+          <div className="flex justify-end mb-3.5">
+            <AddEmployeeForm
+              supervisors={rows.map((r) => ({ id: r.id, name: r.name, code: r.code }))}
+              onCreated={load}
+            />
+          </div>
+        )}
+
         <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-hidden">
           <div
             className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim"
