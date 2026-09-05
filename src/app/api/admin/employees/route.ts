@@ -5,19 +5,51 @@ import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, type EmployeeLevel } from 
 import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
 
-export async function GET() {
+const PAGE_SIZE = 10;
+
+export async function GET(req: Request) {
   try {
     await requireSession(OFFICE_ROLES);
 
+    const { searchParams } = new URL(req.url);
+    const q = (searchParams.get("q") ?? "").trim();
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    // Internal callers (e.g. the supervisor picker) can ask for a bigger page
+    // to get the full roster in one call; capped well above realistic org size.
+    const pageSize = Math.min(500, Math.max(1, Number(searchParams.get("pageSize")) || PAGE_SIZE));
+
+    // Phone matching only kicks in for a query that's substantially numeric —
+    // a short digit run (e.g. the "05" left over from stripping "AR-05") would
+    // otherwise false-match unrelated phone numbers that merely contain it.
+    const qDigits = q.replace(/\D/g, "");
+    const where = {
+      accessRole: "KARYAWAN" as const,
+      ...(q
+        ? {
+            OR: [
+              { name: { contains: q } },
+              { code: { contains: q } },
+              { email: { contains: q } },
+              ...(qDigits.length >= 5 ? [{ phone: { contains: qDigits } }] : []),
+            ],
+          }
+        : {}),
+    };
+
     const start30 = new Date(Date.now() - 29 * 864e5);
-    const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN" },
-      include: {
-        vouchers: { where: { occurredAt: { gte: start30 } } },
-        kasbonRequests: { where: { status: "DISETUJUI" } },
-      },
-      orderBy: { code: "asc" },
-    });
+    const [total, employees] = await Promise.all([
+      prisma.employee.count({ where }),
+      prisma.employee.findMany({
+        where,
+        include: {
+          vouchers: { where: { occurredAt: { gte: start30 } } },
+          kasbonRequests: { where: { status: "DISETUJUI" } },
+        },
+        orderBy: { code: "asc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ]);
 
     return NextResponse.json({
       employees: employees.map((e) => {
@@ -35,6 +67,10 @@ export async function GET() {
           total: shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)),
         };
       }),
+      total,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
     });
   } catch (e) {
     return apiError(e);
