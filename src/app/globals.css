@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  --ar-bg: #08080a;
+  --ar-bezel: #191920;
+  --ar-surface: #131317;
+  --ar-surface2: rgba(255, 255, 255, 0.03);
+  --ar-line: rgba(255, 255, 255, 0.08);
+  --ar-text: #ede9e2;
+  --ar-dim: rgba(237, 233, 226, 0.5);
+  --ar-faint: rgba(237, 233, 226, 0.32);
+  --ar-input: rgba(0, 0, 0, 0.4);
+  --ar-gold: #c9a24a;
+  --ar-gold2: #f2dc9b;
+  --ar-ongold: #1a1408;
+  --ar-goldline: rgba(229, 196, 102, 0.3);
+  --ar-goldfill: rgba(229, 196, 102, 0.08);
+  --ar-red: #e4756b;
+  --ar-green: #7fd1a8;
+}
+
+@theme inline {
+  --color-ar-bg: var(--ar-bg);
+  --color-ar-bezel: var(--ar-bezel);
+  --color-ar-surface: var(--ar-surface);
+  --color-ar-surface2: var(--ar-surface2);
+  --color-ar-line: var(--ar-line);
+  --color-ar-text: var(--ar-text);
+  --color-ar-dim: var(--ar-dim);
+  --color-ar-faint: var(--ar-faint);
+  --color-ar-input: var(--ar-input);
+  --color-ar-gold: var(--ar-gold);
+  --color-ar-gold2: var(--ar-gold2);
+  --color-ar-ongold: var(--ar-ongold);
+  --color-ar-goldline: var(--ar-goldline);
+  --color-ar-goldfill: var(--ar-goldfill);
+  --color-ar-red: var(--ar-red);
+  --color-ar-green: var(--ar-green);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--ar-gold);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--ar-gold2);
+}
+
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+input:focus,
+textarea:focus {
+  outline: none;
+}
+::placeholder {
+  color: var(--ar-faint);
+}
+
+.arScroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.arScroll::-webkit-scrollbar-thumb {
+  background: var(--ar-goldline);
+  border-radius: 6px;
+}
+
+.ar-grad {
+  background: linear-gradient(100deg, var(--ar-gold), var(--ar-gold2) 52%, var(--ar-gold));
+}
+.ar-glow {
+  background: radial-gradient(900px 500px at 50% -10%, rgba(229, 196, 102, 0.1), transparent 70%);
+}
+
+@keyframes arPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 196, 102, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(229, 196, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 196, 102, 0);
+  }
+}
+.ar-pulse {
+  animation: arPulse 1.6s infinite;
+}
+
+@keyframes arIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ar-in {
+  animation: arIn 0.5s ease both;
+}

@@ -1,0 +1,114 @@
+// AR Corp HR — commission/voucher-based payroll, GPS attendance, kasbon workflow.
+// See /project/AR Corp HR.dc.html (design prototype) and /chats/chat1.md (design intent) at repo root.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum support, so enum-like fields are plain String
+// columns whose valid values are enforced in application code — see src/lib/constants.ts:
+//   AccessRole:      KARYAWAN | OWNER | CONSULTANT | ADMIN_PUSAT
+//   EmployeeLevel:   SILVER | PLATINUM
+//   VoucherStatus:   MENUNGGU_VALIDASI | TERVALIDASI | DICAIRKAN
+//   KasbonStatus:    MENUNGGU_OWNER | DISETUJUI | DITOLAK
+
+model Employee {
+  id          String       @id @default(cuid())
+  code        String       @unique // e.g. AR-01
+  name        String
+  email       String       @unique
+  phone       String       @unique
+  level       String
+  role        String       // display role, e.g. "Konsultan Lapangan", "Supervisor Lapangan", "Owner AR Corp"
+  accessRole  String       @default("KARYAWAN")
+  homeLat     Float
+  homeLng     Float
+  homePlace   String
+  supervisorId String?
+  supervisor  Employee?    @relation("Supervision", fields: [supervisorId], references: [id])
+  reports     Employee[]   @relation("Supervision")
+  createdAt   DateTime     @default(now())
+
+  otpCodes     OtpCode[]
+  loginEvents  LoginEvent[]
+  vouchers     Voucher[]
+  kasbonRequests Kasbon[]     @relation("KasbonRequester")
+  kasbonDecisions Kasbon[]    @relation("KasbonDecider")
+  chatsAsEmployee ChatMessage[] @relation("ChatEmployee")
+  chatsSent    ChatMessage[] @relation("ChatSender")
+}
+
+model OtpCode {
+  id         String    @id @default(cuid())
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  @@index([employeeId, createdAt])
+}
+
+model LoginEvent {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  lat         Float
+  lng         Float
+  distanceKm  Float
+  inRadius    Boolean
+  place       String?
+  createdAt   DateTime @default(now())
+
+  @@index([employeeId, createdAt])
+}
+
+model Voucher {
+  id         String        @id @default(cuid())
+  employeeId String
+  employee   Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  category   String        // SILVER = 150.000, PLATINUM (Jasmine) = 400.000
+  amount     Int
+  client     String
+  status     String        @default("MENUNGGU_VALIDASI")
+  occurredAt DateTime
+  createdAt  DateTime      @default(now())
+
+  @@index([employeeId, occurredAt])
+}
+
+model Kasbon {
+  id          String       @id @default(cuid())
+  employeeId  String
+  employee    Employee     @relation("KasbonRequester", fields: [employeeId], references: [id], onDelete: Cascade)
+  amount      Int
+  reason      String
+  status      String       @default("MENUNGGU_OWNER")
+  decidedById String?
+  decidedBy   Employee?    @relation("KasbonDecider", fields: [decidedById], references: [id])
+  decidedAt   DateTime?
+  note        String?
+  createdAt   DateTime     @default(now())
+
+  @@index([employeeId, createdAt])
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  employeeId     String   // the field employee this thread belongs to
+  employee       Employee @relation("ChatEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+  senderId       String?  // null when sent by the fixed "supervisor" seed persona with no login of their own
+  sender         Employee? @relation("ChatSender", fields: [senderId], references: [id])
+  fromSupervisor Boolean
+  text           String
+  createdAt      DateTime @default(now())
+
+  @@index([employeeId, createdAt])
+}
