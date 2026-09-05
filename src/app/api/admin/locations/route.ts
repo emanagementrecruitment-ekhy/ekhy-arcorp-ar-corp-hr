@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, HQ_NAME, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
 import { timeLabel } from "@/lib/format";
+import { distanceKm } from "@/lib/geo";
 
 export async function GET() {
   try {
@@ -17,8 +18,8 @@ export async function GET() {
       const last = e.loginEvents[0];
       const lat = last?.lat ?? e.homeLat;
       const lng = last?.lng ?? e.homeLng;
-      const km = last?.distanceKm ?? 0;
-      const inRadius = last?.inRadius ?? false;
+      const km = last?.distanceKm ?? distanceKm(HQ, { lat, lng });
+      const inRadius = last?.inRadius ?? km <= ATTENDANCE_RADIUS_KM;
       return {
         name: e.name,
         place: last?.place ?? e.homePlace,

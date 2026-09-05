@@ -28,6 +28,29 @@ const lat0 = -5.4,
 const pinX = (lng: number) => 6 + ((lng - lng0) / (lng1 - lng0)) * 88;
 const pinY = (lat: number) => 8 + ((lat - lat0) / (lat1 - lat0)) * 80;
 
+// Employees sharing a field location (a whole city, in practice) would
+// otherwise stack identical pins on top of each other on the map — group
+// anything within ~0.75° into one pin, same idea as the original design.
+function clusterPresence(presence: Presence[]) {
+  const clusters: { lat: number; lng: number; items: Presence[] }[] = [];
+  for (const p of presence) {
+    const c = clusters.find((c) => Math.abs(c.lat - p.lat) < 0.75 && Math.abs(c.lng - p.lng) < 0.75);
+    if (c) {
+      c.items.push(p);
+      c.lat = (c.lat * (c.items.length - 1) + p.lat) / c.items.length;
+      c.lng = (c.lng * (c.items.length - 1) + p.lng) / c.items.length;
+    } else {
+      clusters.push({ lat: p.lat, lng: p.lng, items: [p] });
+    }
+  }
+  return clusters.map((c) => ({
+    lat: c.lat,
+    lng: c.lng,
+    ok: c.items.every((i) => i.status === "Dalam radius"),
+    label: c.items.length > 1 ? `${c.items[0].place} · ${c.items.length} orang` : `${c.items[0].name.split(" ")[0]} · ${c.items[0].km}`,
+  }));
+}
+
 export default function LokasiPage() {
   const [data, setData] = useState<Locations | null>(null);
 
@@ -68,24 +91,26 @@ export default function LokasiPage() {
                 </span>
               </span>
             )}
-            {data?.presence.map((p, i) => {
-              const ok = p.status === "Dalam radius";
-              return (
+            {data &&
+              clusterPresence(data.presence).map((c, i) => (
                 <span
                   key={i}
                   className="absolute flex flex-col items-center gap-1.5"
-                  style={{ left: `${pinX(p.lng)}%`, top: `${pinY(p.lat)}%`, transform: "translate(-50%,-50%)" }}
+                  style={{ left: `${pinX(c.lng)}%`, top: `${pinY(c.lat)}%`, transform: "translate(-50%,-50%)" }}
                 >
                   <span
-                    className="w-[11px] h-[11px] rounded-full"
-                    style={{ background: ok ? "var(--ar-green)" : "var(--ar-red)" }}
+                    className="rounded-full"
+                    style={{
+                      width: c.label.includes("orang") ? 15 : 11,
+                      height: c.label.includes("orang") ? 15 : 11,
+                      background: c.ok ? "var(--ar-green)" : "var(--ar-red)",
+                    }}
                   />
                   <span className="text-[9.5px] tracking-[0.06em] whitespace-nowrap py-0.5 px-1.5 rounded-md bg-ar-surface border border-ar-line text-ar-dim">
-                    {p.name.split(" ")[0]} · {p.km}
+                    {c.label}
                   </span>
                 </span>
-              );
-            })}
+              ))}
 
             <span className="absolute left-3.5 bottom-3 text-[10px] tracking-[0.14em] uppercase text-ar-dim">
               ◎ {data?.hq.label ?? "Kantor Pusat"} · lingkaran = batas {ATTENDANCE_RADIUS_KM} km
