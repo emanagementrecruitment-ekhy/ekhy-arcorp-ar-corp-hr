@@ -14,7 +14,7 @@ export default function AddEmployeeForm({
   onCreated,
 }: {
   supervisors: SupervisorOption[];
-  onCreated: () => void;
+  onCreated: (code: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -26,6 +26,7 @@ export default function AddEmployeeForm({
   const [supervisorId, setSupervisorId] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [success, setSuccess] = useState("");
 
   function reset() {
     setName("");
@@ -60,9 +61,14 @@ export default function AddEmployeeForm({
         setMsg(data.error ?? "Gagal menambahkan karyawan.");
         return;
       }
+      const savedName = name;
+      onCreated(data.code);
       reset();
-      setOpen(false);
-      onCreated();
+      setSuccess(`✓ ${savedName} (${data.code}) berhasil ditambahkan.`);
+      setTimeout(() => {
+        setSuccess("");
+        setOpen(false);
+      }, 2000);
     } finally {
       setBusy(false);
     }
@@ -80,6 +86,23 @@ export default function AddEmployeeForm({
       >
         + Tambah Karyawan
       </button>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="p-4.5 bg-[rgba(127,209,168,.1)] border border-[rgba(127,209,168,.3)] rounded-2xl mb-3.5 flex justify-between items-center">
+        <span className="text-ar-green text-[12.5px]">{success}</span>
+        <button
+          onClick={() => {
+            setSuccess("");
+            setOpen(false);
+          }}
+          className="text-ar-dim text-[11px] cursor-pointer"
+        >
+          Tutup
+        </button>
+      </div>
     );
   }
 

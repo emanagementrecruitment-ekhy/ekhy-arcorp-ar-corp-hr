@@ -66,7 +66,10 @@ export default function KaryawanPage() {
   }, [query]);
 
   function onCreated() {
-    loadPage(page, query);
+    // Clear any active filter/page so the new employee isn't hidden behind a
+    // search that no longer matches, or a page it doesn't happen to fall on.
+    setQuery("");
+    loadPage(1, "");
     loadSupervisors();
   }
 
