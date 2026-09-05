@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { HQ, ATTENDANCE_RADIUS_KM } from "../src/lib/constants";
 import { distanceKm } from "../src/lib/geo";
