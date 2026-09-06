@@ -62,6 +62,8 @@ export async function GET(req: Request) {
           level: e.level,
           email: e.email,
           phone: e.phone,
+          place: e.homePlace,
+          supervisorId: e.supervisorId ?? "",
           count: `${e.vouchers.length} vc`,
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
           total: shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)),
