@@ -36,6 +36,17 @@ npm start                       # or: npm run db:seed  first, for a demo instanc
 
 `npm run db:seed` wipes and reseeds all app data (see `prisma/seed.ts`) — only run it for a fresh demo, never against real data.
 
-## Known gap
+## Deploying to Railway (recommended — supports SQLite as-is)
 
-There's currently no UI to add/edit employees, voucher values, or accounts — those only exist via `prisma/seed.ts`. The design (`../project/AR Corp HR.dc.html`) didn't call for one either (the Karyawan tab is read-only: "Admin pusat hanya melihat dan mengunduh laporan"). For a real multi-tenant deployment beyond the 6 seeded employees + 3 office accounts, that admin CRUD would need to be built — ask if you want it added.
+1. **New Project → Deploy from GitHub repo**, pick `ekhy-arcorp-ar-corp-hr`. Railway auto-detects Next.js via Nixpacks; no Dockerfile needed.
+2. **Add a volume**: Project → your service → Settings → Volumes → New Volume. Mount path `/data`. Without this the SQLite file lives on ephemeral storage and every redeploy wipes it.
+3. **Variables** (Settings → Variables):
+   - `DATABASE_URL` = `file:/data/prod.db` (must match the volume's mount path)
+   - `SESSION_SECRET` = a fresh random value (`openssl rand -hex 32` — don't reuse the one in `.env`)
+   - Optionally `SMTP_*` or `TWILIO_*` for real OTP delivery — see above. **Without these, OTP codes only appear in Railway's deploy logs** (Deployments → View Logs), not on screen, since `NODE_ENV=production` there — set one of these up first if you want to actually log in from a phone without digging through logs.
+4. **Start command** (Settings → Deploy → Custom Start Command): `npm run start:railway`. This runs `prisma migrate deploy`, then seeds demo data **only if the database is empty** (`prisma/seed-if-empty.js` — safe to redeploy without wiping real data), then starts on Railway's assigned `$PORT`.
+5. Deploy. Railway gives you a `*.up.railway.app` URL — open that on a phone and log in with any seeded account (`ekhy@arcorp.id`, `owner@arcorp.id`, etc.) or one you add via the app.
+
+## Managing employees post-deploy
+
+Owner and Consultant accounts can add, edit, and delete field employees directly from the Karyawan page in the app (Aksi column) — no shell/database access needed. Voucher values (Silver/Platinum amounts) and access-role accounts (Owner/Consultant/Admin Pusat) are still seed-only; ask if you want those made editable in the UI too.

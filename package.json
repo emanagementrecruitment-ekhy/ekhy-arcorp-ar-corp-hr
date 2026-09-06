@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "start:railway": "prisma migrate deploy && node prisma/seed-if-empty.js && next start -p ${PORT:-3000}"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -21,7 +22,8 @@
     "nodemailer": "^9.1.1",
     "prisma": "^5.22.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "tsx": "^4.23.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -33,7 +35,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
-    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }
