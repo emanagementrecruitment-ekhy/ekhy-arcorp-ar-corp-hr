@@ -56,6 +56,8 @@ export default function LoginPage() {
       setDelivered(Boolean(data.delivered));
       setOtp("");
       setStep("otp");
+    } catch {
+      setError("Tidak bisa terhubung ke server. Periksa koneksi internet dan coba lagi.");
     } finally {
       setBusy(false);
     }
@@ -81,6 +83,8 @@ export default function LoginPage() {
       } else {
         router.push("/admin");
       }
+    } catch {
+      setError("Tidak bisa terhubung ke server. Periksa koneksi internet dan coba lagi.");
     } finally {
       setBusy(false);
     }
