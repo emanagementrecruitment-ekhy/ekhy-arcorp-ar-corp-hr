@@ -21,7 +21,14 @@ export async function GET() {
       const km = last?.distanceKm ?? distanceKm(HQ, { lat, lng });
       const inRadius = last?.inRadius ?? km <= ATTENDANCE_RADIUS_KM;
       return {
+        id: e.id,
+        code: e.code,
         name: e.name,
+        email: e.email,
+        phone: e.phone,
+        level: e.level,
+        role: e.role,
+        supervisorId: e.supervisorId ?? "",
         place: last?.place ?? e.homePlace,
         km: `${km} km`,
         time: last ? timeLabel(last.createdAt) : "—",
