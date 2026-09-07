@@ -270,9 +270,6 @@ export default function LoginPage() {
             </div>
           )}
         </div>
-        <div className="text-center mt-[18px] text-[10.5px] tracking-[0.1em] text-ar-faint">
-          https://emanagementrecruitment-ekhy.github.io
-        </div>
       </div>
     </div>
   );
