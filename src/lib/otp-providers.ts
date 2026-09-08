@@ -2,7 +2,7 @@ import "server-only";
 import nodemailer from "nodemailer";
 
 /**
- * Real OTP delivery channels. Both are optional and activated purely by the
+ * Real OTP delivery channels. All are optional and activated purely by the
  * presence of their env vars — set none and the app falls back to console +
  * on-screen dev codes (see src/lib/otp.ts).
  */
@@ -71,5 +71,32 @@ export async function sendOtpSms(toPhoneDigits: string, code: string) {
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(`Twilio send failed: ${res.status} ${detail}`);
+  }
+}
+
+export function whatsappProviderConfigured() {
+  return Boolean(process.env.FONNTE_TOKEN);
+}
+
+/** Sends via Fonnte (https://fonnte.com) — an Indonesian WhatsApp gateway that only needs a device token, no Meta Business verification. */
+export async function sendOtpWhatsapp(toPhoneDigits: string, code: string) {
+  const token = process.env.FONNTE_TOKEN;
+  if (!token) throw new Error("Fonnte is not configured");
+  const target = toPhoneDigits.startsWith("62") ? toPhoneDigits : `62${toPhoneDigits.replace(/^0/, "")}`;
+  const body = new URLSearchParams({
+    target,
+    message: `Kode verifikasi AR Corp Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+  });
+  const res = await fetch("https://api.fonnte.com/send", {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || data?.status === false) {
+    throw new Error(`Fonnte send failed: ${res.status} ${JSON.stringify(data)}`);
   }
 }

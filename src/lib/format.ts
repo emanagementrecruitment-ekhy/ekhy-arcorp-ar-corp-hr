@@ -33,6 +33,10 @@ export function timeLabel(d: Date): string {
   return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 }
 
+export function isLink(value: string): boolean {
+  return /^(https?:\/\/|wa\.me\/|www\.)/i.test(value.trim());
+}
+
 export function csvCell(value: unknown): string {
   return '"' + String(value ?? "").replace(/"/g, '""') + '"';
 }

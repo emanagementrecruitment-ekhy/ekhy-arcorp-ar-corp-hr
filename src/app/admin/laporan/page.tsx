@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
 
 type Period = "harian" | "mingguan" | "bulanan";
 
@@ -77,7 +78,9 @@ export default function LaporanPage() {
           {data?.rows.map((r, i) => (
             <div key={i} className="grid gap-3 py-3.5 px-4.5 border-t border-ar-line text-[12.5px] items-center" style={{ gridTemplateColumns: cols }}>
               <span>{r.name}</span>
-              <span className={r.level === "PLATINUM" ? "text-ar-gold2" : "text-ar-dim"}>{r.level === "PLATINUM" ? "Platinum" : "Silver"}</span>
+              <span className={r.level === "PLATINUM" || r.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
+                {VOUCHER_LABEL[r.level as EmployeeLevel]}
+              </span>
               <span>{r.silver}</span>
               <span>{r.plat}</span>
               <span className="text-ar-red">{r.kasbon}</span>

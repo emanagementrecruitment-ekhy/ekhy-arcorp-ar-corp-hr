@@ -4,13 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
+import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { isLink } from "@/lib/format";
 
 interface EmpRow {
   id: string;
   name: string;
   code: string;
   role: string;
-  level: "SILVER" | "PLATINUM";
+  level: EmployeeLevel;
   email: string;
   phone: string;
   place: string;
@@ -186,11 +188,18 @@ export default function KaryawanPage() {
                 <span>
                   <span className="block">{e.name}</span>
                   <span className="block text-[10.5px] text-ar-dim mt-1">
-                    {e.code} · {e.role}
+                    {e.code} ·{" "}
+                    {isLink(e.role) ? (
+                      <a href={e.role} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline">
+                        {e.role}
+                      </a>
+                    ) : (
+                      e.role
+                    )}
                   </span>
                 </span>
-                <span className={e.level === "PLATINUM" ? "text-ar-gold2" : "text-ar-dim"}>
-                  {e.level === "PLATINUM" ? "Platinum" : "Silver"}
+                <span className={e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
+                  {VOUCHER_LABEL[e.level]}
                 </span>
                 <span className="text-[11px] text-ar-dim leading-[1.6]">
                   {e.email}

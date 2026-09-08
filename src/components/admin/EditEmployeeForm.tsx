@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { EmployeeLevel } from "@/lib/constants";
 import EmployeeFields, { type EmployeeFieldsValue, type SupervisorOption } from "./EmployeeFields";
 
 export interface EditableEmployee {
@@ -9,7 +10,7 @@ export interface EditableEmployee {
   name: string;
   email: string;
   phone: string;
-  level: "SILVER" | "PLATINUM";
+  level: EmployeeLevel;
   role: string;
   place: string;
   supervisorId: string;

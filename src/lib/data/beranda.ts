@@ -35,7 +35,7 @@ export async function getBerandaData(employeeId: string) {
   return {
     greeting: greetingFor(now),
     meName: employee.name,
-    meLevel: employee.level === "PLATINUM" ? "Platinum" : "Silver",
+    meLevel: VOUCHER_LABEL[employee.level as EmployeeLevel],
     meCode: employee.code,
     checkInTime: lastLogin ? timeLabel(lastLogin.createdAt) : "—",
     myPlace: lastLogin?.place ?? employee.homePlace,

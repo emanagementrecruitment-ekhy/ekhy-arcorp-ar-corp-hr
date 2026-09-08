@@ -5,8 +5,10 @@ import { OTP_MAX_ATTEMPTS, OTP_TTL_SECONDS } from "./constants";
 import {
   emailProviderConfigured,
   smsProviderConfigured,
+  whatsappProviderConfigured,
   sendOtpEmail,
   sendOtpSms,
+  sendOtpWhatsapp,
 } from "./otp-providers";
 import type { IdentifierKind } from "./lookup";
 
@@ -18,12 +20,13 @@ function generateCode(): string {
  * Creates and delivers an OTP for an employee.
  *
  * Real delivery is opt-in and purely env-driven (see src/lib/otp-providers.ts
- * and .env.example): set SMTP_* to send real emails, TWILIO_* to send real
- * SMS. Whichever channel matches how the person is logging in (email vs.
- * phone) is used; if that channel's provider isn't configured, this falls
- * back to logging the code server-side and — outside production — returning
- * it in the API response, so the login flow stays testable end to end
- * without any credentials.
+ * and .env.example): set SMTP_* to send real emails, FONNTE_TOKEN to send
+ * over WhatsApp, or TWILIO_* to send real SMS. Email logins always use
+ * email; phone logins prefer WhatsApp over SMS when both are configured. If
+ * the resolved channel's provider isn't configured, this falls back to
+ * logging the code server-side and — outside production — returning it in
+ * the API response, so the login flow stays testable end to end without any
+ * credentials.
  */
 export async function issueOtp(employeeId: string, target: string, kind: IdentifierKind) {
   const code = generateCode();
@@ -34,15 +37,29 @@ export async function issueOtp(employeeId: string, target: string, kind: Identif
     data: { employeeId, codeHash, expiresAt },
   });
 
-  const canSendReal = kind === "email" ? emailProviderConfigured() : smsProviderConfigured();
+  const channel =
+    kind === "email" ? "email" : whatsappProviderConfigured() ? "whatsapp" : smsProviderConfigured() ? "sms" : null;
 
-  if (canSendReal) {
+  if (channel === "email" && emailProviderConfigured()) {
     try {
-      if (kind === "email") await sendOtpEmail(target, code);
-      else await sendOtpSms(target, code);
+      await sendOtpEmail(target, code);
       return { devCode: undefined, delivered: true as const };
     } catch (err) {
-      console.error(`[otp] real delivery failed for employee ${employeeId}, falling back to console:`, err);
+      console.error(`[otp] email delivery failed for employee ${employeeId}, falling back to console:`, err);
+    }
+  } else if (channel === "whatsapp") {
+    try {
+      await sendOtpWhatsapp(target, code);
+      return { devCode: undefined, delivered: true as const };
+    } catch (err) {
+      console.error(`[otp] whatsapp delivery failed for employee ${employeeId}, falling back to console:`, err);
+    }
+  } else if (channel === "sms") {
+    try {
+      await sendOtpSms(target, code);
+      return { devCode: undefined, delivered: true as const };
+    } catch (err) {
+      console.error(`[otp] sms delivery failed for employee ${employeeId}, falling back to console:`, err);
     }
   }
 

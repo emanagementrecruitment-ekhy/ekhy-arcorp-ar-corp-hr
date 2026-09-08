@@ -14,7 +14,8 @@ Optional (real OTP delivery — see `.env.example` for the full list and `src/li
 | Var | Enables |
 |---|---|
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Real email OTPs |
-| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Real SMS OTPs |
+| `FONNTE_TOKEN` | Real WhatsApp OTPs (phone logins) — sign up at [fonnte.com](https://fonnte.com), connect a device, copy its token |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Real SMS OTPs (phone logins, only used if `FONNTE_TOKEN` is unset) |
 
 Leave the optional ones unset and the app keeps working exactly as it does now: codes are logged server-side and shown on the OTP screen (only outside `NODE_ENV=production`).
 
@@ -43,7 +44,7 @@ npm start                       # or: npm run db:seed  first, for a demo instanc
 3. **Variables** (Settings → Variables):
    - `DATABASE_URL` = `file:/data/prod.db` (must match the volume's mount path)
    - `SESSION_SECRET` = a fresh random value (`openssl rand -hex 32` — don't reuse the one in `.env`)
-   - Optionally `SMTP_*` or `TWILIO_*` for real OTP delivery — see above. **Without these, OTP codes only appear in Railway's deploy logs** (Deployments → View Logs), not on screen, since `NODE_ENV=production` there — set one of these up first if you want to actually log in from a phone without digging through logs.
+   - Optionally `SMTP_*`, `FONNTE_TOKEN`, or `TWILIO_*` for real OTP delivery — see above. **Without these, OTP codes only appear in Railway's deploy logs** (Deployments → View Logs), not on screen, since `NODE_ENV=production` there — set one of these up first if you want to actually log in from a phone without digging through logs.
 4. **Start command** (Settings → Deploy → Custom Start Command): `npm run start:railway`. This runs `prisma migrate deploy`, then seeds demo data **only if the database is empty** (`prisma/seed-if-empty.js` — safe to redeploy without wiping real data), then starts on Railway's assigned `$PORT`.
 5. Deploy. Railway gives you a `*.up.railway.app` URL — open that on a phone and log in with any seeded account (`ekhy@arcorp.id`, `owner@arcorp.id`, etc.) or one you add via the app.
 

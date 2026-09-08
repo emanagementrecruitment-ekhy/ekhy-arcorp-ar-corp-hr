@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Badge from "@/components/Badge";
 import LogoutButton from "@/components/LogoutButton";
 import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { isLink } from "@/lib/format";
 
 export default async function ProfilPage() {
   const session = await getSession();
@@ -51,7 +52,15 @@ export default async function ProfilPage() {
         {rows.map((r) => (
           <div key={r.k} className="flex justify-between gap-3 py-3.5 border-b border-ar-line last:border-b-0 text-[12.5px]">
             <span className="text-ar-dim">{r.k}</span>
-            <span className="text-right">{r.v}</span>
+            <span className="text-right">
+              {r.k === "Peran" && isLink(r.v) ? (
+                <a href={r.v} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline">
+                  {r.v}
+                </a>
+              ) : (
+                r.v
+              )}
+            </span>
           </div>
         ))}
       </div>

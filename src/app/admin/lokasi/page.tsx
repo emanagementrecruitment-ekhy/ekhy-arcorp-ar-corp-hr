@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
-import { ATTENDANCE_RADIUS_KM } from "@/lib/constants";
+import { ATTENDANCE_RADIUS_KM, type EmployeeLevel } from "@/lib/constants";
 import type { MapPresence } from "@/components/admin/LocationsMap";
 
 const LocationsMap = dynamic(() => import("@/components/admin/LocationsMap"), { ssr: false });
@@ -13,7 +13,7 @@ const LocationsMap = dynamic(() => import("@/components/admin/LocationsMap"), { 
 interface Presence extends MapPresence {
   email: string;
   phone: string;
-  level: "SILVER" | "PLATINUM";
+  level: EmployeeLevel;
   role: string;
   supervisorId: string;
   code: string;

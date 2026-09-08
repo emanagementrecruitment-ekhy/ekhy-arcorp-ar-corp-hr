@@ -1,6 +1,6 @@
 "use client";
 
-import { FIELD_CITIES, FIELD_ROLES } from "@/lib/constants";
+import { FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
 
 export interface SupervisorOption {
   id: string;
@@ -12,7 +12,7 @@ export interface EmployeeFieldsValue {
   name: string;
   email: string;
   phone: string;
-  level: "SILVER" | "PLATINUM";
+  level: EmployeeLevel;
   role: string;
   place: string;
   supervisorId: string;
@@ -22,7 +22,7 @@ const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rou
 const labelCls = "text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block";
 
 export function emptyEmployeeFields(): EmployeeFieldsValue {
-  return { name: "", email: "", phone: "", level: "SILVER", role: FIELD_ROLES[0], place: FIELD_CITIES[0].place, supervisorId: "" };
+  return { name: "", email: "", phone: "", level: "SILVER", role: "", place: FIELD_CITIES[0].place, supervisorId: "" };
 }
 
 /** Shared field grid for both the add-employee and edit-employee forms. */
@@ -51,14 +51,13 @@ export default function EmployeeFields({
         />
       </div>
       <div>
-        <label className={labelCls}>Peran</label>
-        <select value={value.role} onChange={(e) => onChange({ role: e.target.value })} className={inputCls}>
-          {FIELD_ROLES.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
+        <label className={labelCls}>Peran (Link)</label>
+        <input
+          value={value.role}
+          onChange={(e) => onChange({ role: e.target.value })}
+          placeholder="cth. https://wa.me/62812xxxxxxx"
+          className={inputCls}
+        />
       </div>
       <div>
         <label className={labelCls}>Email</label>
@@ -82,15 +81,18 @@ export default function EmployeeFields({
         <label className={labelCls}>Level</label>
         <select
           value={value.level}
-          onChange={(e) => onChange({ level: e.target.value as "SILVER" | "PLATINUM" })}
+          onChange={(e) => onChange({ level: e.target.value as EmployeeLevel })}
           className={inputCls}
         >
-          <option value="SILVER">Silver (Rp 150.000/voucher)</option>
-          <option value="PLATINUM">Platinum / Jasmine (Rp 400.000/voucher)</option>
+          {(Object.keys(VOUCHER_AMOUNT) as EmployeeLevel[]).map((lvl) => (
+            <option key={lvl} value={lvl}>
+              {VOUCHER_LABEL[lvl]} (Rp {VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")}/voucher)
+            </option>
+          ))}
         </select>
       </div>
       <div>
-        <label className={labelCls}>Kota / Lokasi Kerja</label>
+        <label className={labelCls}>Lokasi Kerja</label>
         <select value={value.place} onChange={(e) => onChange({ place: e.target.value })} className={inputCls}>
           {FIELD_CITIES.map((c) => (
             <option key={c.place} value={c.place}>
