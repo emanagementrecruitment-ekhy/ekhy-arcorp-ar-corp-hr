@@ -18,6 +18,7 @@ const OFFICE_ACCOUNTS = [
   { code: "HQ-OWNER", name: "Owner AR Corp", role: "Owner AR Corp", accessRole: "OWNER", email: "owner@arcorp.id", phone: "081100000001" },
   { code: "HQ-CONSULT", name: "Consultant AR Corp", role: "Consultant AR Corp", accessRole: "CONSULTANT", email: "consultant@arcorp.id", phone: "081100000002" },
   { code: "HQ-ADMIN", name: "Admin Pusat AR Corp", role: "Admin Pusat AR Corp", accessRole: "ADMIN_PUSAT", email: "admin@arcorp.id", phone: "081100000003" },
+  { code: "HQ-MESS", name: "Kepala Mess AR Corp", role: "Kepala Mess", accessRole: "SUPERVISOR", email: "kepalamess@arcorp.id", phone: "081100000004" },
 ];
 
 const CLIENTS = [

@@ -6,7 +6,8 @@ import { timeLabel, dLabel } from "@/lib/format";
 
 export async function GET(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    // Also open to SUPERVISOR (Kepala Mess) — the one admin view that role can see.
+    await requireSession([...OFFICE_ROLES, "SUPERVISOR"]);
     const { searchParams } = new URL(req.url);
     const employeeId = searchParams.get("employeeId");
 

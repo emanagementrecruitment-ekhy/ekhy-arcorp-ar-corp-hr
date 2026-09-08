@@ -1,6 +1,5 @@
 import "server-only";
 import { prisma } from "./prisma";
-import { OFFICE_ROLES } from "./constants";
 
 export type Portal = "karyawan" | "pusat";
 export type IdentifierKind = "email" | "phone";
@@ -22,7 +21,10 @@ export async function findEmployeeForPortal(identifier: string, portal: Portal) 
 
   if (!employee) return null;
 
-  const isOffice = OFFICE_ROLES.includes(employee.accessRole as (typeof OFFICE_ROLES)[number]);
+  // "Office" here just means "not a field employee" — it decides which login
+  // tab (STAFF & PR vs. OFFICE) an account uses, not what it's allowed to see
+  // once logged in (that's OFFICE_ROLES, checked per-route via requireSession).
+  const isOffice = employee.accessRole !== "KARYAWAN";
   if (portal === "pusat" && !isOffice) return null;
   if (portal === "karyawan" && isOffice) return null;
 

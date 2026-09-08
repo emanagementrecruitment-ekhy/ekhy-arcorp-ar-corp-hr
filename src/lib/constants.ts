@@ -1,8 +1,12 @@
 // Enum-like string values for SQLite columns (see prisma/schema.prisma header comment).
 
-export const ACCESS_ROLES = ["KARYAWAN", "OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
+export const ACCESS_ROLES = ["KARYAWAN", "OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] as const;
 export type AccessRole = (typeof ACCESS_ROLES)[number];
 
+// Full admin data access (Karyawan, Kasbon, Laporan, Lokasi & Absensi, ...).
+// SUPERVISOR (Kepala Mess) is deliberately excluded — it's a narrower,
+// view-only role scoped to Laporan Lapangan only (see requireSession calls
+// in src/app/api/admin/lapor/route.ts and src/app/admin/layout.tsx).
 export const OFFICE_ROLES: AccessRole[] = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"];
 
 export const EMPLOYEE_LEVELS = ["SILVER", "PLATINUM", "FL", "MODEL"] as const;

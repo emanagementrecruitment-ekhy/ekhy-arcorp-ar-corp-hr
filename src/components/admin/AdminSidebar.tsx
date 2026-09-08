@@ -15,16 +15,26 @@ const DESKS = [
   { href: "/admin/lapor-lapangan", label: "Laporan Lapangan" },
 ] as const;
 
-export default function AdminSidebar({ roleLabel, canApprove }: { roleLabel: string; canApprove: boolean }) {
+export default function AdminSidebar({
+  roleLabel,
+  canApprove,
+  supervisorOnly,
+}: {
+  roleLabel: string;
+  canApprove: boolean;
+  supervisorOnly?: boolean;
+}) {
   const pathname = usePathname();
   const [pendingKasbon, setPendingKasbon] = useState<number | null>(null);
+  const desks = supervisorOnly ? DESKS.filter((d) => d.href === "/admin/lapor-lapangan") : DESKS;
 
   useEffect(() => {
+    if (supervisorOnly) return;
     fetch("/api/admin/kasbon")
       .then((r) => r.json())
       .then((d) => setPendingKasbon((d.kasbon ?? []).filter((k: { pending: boolean }) => k.pending).length))
       .catch(() => {});
-  }, []);
+  }, [supervisorOnly]);
 
   return (
     <div className="w-60 shrink-0 border-r border-ar-line p-4 sm:p-5 flex flex-col gap-6">
@@ -43,7 +53,7 @@ export default function AdminSidebar({ roleLabel, canApprove }: { roleLabel: str
       </div>
 
       <div className="flex flex-col gap-1">
-        {DESKS.map((d) => {
+        {desks.map((d) => {
           const active = d.href === "/admin" ? pathname === "/admin" : pathname.startsWith(d.href);
           return (
             <Link
@@ -66,7 +76,11 @@ export default function AdminSidebar({ roleLabel, canApprove }: { roleLabel: str
         <div className="text-[10px] tracking-[0.14em] uppercase text-ar-dim">Masuk sebagai</div>
         <div className="text-[13px] mt-1.5">{roleLabel}</div>
         <div className="text-[10.5px] text-ar-gold mt-1">
-          {canApprove ? "Akses penuh · dapat approve" : "Akses lihat & unduh laporan"}
+          {supervisorOnly
+            ? "Akses lihat laporan lapangan saja"
+            : canApprove
+              ? "Akses penuh · dapat approve"
+              : "Akses lihat & unduh laporan"}
         </div>
         <LogoutButton className="w-full mt-2.5 py-2 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer" />
       </div>

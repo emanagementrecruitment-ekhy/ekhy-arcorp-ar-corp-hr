@@ -80,6 +80,8 @@ export default function LoginPage() {
       }
       if (data.requiresAttendance) {
         beginAttendance();
+      } else if (data.accessRole === "SUPERVISOR") {
+        router.push("/admin/lapor-lapangan");
       } else {
         router.push("/admin");
       }
