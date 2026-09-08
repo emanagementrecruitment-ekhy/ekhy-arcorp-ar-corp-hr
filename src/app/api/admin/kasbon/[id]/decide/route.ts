@@ -9,7 +9,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const body = await req.json().catch(() => null);
     const approve = body?.approve === true;
 
-    const existing = await prisma.kasbon.findUnique({ where: { id } });
+    const existing = await prisma.kasbon.findUnique({ where: { id }, include: { employee: true } });
     if (!existing) {
       return NextResponse.json({ error: "Pengajuan kasbon tidak ditemukan." }, { status: 404 });
     }
@@ -28,6 +28,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           : "Ditolak Owner",
       },
     });
+
+    if (approve) {
+      await prisma.notification.create({
+        data: { recipientRole: "ADMIN_PUSAT", text: `Kasbon ${existing.employee.name} disetujui Owner.` },
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

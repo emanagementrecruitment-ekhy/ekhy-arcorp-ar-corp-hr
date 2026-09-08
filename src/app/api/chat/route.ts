@@ -49,6 +49,10 @@ export async function POST(req: Request) {
       },
     });
 
+    await prisma.notification.create({
+      data: { recipientRole: "SUPERVISOR", text: `Laporan baru dari ${session.name}: ${text.slice(0, 80)}` },
+    });
+
     return NextResponse.json({
       ok: true,
       message: { id: message.id, me: true, text: message.text, time: timeLabel(message.createdAt) },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NotificationBell from "./NotificationBell";
 
 export default function AdminPageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
@@ -23,11 +24,14 @@ export default function AdminPageHeader({ title, subtitle }: { title: string; su
         <div className="font-display text-[32px] leading-[1.1]">{title}</div>
         <div className="text-[11.5px] text-ar-dim mt-1.5">{subtitle}</div>
       </div>
-      <div className="flex items-center gap-2.5 py-2.5 px-3.5 bg-ar-goldfill border border-ar-goldline rounded-[11px]">
-        <span className="w-2 h-2 rounded-full bg-ar-green ar-pulse" />
-        <span className="text-[11px] tracking-[0.1em] uppercase text-ar-gold">
-          {onlineCount ?? "…"} aktif · {clock}
-        </span>
+      <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 py-2.5 px-3.5 bg-ar-goldfill border border-ar-goldline rounded-[11px]">
+          <span className="w-2 h-2 rounded-full bg-ar-green ar-pulse" />
+          <span className="text-[11px] tracking-[0.1em] uppercase text-ar-gold">
+            {onlineCount ?? "…"} aktif · {clock}
+          </span>
+        </div>
+        <NotificationBell />
       </div>
     </div>
   );

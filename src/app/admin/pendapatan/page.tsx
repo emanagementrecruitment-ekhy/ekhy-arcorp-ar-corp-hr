@@ -1,0 +1,187 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { EMPLOYEE_LEVELS, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+
+interface EmployeeOption {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface Entry {
+  id: string;
+  employeeName: string;
+  employeeCode: string;
+  category: string;
+  client: string;
+  amount: string;
+  occurredAt: string;
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export default function PendapatanPage() {
+  const [employees, setEmployees] = useState<EmployeeOption[]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [employeeId, setEmployeeId] = useState("");
+  const [category, setCategory] = useState<EmployeeLevel>("SILVER");
+  const [client, setClient] = useState("");
+  const [occurredAt, setOccurredAt] = useState(today());
+  const [amount, setAmount] = useState(String(VOUCHER_AMOUNT.SILVER));
+  const [amountTouched, setAmountTouched] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [success, setSuccess] = useState("");
+
+  function load() {
+    fetch("/api/admin/employees?pageSize=500")
+      .then((r) => r.json())
+      .then((d) => setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code }))));
+    fetch("/api/admin/vouchers")
+      .then((r) => r.json())
+      .then((d) => setEntries(d.vouchers ?? []));
+  }
+
+  useEffect(load, []);
+
+  function onCategoryChange(next: EmployeeLevel) {
+    setCategory(next);
+    if (!amountTouched) setAmount(String(VOUCHER_AMOUNT[next]));
+  }
+
+  async function submit() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/admin/vouchers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, category, client, occurredAt, amount: Number(amount) }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setSuccess("✓ Pendapatan berhasil dicatat.");
+      setClient("");
+      setAmountTouched(false);
+      setAmount(String(VOUCHER_AMOUNT[category]));
+      load();
+      setTimeout(() => setSuccess(""), 2500);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <AdminPageHeader title="Input Pendapatan" subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan" />
+
+      <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "1fr 1.2fr" }}>
+        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
+          <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Tambah Entri</div>
+
+          <div className="grid gap-3.5">
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Karyawan</label>
+              <select
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+              >
+                <option value="">Pilih karyawan…</option>
+                {employees.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name} ({e.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Tanggal</label>
+              <input
+                type="date"
+                value={occurredAt}
+                onChange={(e) => setOccurredAt(e.target.value)}
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Level / Kategori</label>
+              <select
+                value={category}
+                onChange={(e) => onCategoryChange(e.target.value as EmployeeLevel)}
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+              >
+                {EMPLOYEE_LEVELS.map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {VOUCHER_LABEL[lvl]} (default Rp {VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Nama Klien</label>
+              <input
+                value={client}
+                onChange={(e) => setClient(e.target.value)}
+                placeholder="cth. Kirana Lounge"
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">
+                Nominal (bisa diubah kalau beda dari default)
+              </label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setAmountTouched(true);
+                }}
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+              />
+            </div>
+          </div>
+
+          {success && <div className="mt-3.5 text-[12px] text-ar-green">{success}</div>}
+          {msg && <div className="mt-3.5 text-[11.5px] text-ar-red">{msg}</div>}
+
+          <button
+            disabled={busy || !employeeId || !client}
+            onClick={submit}
+            className="mt-3.5 py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+          >
+            Simpan Pendapatan
+          </button>
+        </div>
+
+        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
+          <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Entri Terbaru</div>
+          <div className="flex flex-col gap-2">
+            {entries.length === 0 && <div className="text-[12.5px] text-ar-faint">Belum ada entri.</div>}
+            {entries.map((e) => (
+              <div key={e.id} className="p-3 bg-ar-surface2 border border-ar-line rounded-[11px] text-[12px]">
+                <div className="flex justify-between gap-2">
+                  <span>
+                    {e.employeeName} <span className="text-ar-dim">({e.employeeCode})</span>
+                  </span>
+                  <span className="text-ar-gold2 font-display text-[15px]">{e.amount}</span>
+                </div>
+                <div className="text-[10.5px] text-ar-dim mt-1">
+                  {e.category} · {e.client} · {e.occurredAt}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

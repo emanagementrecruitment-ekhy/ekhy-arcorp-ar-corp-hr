@@ -112,3 +112,19 @@ model ChatMessage {
 
   @@index([employeeId, createdAt])
 }
+
+// In-app notifications, broadcast to a role rather than a specific person —
+// whoever currently holds recipientRole (OWNER / ADMIN_PUSAT / SUPERVISOR)
+// sees it. Kept deliberately simple: read state is per-notification, not
+// per-recipient, since ADMIN_PUSAT/SUPERVISOR are single-holder roles in
+// practice (see the Jabatan Kantor appointment flow) and OWNER/CONSULTANT
+// share visibility anyway.
+model Notification {
+  id            String    @id @default(cuid())
+  recipientRole String
+  text          String
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([recipientRole, createdAt])
+}

@@ -38,8 +38,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "Nomor HP tidak valid." }, { status: 400 });
     }
 
+    // Employees seeded/added before FIELD_CITIES was last changed can carry a
+    // `place` no longer in the preset list — leave their coordinates alone
+    // when that legacy value comes back unchanged, only require a match
+    // against the current presets when the place is actually being changed.
     const city = FIELD_CITIES.find((c) => c.place === place);
-    if (!city) return NextResponse.json({ error: "Kota/lokasi kerja tidak valid." }, { status: 400 });
+    if (!city && place !== existing.homePlace) {
+      return NextResponse.json({ error: "Kota/lokasi kerja tidak valid." }, { status: 400 });
+    }
 
     if (supervisorId === id) {
       return NextResponse.json({ error: "Karyawan tidak bisa menjadi supervisor diri sendiri." }, { status: 400 });
@@ -66,9 +72,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         phone: phone.value,
         level,
         role,
-        homeLat: city.lat,
-        homeLng: city.lng,
-        homePlace: city.place,
+        homeLat: city ? city.lat : existing.homeLat,
+        homeLng: city ? city.lng : existing.homeLng,
+        homePlace: city ? city.place : existing.homePlace,
         supervisorId,
       },
     });

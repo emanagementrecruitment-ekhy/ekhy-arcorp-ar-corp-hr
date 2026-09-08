@@ -7,26 +7,30 @@ import { useEffect, useState } from "react";
 import LogoutButton from "@/components/LogoutButton";
 
 const DESKS = [
-  { href: "/admin", label: "Ringkasan" },
-  { href: "/admin/lokasi", label: "Lokasi & Absensi" },
-  { href: "/admin/karyawan", label: "Karyawan" },
-  { href: "/admin/kasbon", label: "Kasbon" },
-  { href: "/admin/laporan", label: "Laporan" },
-  { href: "/admin/lapor-lapangan", label: "Laporan Lapangan" },
+  { href: "/admin", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/lokasi", label: "Lokasi & Absensi", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
+  { href: "/admin/karyawan", label: "Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/pendapatan", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/kasbon", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/laporan", label: "Laporan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/lapor-lapangan", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
+  { href: "/admin/jabatan", label: "Jabatan Kantor", roles: ["OWNER", "CONSULTANT"] },
 ] as const;
 
 export default function AdminSidebar({
   roleLabel,
   canApprove,
+  accessRole,
   supervisorOnly,
 }: {
   roleLabel: string;
   canApprove: boolean;
+  accessRole: string;
   supervisorOnly?: boolean;
 }) {
   const pathname = usePathname();
   const [pendingKasbon, setPendingKasbon] = useState<number | null>(null);
-  const desks = supervisorOnly ? DESKS.filter((d) => d.href === "/admin/lapor-lapangan") : DESKS;
+  const desks = DESKS.filter((d) => (d.roles as readonly string[]).includes(accessRole));
 
   useEffect(() => {
     if (supervisorOnly) return;
@@ -77,7 +81,7 @@ export default function AdminSidebar({
         <div className="text-[13px] mt-1.5">{roleLabel}</div>
         <div className="text-[10.5px] text-ar-gold mt-1">
           {supervisorOnly
-            ? "Akses lihat laporan lapangan saja"
+            ? "Akses absensi & laporan lapangan saja"
             : canApprove
               ? "Akses penuh · dapat approve"
               : "Akses lihat & unduh laporan"}

@@ -22,6 +22,7 @@ interface Presence extends MapPresence {
 }
 
 interface Locations {
+  restricted: boolean;
   hq: { lat: number; lng: number; label: string };
   radiusKm: number;
   presence: Presence[];
@@ -47,42 +48,54 @@ export default function LokasiPage() {
 
   useEffect(() => {
     load();
-    fetch("/api/admin/employees?pageSize=500")
-      .then((r) => r.json())
-      .then((d) => setSupervisors((d.employees ?? []).map((e: { id: string; name: string; code: string }) => ({ id: e.id, name: e.name, code: e.code }))));
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setCanEdit(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
+      .then((d) => {
+        const role = d.session?.accessRole;
+        setCanEdit(["OWNER", "CONSULTANT"].includes(role));
+        if (role !== "SUPERVISOR") {
+          fetch("/api/admin/employees?pageSize=500")
+            .then((r) => r.json())
+            .then((dd) => setSupervisors((dd.employees ?? []).map((e: { id: string; name: string; code: string }) => ({ id: e.id, name: e.name, code: e.code }))));
+        }
+      });
   }, []);
 
   const editing = data?.presence.find((p) => p.id === editingId) ?? null;
+  const restricted = data?.restricted ?? false;
 
   return (
     <div>
       <AdminPageHeader
         title="Lokasi & Absensi"
-        subtitle={`Posisi terakhir setiap karyawan terhadap radius ${ATTENDANCE_RADIUS_KM} km dari kantor pusat`}
+        subtitle={
+          restricted
+            ? "Absensi karyawan — peta lokasi & koordinat GPS tidak ditampilkan untuk peran ini"
+            : `Posisi terakhir setiap karyawan terhadap radius ${ATTENDANCE_RADIUS_KM} km dari kantor pusat`
+        }
       />
 
-      <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "minmax(0,1fr) 330px" }}>
-        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
-          <div className="flex justify-between gap-3 items-center mb-3.5">
-            <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
-              Sebaran lokasi absensi · radius {ATTENDANCE_RADIUS_KM} km
-            </span>
-            {canEdit && <span className="text-[10.5px] text-ar-faint">Klik pin karyawan untuk mengubah datanya</span>}
-          </div>
+      <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: restricted ? "1fr" : "minmax(0,1fr) 330px" }}>
+        {!restricted && (
+          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+            <div className="flex justify-between gap-3 items-center mb-3.5">
+              <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
+                Sebaran lokasi absensi · radius {ATTENDANCE_RADIUS_KM} km
+              </span>
+              {canEdit && <span className="text-[10.5px] text-ar-faint">Klik pin karyawan untuk mengubah datanya</span>}
+            </div>
 
-          {data && (
-            <LocationsMap
-              hq={data.hq}
-              radiusKm={data.radiusKm}
-              presence={data.presence}
-              canEdit={canEdit}
-              onSelect={(id) => setEditingId(id)}
-            />
-          )}
-        </div>
+            {data && (
+              <LocationsMap
+                hq={data.hq}
+                radiusKm={data.radiusKm}
+                presence={data.presence}
+                canEdit={canEdit}
+                onSelect={(id) => setEditingId(id)}
+              />
+            )}
+          </div>
+        )}
 
         <div className="flex flex-col gap-2.5">
           {data?.presence.map((p) => (
@@ -94,7 +107,8 @@ export default function LokasiPage() {
               <div className="text-[11px] text-ar-dim mt-1.5 leading-[1.6]">
                 {p.place} · {p.km}
                 <br />
-                Login {p.time} · {p.coord}
+                Login {p.time}
+                {!restricted && ` · ${p.coord}`}
               </div>
               {canEdit && (
                 <button onClick={() => setEditingId(p.id)} className="mt-2 text-[10.5px] text-ar-gold cursor-pointer">

@@ -35,6 +35,7 @@ function seeded(i: number) {
 }
 
 async function main() {
+  await prisma.notification.deleteMany();
   await prisma.chatMessage.deleteMany();
   await prisma.kasbon.deleteMany();
   await prisma.voucher.deleteMany();

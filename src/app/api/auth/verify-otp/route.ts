@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { findEmployeeForPortal, type Portal } from "@/lib/lookup";
 import { verifyOtp } from "@/lib/otp";
 import { createSession } from "@/lib/auth";
@@ -33,6 +34,12 @@ export async function POST(req: Request) {
     name: employee.name,
     code: employee.code,
   });
+
+  if (employee.accessRole !== "KARYAWAN") {
+    await prisma.notification.create({
+      data: { recipientRole: "OWNER", text: `${employee.name} (${employee.role}) login ke Office.` },
+    });
+  }
 
   return NextResponse.json({
     ok: true,

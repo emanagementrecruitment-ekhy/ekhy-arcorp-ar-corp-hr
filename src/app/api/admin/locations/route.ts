@@ -7,7 +7,10 @@ import { distanceKm } from "@/lib/geo";
 
 export async function GET() {
   try {
-    await requireSession(OFFICE_ROLES);
+    // Kepala Mess (SUPERVISOR) may see the attendance list but not the map/
+    // coordinates — see the `restricted` flag and the lat/lng/coord omission below.
+    const session = await requireSession([...OFFICE_ROLES, "SUPERVISOR"]);
+    const restricted = session.accessRole === "SUPERVISOR";
 
     const employees = await prisma.employee.findMany({
       where: { accessRole: "KARYAWAN" },
@@ -32,14 +35,15 @@ export async function GET() {
         place: last?.place ?? e.homePlace,
         km: `${km} km`,
         time: last ? timeLabel(last.createdAt) : "—",
-        coord: `${lat.toFixed(3)}, ${lng.toFixed(3)}`,
+        coord: restricted ? "" : `${lat.toFixed(3)}, ${lng.toFixed(3)}`,
         status: inRadius ? "Dalam radius" : "Luar radius",
-        lat,
-        lng,
+        lat: restricted ? 0 : lat,
+        lng: restricted ? 0 : lng,
       };
     });
 
     return NextResponse.json({
+      restricted,
       hq: { lat: HQ.lat, lng: HQ.lng, label: HQ_NAME },
       radiusKm: ATTENDANCE_RADIUS_KM,
       presence,

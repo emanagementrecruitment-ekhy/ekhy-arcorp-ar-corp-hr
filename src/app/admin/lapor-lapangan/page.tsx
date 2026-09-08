@@ -21,23 +21,60 @@ export default function LaporLapanganPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ThreadDetail | null>(null);
+  const [canReply, setCanReply] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
+  function loadThreads() {
     fetch("/api/admin/lapor")
       .then((r) => r.json())
       .then((d) => setThreads(d.threads ?? []));
+  }
+
+  function loadDetail(id: string) {
+    fetch(`/api/admin/lapor?employeeId=${id}`)
+      .then((r) => r.json())
+      .then(setDetail);
+  }
+
+  useEffect(() => {
+    loadThreads();
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((d) => setCanReply(["OWNER", "CONSULTANT", "SUPERVISOR"].includes(d.session?.accessRole)));
   }, []);
 
   useEffect(() => {
     if (!selectedId) return;
-    fetch(`/api/admin/lapor?employeeId=${selectedId}`)
-      .then((r) => r.json())
-      .then(setDetail);
+    loadDetail(selectedId);
   }, [selectedId]);
+
+  async function sendReply() {
+    const text = draft.trim();
+    if (!text || !selectedId || busy) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/lapor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: selectedId, text }),
+      });
+      if (res.ok) {
+        setDraft("");
+        loadDetail(selectedId);
+        loadThreads();
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div>
-      <AdminPageHeader title="Laporan Lapangan" subtitle="Riwayat lapor karyawan ke supervisor lapangan — akses lihat saja" />
+      <AdminPageHeader
+        title="Laporan Lapangan"
+        subtitle={canReply ? "Riwayat lapor karyawan — bisa dibalas dari sini" : "Riwayat lapor karyawan ke supervisor lapangan — akses lihat saja"}
+      />
 
       <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "320px minmax(0,1fr)" }}>
         <div className="flex flex-col gap-2">
@@ -90,6 +127,25 @@ export default function LaporLapanganPage() {
                   </div>
                 ))}
               </div>
+
+              {canReply && (
+                <div className="flex gap-2 mt-4">
+                  <input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendReply()}
+                    placeholder="Balas laporan…"
+                    className="flex-1 min-w-0 py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[13px]"
+                  />
+                  <button
+                    onClick={sendReply}
+                    disabled={busy || !draft.trim()}
+                    className="py-2.5 px-4 ar-grad rounded-[11px] text-ar-ongold text-[11px] font-bold tracking-[0.1em] uppercase cursor-pointer disabled:opacity-60"
+                  >
+                    Kirim
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

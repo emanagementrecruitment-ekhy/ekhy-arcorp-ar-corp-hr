@@ -34,6 +34,7 @@ export default function KaryawanPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [query, setQuery] = useState("");
+  const [canAdd, setCanAdd] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const [supervisors, setSupervisors] = useState<SupervisorOption[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -79,7 +80,10 @@ export default function KaryawanPage() {
     loadSupervisors();
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setCanEdit(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
+      .then((d) => {
+        setCanEdit(["OWNER", "CONSULTANT"].includes(d.session?.accessRole));
+        setCanAdd(["OWNER", "CONSULTANT", "ADMIN_PUSAT"].includes(d.session?.accessRole));
+      });
   }, []);
 
   // Debounce search: reset to page 1 whenever the query settles.
@@ -132,7 +136,7 @@ export default function KaryawanPage() {
             placeholder="Cari nama, kode, email, atau nomor HP…"
             className="flex-1 min-w-[220px] py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
           />
-          {canEdit && <AddEmployeeForm supervisors={supervisors} onCreated={onCreated} />}
+          {canAdd && <AddEmployeeForm supervisors={supervisors} onCreated={onCreated} />}
         </div>
 
         {notice && (
@@ -271,8 +275,9 @@ export default function KaryawanPage() {
         )}
 
         <div className="mt-3.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
-          Hak akses: hanya <span className="text-ar-gold">Owner</span> dan <span className="text-ar-gold">Consultant</span> yang
-          dapat mengubah data karyawan, nilai voucher, dan menyetujui kasbon. Admin pusat hanya melihat dan mengunduh laporan.
+          Hak akses: <span className="text-ar-gold">Owner</span>, <span className="text-ar-gold">Consultant</span>, dan{" "}
+          <span className="text-ar-gold">Admin</span> dapat menambahkan karyawan baru. Hanya Owner dan Consultant yang dapat
+          mengedit/menghapus data karyawan, mengubah nilai voucher, dan menyetujui kasbon.
         </div>
       </div>
     </div>

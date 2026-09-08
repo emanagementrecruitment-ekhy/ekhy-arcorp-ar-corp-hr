@@ -53,6 +53,12 @@ export default function EmployeeFields({
       <div>
         <label className={labelCls}>Peran</label>
         <select value={value.role} onChange={(e) => onChange({ role: e.target.value })} className={inputCls}>
+          {/* A legacy value from before the Peran list changed won't match any preset —
+              show it anyway so the dropdown never silently displays something other than
+              what's actually stored (and about to be resubmitted unless changed). */}
+          {value.role && !(FIELD_ROLES as readonly string[]).includes(value.role) && (
+            <option value={value.role}>{value.role} (lama)</option>
+          )}
           {FIELD_ROLES.map((r) => (
             <option key={r} value={r}>
               {r}
@@ -95,6 +101,9 @@ export default function EmployeeFields({
       <div>
         <label className={labelCls}>Lokasi Kerja</label>
         <select value={value.place} onChange={(e) => onChange({ place: e.target.value })} className={inputCls}>
+          {value.place && !FIELD_CITIES.some((c) => c.place === value.place) && (
+            <option value={value.place}>{value.place} (lama)</option>
+          )}
           {FIELD_CITIES.map((c) => (
             <option key={c.place} value={c.place}>
               {c.place}

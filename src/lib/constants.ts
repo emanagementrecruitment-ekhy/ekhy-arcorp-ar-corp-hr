@@ -71,4 +71,13 @@ export const FIELD_CITIES = [
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
-export const FIELD_ROLES = ["Admin", "Kepala Mess", "Owner"] as const;
+export const FIELD_ROLES = ["COO", "Admin", "Tera", "Kepala Mess", "Salon", "Recruitment"] as const;
+
+// Peran values that come with a real elevated login (see /admin/jabatan —
+// Owner/Consultant appoint one karyawan holding this Peran into the matching
+// AccessRole). Every other Peran (COO, Tera, Salon, Recruitment) is purely a
+// descriptive label with no access change.
+export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: string }[] = [
+  { peran: "Admin", accessRole: "ADMIN_PUSAT", label: "Admin" },
+  { peran: "Kepala Mess", accessRole: "SUPERVISOR", label: "Kepala Mess" },
+];

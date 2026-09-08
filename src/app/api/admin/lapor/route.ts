@@ -4,6 +4,10 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { timeLabel, dLabel } from "@/lib/format";
 
+// Admin Pusat can only view (per its scoped duties); replying is Kepala
+// Mess's job, and Owner/Consultant retain full control as usual.
+const REPLIERS = ["OWNER", "CONSULTANT", "SUPERVISOR"] as const;
+
 export async function GET(req: Request) {
   try {
     // Also open to SUPERVISOR (Kepala Mess) — the one admin view that role can see.
@@ -48,6 +52,33 @@ export async function GET(req: Request) {
       .map(({ lastAt, ...t }) => ({ ...t, lastTime: timeLabel(lastAt) }));
 
     return NextResponse.json({ threads });
+  } catch (e) {
+    return apiError(e);
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const session = await requireSession([...REPLIERS]);
+    const body = await req.json().catch(() => null);
+    const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
+    const text = typeof body?.text === "string" ? body.text.trim() : "";
+    if (!employeeId) return NextResponse.json({ error: "Karyawan tidak valid." }, { status: 400 });
+    if (!text) return NextResponse.json({ error: "Pesan tidak boleh kosong." }, { status: 400 });
+
+    const message = await prisma.chatMessage.create({
+      data: { employeeId, senderId: session.employeeId, fromSupervisor: true, text },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      message: {
+        id: message.id,
+        fromSupervisor: true,
+        text: message.text,
+        time: `${dLabel(message.createdAt)} ${timeLabel(message.createdAt)}`,
+      },
+    });
   } catch (e) {
     return apiError(e);
   }

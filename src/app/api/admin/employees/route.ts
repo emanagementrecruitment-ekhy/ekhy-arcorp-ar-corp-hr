@@ -93,7 +93,8 @@ async function nextEmployeeCode() {
 
 export async function POST(req: Request) {
   try {
-    await requireSession(["OWNER", "CONSULTANT"]);
+    // Admin can add new field employees; editing/deleting existing ones stays Owner/Consultant only (see [id]/route.ts).
+    await requireSession(["OWNER", "CONSULTANT", "ADMIN_PUSAT"]);
     const body = await req.json().catch(() => null);
 
     const name = typeof body?.name === "string" ? body.name.trim() : "";
