@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "start:railway": "prisma migrate deploy && node prisma/seed-if-empty.js && next start -p ${PORT:-3000}"
+    "start:railway": "prisma migrate deploy && node prisma/seed-if-empty.js && tsx prisma/ensure-office-accounts.ts && next start -p ${PORT:-3000}"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
