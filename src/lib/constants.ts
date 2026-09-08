@@ -67,3 +67,4 @@ export const FIELD_CITIES = [
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
+export const FIELD_ROLES = ["Admin", "Kepala Mess", "Owner"] as const;

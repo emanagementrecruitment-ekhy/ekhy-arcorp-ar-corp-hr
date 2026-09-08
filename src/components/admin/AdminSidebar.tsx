@@ -12,6 +12,7 @@ const DESKS = [
   { href: "/admin/karyawan", label: "Karyawan" },
   { href: "/admin/kasbon", label: "Kasbon" },
   { href: "/admin/laporan", label: "Laporan" },
+  { href: "/admin/lapor-lapangan", label: "Laporan Lapangan" },
 ] as const;
 
 export default function AdminSidebar({ roleLabel, canApprove }: { roleLabel: string; canApprove: boolean }) {

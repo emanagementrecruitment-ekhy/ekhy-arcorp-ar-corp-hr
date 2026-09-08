@@ -1,6 +1,6 @@
 "use client";
 
-import { FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { FIELD_CITIES, FIELD_ROLES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
 
 export interface SupervisorOption {
   id: string;
@@ -22,7 +22,7 @@ const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rou
 const labelCls = "text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block";
 
 export function emptyEmployeeFields(): EmployeeFieldsValue {
-  return { name: "", email: "", phone: "", level: "SILVER", role: "", place: FIELD_CITIES[0].place, supervisorId: "" };
+  return { name: "", email: "", phone: "", level: "SILVER", role: FIELD_ROLES[0], place: FIELD_CITIES[0].place, supervisorId: "" };
 }
 
 /** Shared field grid for both the add-employee and edit-employee forms. */
@@ -51,13 +51,14 @@ export default function EmployeeFields({
         />
       </div>
       <div>
-        <label className={labelCls}>Peran (Link)</label>
-        <input
-          value={value.role}
-          onChange={(e) => onChange({ role: e.target.value })}
-          placeholder="cth. https://wa.me/62812xxxxxxx"
-          className={inputCls}
-        />
+        <label className={labelCls}>Peran</label>
+        <select value={value.role} onChange={(e) => onChange({ role: e.target.value })} className={inputCls}>
+          {FIELD_ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label className={labelCls}>Email</label>
