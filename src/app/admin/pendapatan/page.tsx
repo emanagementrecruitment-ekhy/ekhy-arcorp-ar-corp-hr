@@ -131,7 +131,7 @@ export default function PendapatanPage() {
     <div>
       <AdminPageHeader title="Input Pendapatan" subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan" />
 
-      <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "1fr 1.2fr" }}>
+      <div className="grid grid-cols-1 lg:[grid-template-columns:1fr_1.2fr] gap-4 pt-5.5">
         <div className="flex flex-col gap-4">
           <div className="p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
             <div className="font-display text-[19px] text-ar-gold2 mb-1.5">Upload VCR Bulanan (Excel)</div>
@@ -239,7 +239,7 @@ export default function PendapatanPage() {
                 ))}
               </select>
             </div>
-            <div className="grid gap-3.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
+            <div className="grid grid-cols-2 gap-3.5">
               <div>
                 <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">
                   Rate /VCR (bisa diubah)

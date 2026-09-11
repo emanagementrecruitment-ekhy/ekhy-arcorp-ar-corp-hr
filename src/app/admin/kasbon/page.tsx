@@ -9,6 +9,7 @@ interface KasbonRow {
   name: string;
   code: string;
   reason: string;
+  amount: number;
   amountLabel: string;
   status: string;
   pending: boolean;
@@ -20,6 +21,7 @@ export default function AdminKasbonPage() {
   const [rows, setRows] = useState<KasbonRow[]>([]);
   const [isOwner, setIsOwner] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editAmounts, setEditAmounts] = useState<Record<string, string>>({});
 
   function load() {
     fetch("/api/admin/kasbon")
@@ -34,13 +36,17 @@ export default function AdminKasbonPage() {
       .then((d) => setIsOwner(d.session?.accessRole === "OWNER"));
   }, []);
 
-  async function decide(id: string, approve: boolean) {
-    setBusyId(id);
+  async function decide(k: KasbonRow, approve: boolean) {
+    setBusyId(k.id);
     try {
-      const res = await fetch(`/api/admin/kasbon/${id}/decide`, {
+      const editedAmount = Number(editAmounts[k.id]);
+      const res = await fetch(`/api/admin/kasbon/${k.id}/decide`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ approve }),
+        body: JSON.stringify({
+          approve,
+          ...(approve && Number.isFinite(editedAmount) && editedAmount > 0 ? { amount: editedAmount } : {}),
+        }),
       });
       if (res.ok) load();
     } finally {
@@ -66,21 +72,35 @@ export default function AdminKasbonPage() {
               </div>
             </div>
             <div className="flex-1 min-w-[220px] text-xs leading-[1.6] text-ar-dim">{k.reason}</div>
-            <div className="font-display text-2xl text-ar-gold2 min-w-[130px]">{k.amountLabel}</div>
+            {k.pending && isOwner ? (
+              <div className="min-w-[150px]">
+                <label className="text-[9.5px] tracking-[0.12em] uppercase text-ar-dim mb-1 block">
+                  Nominal (bisa diubah)
+                </label>
+                <input
+                  type="number"
+                  value={editAmounts[k.id] ?? String(k.amount)}
+                  onChange={(e) => setEditAmounts((m) => ({ ...m, [k.id]: e.target.value }))}
+                  className="w-full py-2 px-3 bg-ar-input border border-ar-goldline rounded-[9px] text-ar-gold2 font-display text-[17px]"
+                />
+              </div>
+            ) : (
+              <div className="font-display text-2xl text-ar-gold2 min-w-[130px]">{k.amountLabel}</div>
+            )}
             <div className="flex gap-2 items-center min-w-[230px] justify-end">
               {k.pending ? (
                 isOwner ? (
                   <span className="flex gap-2">
                     <button
                       disabled={busyId === k.id}
-                      onClick={() => decide(k.id, true)}
+                      onClick={() => decide(k, true)}
                       className="py-2.5 px-4 ar-grad rounded-[9px] text-ar-ongold text-[10.5px] font-bold tracking-[0.12em] uppercase cursor-pointer disabled:opacity-60"
                     >
                       Setujui
                     </button>
                     <button
                       disabled={busyId === k.id}
-                      onClick={() => decide(k.id, false)}
+                      onClick={() => decide(k, false)}
                       className="py-2.5 px-4 bg-transparent border border-[rgba(228,117,107,.4)] rounded-[9px] text-ar-red text-[10.5px] font-semibold tracking-[0.12em] uppercase cursor-pointer disabled:opacity-60"
                     >
                       Tolak
@@ -96,8 +116,8 @@ export default function AdminKasbonPage() {
           </div>
         ))}
         <div className="mt-1.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
-          Setiap keputusan tercatat dengan nama pemberi persetujuan dan waktunya. Nominal yang disetujui otomatis dipotong dari
-          pencairan voucher berikutnya.
+          Setiap keputusan tercatat dengan nama pemberi persetujuan dan waktunya. Owner bisa mengubah nominal sebelum
+          menyetujui. Nominal yang disetujui otomatis dipotong dari pencairan voucher berikutnya.
         </div>
       </div>
     </div>

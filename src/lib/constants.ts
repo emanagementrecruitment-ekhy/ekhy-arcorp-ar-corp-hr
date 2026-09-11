@@ -76,6 +76,7 @@ export const FIELD_CITIES = [
   { place: "LA", lat: HQ.lat, lng: HQ.lng },
   { place: "MEDIKA", lat: HQ.lat, lng: HQ.lng },
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
+  { place: "Office", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
 export const FIELD_ROLES = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff", "Tera"] as const;

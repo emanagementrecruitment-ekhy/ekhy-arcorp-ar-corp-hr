@@ -22,6 +22,10 @@ interface VoucherData {
   vouchers: VoucherRow[];
   periodTotal: string;
   periodCount: number;
+  myLevelLabel: string;
+  myRate: number;
+  myPlace: string;
+  places: string[];
 }
 
 const PERIODS: { key: Period; label: string }[] = [
@@ -30,19 +34,56 @@ const PERIODS: { key: Period; label: string }[] = [
   { key: "bulanan", label: "Bulanan" },
 ];
 
+function fmtRp(n: number) {
+  return "Rp " + Math.round(n).toLocaleString("id-ID");
+}
+
 export default function VoucherPage() {
   const [period, setPeriod] = useState<Period>("harian");
   const [data, setData] = useState<VoucherData | null>(null);
+  const [place, setPlace] = useState("");
+  const [qty, setQty] = useState("1");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
+  function load() {
     fetch(`/api/vouchers?period=${period}`)
       .then((r) => r.json())
-      .then((d) => !cancelled && setData(d));
-    return () => {
-      cancelled = true;
-    };
-  }, [period]);
+      .then((d) => {
+        setData(d);
+        setPlace((prev) => prev || d.myPlace || "");
+      });
+  }
+
+  useEffect(load, [period]);
+
+  const qtyNum = Number(qty) || 0;
+  const total = (data?.myRate ?? 0) * qtyNum;
+
+  async function submit() {
+    if (!place || qtyNum <= 0) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/vouchers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client: place, qty: qtyNum }),
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        setMsg(d.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setSuccess(`✓ ${d.count} voucher tersimpan · ${fmtRp(d.total)}`);
+      setQty("1");
+      load();
+      setTimeout(() => setSuccess(""), 2500);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div>
@@ -69,6 +110,52 @@ export default function VoucherPage() {
         <div className="text-[11.5px] text-ar-dim mt-1">
           {data?.periodCount ?? 0} voucher · {data?.periodRange ?? ""}
         </div>
+      </div>
+
+      <div className="bg-ar-surface border border-ar-line rounded-2xl p-4 mb-4">
+        <div className="text-[13px] font-display text-ar-gold2 mb-1">Input Pendapatan Hari Ini</div>
+        <div className="text-[10.5px] text-ar-dim mb-3">
+          Rate kamu: <span className="text-ar-gold">{data?.myLevelLabel ?? "…"}</span> · {fmtRp(data?.myRate ?? 0)}/VCR
+          (ditetapkan dari pusat)
+        </div>
+
+        <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Lokasi Kerja</label>
+        <select
+          value={place}
+          onChange={(e) => setPlace(e.target.value)}
+          className="w-full py-2.5 px-3.5 mb-3 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
+        >
+          <option value="">Pilih lokasi…</option>
+          {(data?.places ?? []).map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+
+        <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Jumlah VCR</label>
+        <input
+          type="number"
+          min={1}
+          value={qty}
+          onChange={(e) => setQty(e.target.value)}
+          className="w-full py-2.5 px-3.5 mb-3 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
+        />
+
+        <div className="py-2.5 px-3.5 mb-3 bg-ar-surface2 border border-ar-line rounded-[10px] text-[12px] text-ar-gold2">
+          {fmtRp(data?.myRate ?? 0)} × {qtyNum} = <strong>{fmtRp(total)}</strong>
+        </div>
+
+        {success && <div className="mb-2.5 text-[12px] text-ar-green">{success}</div>}
+        {msg && <div className="mb-2.5 text-[11.5px] text-ar-red">{msg}</div>}
+
+        <button
+          disabled={busy || !place || qtyNum <= 0}
+          onClick={submit}
+          className="w-full py-3 ar-grad rounded-[11px] text-ar-ongold text-[11px] font-bold tracking-[0.16em] uppercase cursor-pointer disabled:opacity-60"
+        >
+          {busy ? "Menyimpan…" : "Simpan Pendapatan"}
+        </button>
       </div>
 
       <div className="flex flex-col gap-2.5">

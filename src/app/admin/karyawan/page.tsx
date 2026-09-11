@@ -18,6 +18,7 @@ interface EmpRow {
   place: string;
   supervisorId: string;
   channelLink: string;
+  supervisorNote: string;
   count: string;
   kasbon: string;
   total: string;
@@ -60,7 +61,13 @@ export default function KaryawanPage() {
   function loadSupervisors() {
     fetch("/api/admin/employees?pageSize=500")
       .then((r) => r.json())
-      .then((d) => setSupervisors((d.employees ?? []).map((e: EmpRow) => ({ id: e.id, name: e.name, code: e.code }))));
+      .then((d) =>
+        setSupervisors(
+          (d.employees ?? [])
+            .filter((e: EmpRow) => e.role === "Kepala Mess")
+            .map((e: EmpRow) => ({ id: e.id, name: e.name, code: e.code }))
+        )
+      );
   }
 
   function loadPage(p: number, q: string) {
@@ -146,7 +153,8 @@ export default function KaryawanPage() {
           </div>
         )}
 
-        <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-hidden">
+        <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
+          <div className="min-w-[720px]">
           <div
             className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim"
             style={{ gridTemplateColumns: cols }}
@@ -179,6 +187,7 @@ export default function KaryawanPage() {
                     place: e.place,
                     supervisorId: e.supervisorId,
                     channelLink: e.channelLink,
+                    supervisorNote: e.supervisorNote,
                   }}
                   supervisors={supervisors}
                   onSaved={onSaved}
@@ -223,6 +232,12 @@ export default function KaryawanPage() {
                       )}
                     </>
                   )}
+                  {e.supervisorNote && (
+                    <>
+                      <br />
+                      Sup: {e.supervisorNote}
+                    </>
+                  )}
                 </span>
                 <span>{e.count}</span>
                 <span className={e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}>{e.kasbon}</span>
@@ -262,6 +277,7 @@ export default function KaryawanPage() {
               </div>
             )
           )}
+          </div>
         </div>
 
         {deleteMsg && <div className="mt-2.5 text-[11.5px] text-ar-red">{deleteMsg}</div>}

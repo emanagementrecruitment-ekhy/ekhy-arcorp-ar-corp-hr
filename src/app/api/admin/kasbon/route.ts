@@ -17,6 +17,7 @@ export async function GET() {
         name: k.employee.name,
         code: k.employee.code,
         reason: k.reason,
+        amount: k.amount,
         amountLabel: fmtRp(k.amount),
         status: KASBON_LABEL[k.status as KasbonStatus],
         pending: k.status === "MENUNGGU_OWNER",

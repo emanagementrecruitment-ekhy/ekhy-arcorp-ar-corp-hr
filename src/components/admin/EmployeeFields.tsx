@@ -17,6 +17,7 @@ export interface EmployeeFieldsValue {
   place: string;
   supervisorId: string;
   channelLink: string;
+  supervisorNote: string;
 }
 
 const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]";
@@ -32,6 +33,7 @@ export function emptyEmployeeFields(): EmployeeFieldsValue {
     place: FIELD_CITIES[0].place,
     supervisorId: "",
     channelLink: "",
+    supervisorNote: "",
   };
 }
 
@@ -50,7 +52,7 @@ export default function EmployeeFields({
   const supervisorOptions = supervisors.filter((s) => s.id !== excludeSupervisorId);
 
   return (
-    <div className="grid gap-3.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
       <div>
         <label className={labelCls}>Nama Lengkap</label>
         <input
@@ -130,8 +132,8 @@ export default function EmployeeFields({
           className={inputCls}
         />
       </div>
-      <div style={{ gridColumn: "1 / -1" }}>
-        <label className={labelCls}>Supervisor (opsional)</label>
+      <div>
+        <label className={labelCls}>Supervisor (Kepala Mess, opsional)</label>
         <select value={value.supervisorId} onChange={(e) => onChange({ supervisorId: e.target.value })} className={inputCls}>
           <option value="">Tidak ada</option>
           {supervisorOptions.map((s) => (
@@ -140,6 +142,15 @@ export default function EmployeeFields({
             </option>
           ))}
         </select>
+      </div>
+      <div>
+        <label className={labelCls}>Catatan Supervisor (manual)</label>
+        <input
+          value={value.supervisorNote}
+          onChange={(e) => onChange({ supervisorNote: e.target.value })}
+          placeholder="cth. nama supervisor lain yang belum terdaftar sebagai karyawan"
+          className={inputCls}
+        />
       </div>
     </div>
   );

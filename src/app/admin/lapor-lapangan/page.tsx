@@ -76,7 +76,7 @@ export default function LaporLapanganPage() {
         subtitle={canReply ? "Riwayat lapor karyawan — bisa dibalas dari sini" : "Riwayat lapor karyawan ke supervisor lapangan — akses lihat saja"}
       />
 
-      <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "320px minmax(0,1fr)" }}>
+      <div className="grid grid-cols-1 lg:[grid-template-columns:320px_minmax(0,1fr)] gap-4 pt-5.5">
         <div className="flex flex-col gap-2">
           {threads.length === 0 && (
             <div className="p-4 bg-ar-surface border border-ar-line rounded-2xl text-[12px] text-ar-faint">

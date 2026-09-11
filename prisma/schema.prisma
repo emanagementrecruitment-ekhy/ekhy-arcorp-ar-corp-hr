@@ -32,6 +32,7 @@ model Employee {
   channelLink String?      // manual free-text channel/link (e.g. WA/booking link), independent of Peran/supervisor
   supervisorId String?
   supervisor  Employee?    @relation("Supervision", fields: [supervisorId], references: [id])
+  supervisorNote String?   // manual free-text note when the actual supervisor isn't a registered Kepala Mess account
   reports     Employee[]   @relation("Supervision")
   createdAt   DateTime     @default(now())
 

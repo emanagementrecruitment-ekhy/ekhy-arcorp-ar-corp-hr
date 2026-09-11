@@ -66,7 +66,8 @@ export default function LaporanPage() {
           </a>
         </div>
 
-        <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-hidden">
+        <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
+          <div className="min-w-[640px]">
           <div className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim" style={{ gridTemplateColumns: cols }}>
             <span>Karyawan</span>
             <span>Pendapatan/VCR</span>
@@ -100,6 +101,7 @@ export default function LaporanPage() {
               <span className="font-display text-xl text-ar-gold2">{data.totals.net}</span>
             </div>
           )}
+          </div>
         </div>
         <div className="mt-3.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
           File CSV terbuka di Excel dan Google Sheets. Isi kolom: tanggal, kode karyawan, nama, level, kategori voucher, nilai,

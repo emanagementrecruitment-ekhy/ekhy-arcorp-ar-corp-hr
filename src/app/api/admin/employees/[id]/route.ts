@@ -23,6 +23,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const place = typeof body?.place === "string" ? body.place : "";
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
+    const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
@@ -53,8 +54,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     if (supervisorId) {
       const supervisor = await prisma.employee.findUnique({ where: { id: supervisorId } });
-      if (!supervisor || supervisor.accessRole !== "KARYAWAN") {
-        return NextResponse.json({ error: "Supervisor tidak valid." }, { status: 400 });
+      if (!supervisor || supervisor.accessRole !== "KARYAWAN" || supervisor.role !== "Kepala Mess") {
+        return NextResponse.json({ error: "Supervisor harus karyawan berperan Kepala Mess." }, { status: 400 });
       }
     }
 
@@ -78,6 +79,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         homePlace: city ? city.place : existing.homePlace,
         supervisorId,
         channelLink: channelLink || null,
+        supervisorNote: supervisorNote || null,
       },
     });
 

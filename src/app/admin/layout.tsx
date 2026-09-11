@@ -19,14 +19,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           : "Admin Pusat AR Corp";
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       <AdminSidebar
         roleLabel={roleLabel}
         canApprove={session.accessRole === "OWNER"}
         accessRole={session.accessRole}
         supervisorOnly={isSupervisor}
       />
-      <div className="arScroll flex-1 min-w-0 overflow-y-auto px-6 sm:px-8 py-6 pb-16">{children}</div>
+      <div className="arScroll flex-1 min-w-0 overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 pb-16">{children}</div>
     </div>
   );
 }

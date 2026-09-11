@@ -65,6 +65,7 @@ export async function GET(req: Request) {
           place: e.homePlace,
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
+          supervisorNote: e.supervisorNote ?? "",
           count: `${e.vouchers.length} vc`,
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
           total: shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)),
@@ -106,6 +107,7 @@ export async function POST(req: Request) {
     const place = typeof body?.place === "string" ? body.place : "";
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
+    const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
@@ -127,8 +129,8 @@ export async function POST(req: Request) {
 
     if (supervisorId) {
       const supervisor = await prisma.employee.findUnique({ where: { id: supervisorId } });
-      if (!supervisor || supervisor.accessRole !== "KARYAWAN") {
-        return NextResponse.json({ error: "Supervisor tidak valid." }, { status: 400 });
+      if (!supervisor || supervisor.accessRole !== "KARYAWAN" || supervisor.role !== "Kepala Mess") {
+        return NextResponse.json({ error: "Supervisor harus karyawan berperan Kepala Mess." }, { status: 400 });
       }
     }
 
@@ -154,6 +156,7 @@ export async function POST(req: Request) {
         homePlace: city.place,
         supervisorId,
         channelLink: channelLink || null,
+        supervisorNote: supervisorNote || null,
       },
     });
 

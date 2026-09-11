@@ -17,6 +17,7 @@ interface Presence extends MapPresence {
   role: string;
   supervisorId: string;
   channelLink: string;
+  supervisorNote: string;
   code: string;
   time: string;
   coord: string;
@@ -57,7 +58,13 @@ export default function LokasiPage() {
         if (role !== "SUPERVISOR") {
           fetch("/api/admin/employees?pageSize=500")
             .then((r) => r.json())
-            .then((dd) => setSupervisors((dd.employees ?? []).map((e: { id: string; name: string; code: string }) => ({ id: e.id, name: e.name, code: e.code }))));
+            .then((dd) =>
+              setSupervisors(
+                (dd.employees ?? [])
+                  .filter((e: { role: string }) => e.role === "Kepala Mess")
+                  .map((e: { id: string; name: string; code: string }) => ({ id: e.id, name: e.name, code: e.code }))
+              )
+            );
         }
       });
   }, []);
@@ -76,7 +83,9 @@ export default function LokasiPage() {
         }
       />
 
-      <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: restricted ? "1fr" : "minmax(0,1fr) 330px" }}>
+      <div
+        className={`grid grid-cols-1 gap-4 pt-5.5 ${restricted ? "" : "lg:[grid-template-columns:minmax(0,1fr)_330px]"}`}
+      >
         {!restricted && (
           <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
             <div className="flex justify-between gap-3 items-center mb-3.5">
@@ -139,6 +148,7 @@ export default function LokasiPage() {
                 place: editing.place,
                 supervisorId: editing.supervisorId,
                 channelLink: editing.channelLink,
+                supervisorNote: editing.supervisorNote,
               }}
               supervisors={supervisors}
               onSaved={() => {
