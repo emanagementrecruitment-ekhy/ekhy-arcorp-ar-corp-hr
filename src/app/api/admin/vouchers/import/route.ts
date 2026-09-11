@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         const outlet = typeof outletRaw === "string" ? outletRaw.trim() : "LAINNYA";
         const perVoucher = Math.round(total / vcr);
         const level: EmployeeLevel =
-          outlet === "HRV" ? "PLATINUM" : outlet === "Classic T2" ? "CLASSIC_D" : "SILVER";
+          outlet === "HRV" ? "PLATINUM" : outlet === "CLASSIC T2" ? "CLASSIC_D" : "SILVER";
 
         const key = `${name.toLowerCase()}|${outlet.toLowerCase()}`;
         let employeeId = byNameOutlet.get(key);

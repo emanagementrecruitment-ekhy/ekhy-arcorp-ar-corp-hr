@@ -28,11 +28,11 @@ export const VOUCHER_AMOUNT: Record<EmployeeLevel, number> = {
 };
 
 export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
-  CLASSIC_D: "Classic T2",
+  CLASSIC_D: "ST",
   FL: "FL",
-  SILVER: "Silver",
-  PLATINUM: "Platinum / Jasmine",
-  MODEL: "Model",
+  SILVER: "SILVER",
+  PLATINUM: "PLATINUM / JASMINE",
+  MODEL: "MODEL",
 };
 
 export const KASBON_LABEL: Record<KasbonStatus, string> = {
@@ -65,25 +65,29 @@ export const OTP_MAX_ATTEMPTS = 5;
 // so they default to HQ (0 km, dalam radius) until a real check-in happens —
 // update the lat/lng here once each venue's actual address is known.
 export const FIELD_CITIES = [
+  { place: "CLASSIC BUNGKER", lat: HQ.lat, lng: HQ.lng },
+  { place: "CLASSIC T2", lat: HQ.lat, lng: HQ.lng },
+  { place: "CLASSIC T5", lat: HQ.lat, lng: HQ.lng },
+  { place: "COLLO (1001)", lat: HQ.lat, lng: HQ.lng },
+  { place: "EMVO", lat: HQ.lat, lng: HQ.lng },
+  { place: "HRV", lat: HQ.lat, lng: HQ.lng },
+  { place: "LA", lat: HQ.lat, lng: HQ.lng },
+  { place: "MA", lat: HQ.lat, lng: HQ.lng },
+  { place: "MALIO", lat: HQ.lat, lng: HQ.lng },
+  { place: "MEDIKA", lat: HQ.lat, lng: HQ.lng },
   { place: "MTR", lat: HQ.lat, lng: HQ.lng },
   { place: "MTR2", lat: HQ.lat, lng: HQ.lng },
-  { place: "HRV", lat: HQ.lat, lng: HQ.lng },
-  { place: "SA", lat: HQ.lat, lng: HQ.lng },
-  { place: "MA", lat: HQ.lat, lng: HQ.lng },
-  { place: "Classic T5", lat: HQ.lat, lng: HQ.lng },
-  { place: "Classic T2", lat: HQ.lat, lng: HQ.lng },
-  { place: "Classic Bungker", lat: HQ.lat, lng: HQ.lng },
-  { place: "Malio", lat: HQ.lat, lng: HQ.lng },
-  { place: "Collo (1001)", lat: HQ.lat, lng: HQ.lng },
-  { place: "Emvo", lat: HQ.lat, lng: HQ.lng },
+  { place: "OFFICE", lat: HQ.lat, lng: HQ.lng },
   { place: "ROYAL", lat: HQ.lat, lng: HQ.lng },
-  { place: "LA", lat: HQ.lat, lng: HQ.lng },
-  { place: "MEDIKA", lat: HQ.lat, lng: HQ.lng },
+  { place: "SA", lat: HQ.lat, lng: HQ.lng },
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
-  { place: "Office", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
 export const FIELD_ROLES = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff", "Tera"] as const;
+
+// Peran paid a fixed Gaji, shown on Lokasi & Absensi — everyone except Tera,
+// who instead earn per-voucher and are tracked on the Pendapatan pages.
+export const SALARIED_ROLES: string[] = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff"];
 
 // Peran values that come with a real elevated login (see /admin/jabatan —
 // Owner/Consultant appoint one karyawan holding this Peran into the matching

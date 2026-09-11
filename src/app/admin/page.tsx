@@ -99,11 +99,11 @@ export default function RingkasanPage() {
             </div>
             <div className="mt-auto pt-3.5 grid gap-1.5 text-[11.5px] text-ar-dim">
               <div className="flex justify-between">
-                <span>Silver (150.000)</span>
+                <span>SILVER (150.000)</span>
                 <span className="text-ar-text">{data?.silverAll ?? 0} voucher</span>
               </div>
               <div className="flex justify-between">
-                <span>Platinum / Jasmine (400.000)</span>
+                <span>PLATINUM / JASMINE (400.000)</span>
                 <span className="text-ar-text">{data?.platAll ?? 0} voucher</span>
               </div>
             </div>
