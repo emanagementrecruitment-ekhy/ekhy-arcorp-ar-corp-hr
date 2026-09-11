@@ -28,7 +28,7 @@ export const VOUCHER_AMOUNT: Record<EmployeeLevel, number> = {
 };
 
 export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
-  CLASSIC_D: "Classic D",
+  CLASSIC_D: "Classic T2",
   FL: "FL",
   SILVER: "Silver",
   PLATINUM: "Platinum / Jasmine",
@@ -70,8 +70,12 @@ export const FIELD_CITIES = [
   { place: "HRV", lat: HQ.lat, lng: HQ.lng },
   { place: "SA", lat: HQ.lat, lng: HQ.lng },
   { place: "MA", lat: HQ.lat, lng: HQ.lng },
-  { place: "Classic S", lat: HQ.lat, lng: HQ.lng },
-  { place: "Classic D", lat: HQ.lat, lng: HQ.lng },
+  { place: "Classic T5", lat: HQ.lat, lng: HQ.lng },
+  { place: "Classic T2", lat: HQ.lat, lng: HQ.lng },
+  { place: "Classic Bungker", lat: HQ.lat, lng: HQ.lng },
+  { place: "Malio", lat: HQ.lat, lng: HQ.lng },
+  { place: "Collo (1001)", lat: HQ.lat, lng: HQ.lng },
+  { place: "Emvo", lat: HQ.lat, lng: HQ.lng },
   { place: "ROYAL", lat: HQ.lat, lng: HQ.lng },
   { place: "LA", lat: HQ.lat, lng: HQ.lng },
   { place: "MEDIKA", lat: HQ.lat, lng: HQ.lng },

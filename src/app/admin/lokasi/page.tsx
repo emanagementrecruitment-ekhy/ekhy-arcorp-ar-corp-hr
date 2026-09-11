@@ -132,10 +132,10 @@ export default function LokasiPage() {
 
       {editing && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+          className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/60"
           onClick={(e) => e.target === e.currentTarget && setEditingId(null)}
         >
-          <div className="w-full max-w-[520px]">
+          <div className="w-full max-w-[520px] max-h-[90vh] overflow-y-auto bg-ar-bg rounded-2xl">
             <EditEmployeeForm
               employee={{
                 id: editing.id,
