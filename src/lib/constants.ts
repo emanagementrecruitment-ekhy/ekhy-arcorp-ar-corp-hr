@@ -63,9 +63,12 @@ export const OTP_MAX_ATTEMPTS = 5;
 // update the lat/lng here once each venue's actual address is known.
 export const FIELD_CITIES = [
   { place: "MTR", lat: HQ.lat, lng: HQ.lng },
+  { place: "MTR2", lat: HQ.lat, lng: HQ.lng },
   { place: "HRV", lat: HQ.lat, lng: HQ.lng },
   { place: "SA", lat: HQ.lat, lng: HQ.lng },
   { place: "MA", lat: HQ.lat, lng: HQ.lng },
+  { place: "MDK", lat: HQ.lat, lng: HQ.lng },
+  { place: "ROYAL", lat: HQ.lat, lng: HQ.lng },
   { place: "LA", lat: HQ.lat, lng: HQ.lng },
   { place: "MEDIKA", lat: HQ.lat, lng: HQ.lng },
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },

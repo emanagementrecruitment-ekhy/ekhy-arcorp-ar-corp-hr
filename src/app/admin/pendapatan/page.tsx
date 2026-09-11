@@ -24,6 +24,14 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+interface ImportSummary {
+  sheetsProcessed: number;
+  employeesCreated: number;
+  vouchersInserted: number;
+  totalAmount: number;
+  skippedSheets: string[];
+}
+
 export default function PendapatanPage() {
   const [employees, setEmployees] = useState<EmployeeOption[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -36,6 +44,10 @@ export default function PendapatanPage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [success, setSuccess] = useState("");
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importBusy, setImportBusy] = useState(false);
+  const [importMsg, setImportMsg] = useState("");
+  const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
 
   function load() {
     fetch("/api/admin/employees?pageSize=500")
@@ -78,13 +90,69 @@ export default function PendapatanPage() {
     }
   }
 
+  async function uploadImport() {
+    if (!importFile) return;
+    setImportBusy(true);
+    setImportMsg("");
+    setImportSummary(null);
+    try {
+      const body = new FormData();
+      body.append("file", importFile);
+      const res = await fetch("/api/admin/vouchers/import", { method: "POST", body });
+      const data = await res.json();
+      if (!res.ok) {
+        setImportMsg(data.error ?? "Gagal mengimpor file.");
+        return;
+      }
+      setImportSummary(data);
+      setImportFile(null);
+      load();
+    } finally {
+      setImportBusy(false);
+    }
+  }
+
   return (
     <div>
       <AdminPageHeader title="Input Pendapatan" subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan" />
 
       <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "1fr 1.2fr" }}>
-        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
-          <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Tambah Entri</div>
+        <div className="flex flex-col gap-4">
+          <div className="p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
+            <div className="font-display text-[19px] text-ar-gold2 mb-1.5">Upload VCR Bulanan (Excel)</div>
+            <div className="text-[11px] text-ar-dim mb-3.5 leading-[1.6]">
+              Format sama seperti rekap outlet bulanan (kolom NAMA, OUTLET, JUMLAH VCR, TOTAL PENDAPATAN — satu
+              sheet per bulan, misal &quot;Juni 2026&quot;). Karyawan baru otomatis dibuat dengan email/HP
+              placeholder — update lewat Data Karyawan setelah upload.
+            </div>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+              className="w-full text-[11.5px] text-ar-dim mb-3"
+            />
+            <button
+              disabled={importBusy || !importFile}
+              onClick={uploadImport}
+              className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+            >
+              {importBusy ? "Memproses…" : "Upload & Impor"}
+            </button>
+            {importMsg && <div className="mt-3 text-[11.5px] text-ar-red">{importMsg}</div>}
+            {importSummary && (
+              <div className="mt-3.5 p-3.5 bg-[rgba(127,209,168,.1)] border border-[rgba(127,209,168,.3)] rounded-xl text-[11.5px] text-ar-green leading-[1.7]">
+                ✓ {importSummary.sheetsProcessed} sheet diproses · {importSummary.employeesCreated} karyawan baru
+                dibuat · {importSummary.vouchersInserted} voucher dicatat · total Rp{" "}
+                {importSummary.totalAmount.toLocaleString("id-ID")}
+                {importSummary.skippedSheets.length > 0 && (
+                  <div className="text-ar-faint mt-1">Sheet dilewati (bukan format bulan): {importSummary.skippedSheets.join(", ")}</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
+            <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Tambah Entri</div>
 
           <div className="grid gap-3.5">
             <div>
@@ -160,6 +228,7 @@ export default function PendapatanPage() {
           >
             Simpan Pendapatan
           </button>
+          </div>
         </div>
 
         <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
