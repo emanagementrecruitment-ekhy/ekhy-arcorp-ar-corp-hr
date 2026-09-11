@@ -16,8 +16,7 @@ interface Entry {
   id: string;
   employeeName: string;
   employeeCode: string;
-  category: string;
-  client: string;
+  count: number;
   amount: string;
   occurredAt: string;
 }
@@ -284,7 +283,7 @@ export default function PendapatanPage() {
         </div>
 
         <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
-          <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Entri Terbaru</div>
+          <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Entri Terbaru (per tanggal)</div>
           <div className="flex flex-col gap-2">
             {entries.length === 0 && <div className="text-[12.5px] text-ar-faint">Belum ada entri.</div>}
             {entries.map((e) => (
@@ -296,7 +295,7 @@ export default function PendapatanPage() {
                   <span className="text-ar-gold2 font-display text-[15px]">{e.amount}</span>
                 </div>
                 <div className="text-[10.5px] text-ar-dim mt-1">
-                  {e.category} · {e.client} · {e.occurredAt}
+                  {e.count} voucher · {e.occurredAt}
                 </div>
               </div>
             ))}
