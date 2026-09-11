@@ -10,7 +10,9 @@ export type AccessRole = (typeof ACCESS_ROLES)[number];
 export const OFFICE_ROLES: AccessRole[] = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"];
 
 // Ordered lowest to highest pendapatan/VCR — drives dropdown display order.
-export const EMPLOYEE_LEVELS = ["CLASSIC_D", "FL", "SILVER", "PLATINUM", "MODEL"] as const;
+// MANUAL sits last: it has no fixed rate (see VOUCHER_AMOUNT and
+// employeeRate() below — its real rate lives on Employee.customRate).
+export const EMPLOYEE_LEVELS = ["CLASSIC_D", "FL", "SILVER", "GOLD", "LB", "PLATINUM", "LV", "MODEL", "MANUAL"] as const;
 export type EmployeeLevel = (typeof EMPLOYEE_LEVELS)[number];
 
 export const VOUCHER_STATUSES = ["MENUNGGU_VALIDASI", "TERVALIDASI", "DICAIRKAN"] as const;
@@ -19,21 +21,36 @@ export type VoucherStatus = (typeof VOUCHER_STATUSES)[number];
 export const KASBON_STATUSES = ["MENUNGGU_OWNER", "DISETUJUI", "DITOLAK"] as const;
 export type KasbonStatus = (typeof KASBON_STATUSES)[number];
 
+// MANUAL's 0 here is a placeholder — always resolve an employee's actual
+// rate through employeeRate() below, which substitutes their customRate.
 export const VOUCHER_AMOUNT: Record<EmployeeLevel, number> = {
   CLASSIC_D: 95_000,
   FL: 105_000,
   SILVER: 150_000,
+  GOLD: 250_000,
+  LB: 300_000,
   PLATINUM: 400_000,
+  LV: 500_000,
   MODEL: 700_000,
+  MANUAL: 0,
 };
 
 export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
   CLASSIC_D: "ST",
   FL: "FL",
   SILVER: "SILVER",
+  GOLD: "GOLD",
+  LB: "LB",
   PLATINUM: "PLATINUM / JASMINE",
+  LV: "LV",
   MODEL: "MODEL",
+  MANUAL: "MANUAL INPUT",
 };
+
+/** An employee's real per-voucher rate — MANUAL substitutes their own stored customRate. */
+export function employeeRate(level: EmployeeLevel, customRate?: number | null): number {
+  return level === "MANUAL" ? customRate ?? 0 : VOUCHER_AMOUNT[level];
+}
 
 export const KASBON_LABEL: Record<KasbonStatus, string> = {
   MENUNGGU_OWNER: "Menunggu Owner",

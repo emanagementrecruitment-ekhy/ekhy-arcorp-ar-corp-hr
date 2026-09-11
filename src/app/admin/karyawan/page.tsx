@@ -13,6 +13,7 @@ interface EmpRow {
   code: string;
   role: string;
   level: EmployeeLevel;
+  customRate: number | null;
   email: string;
   phone: string;
   place: string;
@@ -183,6 +184,7 @@ export default function KaryawanPage() {
                     email: e.email,
                     phone: e.phone,
                     level: e.level,
+                    customRate: e.customRate,
                     role: e.role,
                     place: e.place,
                     supervisorId: e.supervisorId,

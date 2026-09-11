@@ -18,6 +18,7 @@ export interface EmployeeFieldsValue {
   supervisorId: string;
   channelLink: string;
   supervisorNote: string;
+  customRate: string;
 }
 
 const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]";
@@ -34,6 +35,7 @@ export function emptyEmployeeFields(): EmployeeFieldsValue {
     supervisorId: "",
     channelLink: "",
     supervisorNote: "",
+    customRate: "",
   };
 }
 
@@ -105,11 +107,23 @@ export default function EmployeeFields({
         >
           {(Object.keys(VOUCHER_AMOUNT) as EmployeeLevel[]).map((lvl) => (
             <option key={lvl} value={lvl}>
-              {VOUCHER_LABEL[lvl]} (Rp {VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")}/voucher)
+              {lvl === "MANUAL" ? VOUCHER_LABEL[lvl] : `${VOUCHER_LABEL[lvl]} (Rp ${VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")}/voucher)`}
             </option>
           ))}
         </select>
       </div>
+      {value.level === "MANUAL" && (
+        <div>
+          <label className={labelCls}>Nominal Manual (Rp/voucher)</label>
+          <input
+            type="number"
+            value={value.customRate}
+            onChange={(e) => onChange({ customRate: e.target.value })}
+            placeholder="cth. 200000"
+            className={inputCls}
+          />
+        </div>
+      )}
       <div>
         <label className={labelCls}>Lokasi Kerja</label>
         <select value={value.place} onChange={(e) => onChange({ place: e.target.value })} className={inputCls}>

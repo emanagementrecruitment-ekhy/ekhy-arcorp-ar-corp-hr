@@ -60,6 +60,7 @@ export async function GET(req: Request) {
           code: e.code,
           role: e.role,
           level: e.level,
+          customRate: e.customRate,
           email: e.email,
           phone: e.phone,
           place: e.homePlace,
@@ -108,11 +109,15 @@ export async function POST(req: Request) {
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
+    const customRateRaw = Number(body?.customRate);
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
     if (!EMPLOYEE_LEVELS.includes(level)) {
       return NextResponse.json({ error: "Level tidak valid." }, { status: 400 });
+    }
+    if (level === "MANUAL" && (!Number.isFinite(customRateRaw) || customRateRaw <= 0)) {
+      return NextResponse.json({ error: "Nominal manual wajib diisi untuk Pendapatan/VCR Manual Input." }, { status: 400 });
     }
 
     const email = normalizeIdentifier(emailRaw);
@@ -149,6 +154,7 @@ export async function POST(req: Request) {
         email: email.value,
         phone: phone.value,
         level,
+        customRate: level === "MANUAL" ? Math.round(customRateRaw) : null,
         role,
         accessRole: "KARYAWAN",
         homeLat: city.lat,

@@ -5,9 +5,9 @@ import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
 import { fmtRp, dayLabel, timeLabel, dLabel } from "@/lib/format";
 import {
   FIELD_CITIES,
-  VOUCHER_AMOUNT,
   VOUCHER_LABEL,
   VOUCHER_STATUS_LABEL,
+  employeeRate,
   type EmployeeLevel,
   type VoucherStatus,
 } from "@/lib/constants";
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
       periodRange: `${dLabel(start)} – ${dLabel(now)}`,
       myLevel,
       myLevelLabel: VOUCHER_LABEL[myLevel],
-      myRate: VOUCHER_AMOUNT[myLevel],
+      myRate: employeeRate(myLevel, employee.customRate),
       myPlace: employee.homePlace,
       places: FIELD_CITIES.map((c) => c.place),
       saldo: {
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     const employee = await prisma.employee.findUnique({ where: { id: session.employeeId } });
     if (!employee) return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     const level = employee.level as EmployeeLevel;
-    const amount = VOUCHER_AMOUNT[level];
+    const amount = employeeRate(level, employee.customRate);
 
     await prisma.voucher.createMany({
       data: Array.from({ length: qty }, () => ({

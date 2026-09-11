@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, VOUCHER_AMOUNT, type EmployeeLevel } from "@/lib/constants";
+import { OFFICE_ROLES, employeeRate, type EmployeeLevel } from "@/lib/constants";
 import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
 import { fmtRp, shortRp } from "@/lib/format";
 
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
         name: e.name,
         level,
         voucherCount: e.vouchers.length,
-        rateLabel: fmtRp(VOUCHER_AMOUNT[level]),
+        rateLabel: fmtRp(employeeRate(level, e.customRate)),
         kasbon: ks ? "-" + shortRp(ks) : "—",
         net: shortRp(gross - ks),
         gross, ks,

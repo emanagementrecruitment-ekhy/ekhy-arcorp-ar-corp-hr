@@ -43,6 +43,7 @@ export async function GET() {
         email: e.email,
         phone: e.phone,
         level: e.level,
+        customRate: e.customRate,
         role: e.role,
         supervisorId: e.supervisorId ?? "",
         channelLink: e.channelLink ?? "",

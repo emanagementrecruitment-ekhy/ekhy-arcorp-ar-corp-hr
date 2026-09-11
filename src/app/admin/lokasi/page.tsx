@@ -14,6 +14,7 @@ interface Presence extends MapPresence {
   email: string;
   phone: string;
   level: EmployeeLevel;
+  customRate: number | null;
   role: string;
   supervisorId: string;
   channelLink: string;
@@ -151,6 +152,7 @@ export default function LokasiPage() {
                 email: editing.email,
                 phone: editing.phone,
                 level: editing.level,
+                customRate: editing.customRate,
                 role: editing.role,
                 place: editing.place,
                 supervisorId: editing.supervisorId,

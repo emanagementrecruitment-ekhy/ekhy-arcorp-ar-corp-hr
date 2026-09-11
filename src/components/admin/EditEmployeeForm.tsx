@@ -16,6 +16,7 @@ export interface EditableEmployee {
   supervisorId: string;
   channelLink: string;
   supervisorNote: string;
+  customRate: number | null;
 }
 
 export default function EditEmployeeForm({
@@ -39,6 +40,7 @@ export default function EditEmployeeForm({
     supervisorId: employee.supervisorId,
     channelLink: employee.channelLink,
     supervisorNote: employee.supervisorNote,
+    customRate: employee.customRate != null ? String(employee.customRate) : "",
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");

@@ -24,6 +24,7 @@ model Employee {
   email       String       @unique
   phone       String       @unique
   level       String
+  customRate  Int?         // per-voucher rate when level == "MANUAL" (a preset doesn't fit); ignored otherwise
   role        String       // display role, e.g. "Konsultan Lapangan", "Supervisor Lapangan", "Owner AR Corp"
   accessRole  String       @default("KARYAWAN")
   homeLat     Float
