@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { fmtRp, dLabel, timeLabel } from "@/lib/format";
-import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 
 function greetingFor(now: Date) {
   const hour = now.getHours();
@@ -26,6 +26,7 @@ export async function getBerandaData(employeeId: string) {
     prisma.loginEvent.findFirst({ where: { employeeId }, orderBy: { createdAt: "desc" } }),
   ]);
 
+  const vcr = usesVcr(employee.role);
   const unpaid = vouchers.filter((v) => v.status !== "DICAIRKAN");
   const feed = vouchers
     .slice()
@@ -33,15 +34,17 @@ export async function getBerandaData(employeeId: string) {
     .slice(0, 5);
 
   return {
+    usesVcr: vcr,
     greeting: greetingFor(now),
     meName: employee.name,
-    meLevel: VOUCHER_LABEL[employee.level as EmployeeLevel],
+    meLevel: vcr ? VOUCHER_LABEL[employee.level as EmployeeLevel] : "GAJI",
     meCode: employee.code,
     checkInTime: lastLogin ? timeLabel(lastLogin.createdAt) : "—",
     myPlace: lastLogin?.place ?? employee.homePlace,
     myDistanceKm: lastLogin?.distanceKm ?? null,
     inRadius: lastLogin?.inRadius ?? false,
     myCoord: lastLogin ? `${lastLogin.lat.toFixed(4)}, ${lastLogin.lng.toFixed(4)}` : "—",
+    salary: fmtRp(employee.salary ?? 0),
     saldoTotal: fmtRp(unpaid.reduce((s, v) => s + v.amount, 0)),
     saldoCount: unpaid.length,
     silverCount: unpaid.filter((v) => v.category === "SILVER").length,

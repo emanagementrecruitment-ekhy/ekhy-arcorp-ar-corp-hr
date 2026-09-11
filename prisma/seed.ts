@@ -5,13 +5,20 @@ import { distanceKm } from "../src/lib/geo";
 
 const prisma = new PrismaClient();
 
-const EMPLOYEES = [
-  { code: "AR-01", name: "Ekhy Ramadhan", level: "PLATINUM", role: "Konsultan Lapangan", email: "ekhy@arcorp.id", phone: "081233458890", place: "Jakarta Selatan", lat: -6.2615, lng: 106.8106, t: "08:12", supervisor: false },
-  { code: "AR-02", name: "Dewi Anggraeni", level: "SILVER", role: "Konsultan Lapangan", email: "dewi@arcorp.id", phone: "081388902211", place: "Bandung", lat: -6.9175, lng: 107.6191, t: "08:47", supervisor: false },
-  { code: "AR-03", name: "Bayu Pratama", level: "PLATINUM", role: "Supervisor Lapangan", email: "bayu@arcorp.id", phone: "081122447788", place: "Bekasi", lat: -6.2383, lng: 106.9756, t: "07:55", supervisor: true },
-  { code: "AR-04", name: "Sinta Maharani", level: "SILVER", role: "Konsultan Lapangan", email: "sinta@arcorp.id", phone: "085744129003", place: "Semarang", lat: -6.9667, lng: 110.4167, t: "09:20", supervisor: false },
-  { code: "AR-05", name: "Fajar Nugroho", level: "PLATINUM", role: "Konsultan Lapangan", email: "fajar@arcorp.id", phone: "081277814455", place: "Surabaya", lat: -7.2575, lng: 112.7521, t: "09:38", supervisor: false },
-  { code: "AR-06", name: "Lia Kusuma", level: "SILVER", role: "Konsultan Lapangan", email: "lia@arcorp.id", phone: "089566201177", place: "Yogyakarta", lat: -7.7956, lng: 110.3695, t: "10:05", supervisor: false },
+// Only "Tera" earns via Pendapatan/VCR (level + voucher activity below);
+// every other Peran is salaried (Gaji, a flat monthly `salary`) — see
+// VCR_ROLE/usesVcr() in src/lib/constants.ts.
+const EMPLOYEES: {
+  code: string; name: string; role: string; email: string; phone: string;
+  place: string; lat: number; lng: number; t: string; supervisor: boolean;
+  level?: string; salary?: number;
+}[] = [
+  { code: "AR-01", name: "Ekhy Ramadhan", level: "PLATINUM", role: "Tera", email: "ekhy@arcorp.id", phone: "081233458890", place: "Jakarta Selatan", lat: -6.2615, lng: 106.8106, t: "08:12", supervisor: false },
+  { code: "AR-02", name: "Dewi Anggraeni", level: "SILVER", role: "Tera", email: "dewi@arcorp.id", phone: "081388902211", place: "Bandung", lat: -6.9175, lng: 107.6191, t: "08:47", supervisor: false },
+  { code: "AR-03", name: "Bayu Pratama", role: "Kepala Mess", salary: 4_500_000, email: "bayu@arcorp.id", phone: "081122447788", place: "Bekasi", lat: -6.2383, lng: 106.9756, t: "07:55", supervisor: true },
+  { code: "AR-04", name: "Sinta Maharani", level: "SILVER", role: "Tera", email: "sinta@arcorp.id", phone: "085744129003", place: "Semarang", lat: -6.9667, lng: 110.4167, t: "09:20", supervisor: false },
+  { code: "AR-05", name: "Fajar Nugroho", level: "PLATINUM", role: "Tera", email: "fajar@arcorp.id", phone: "081277814455", place: "Surabaya", lat: -7.2575, lng: 112.7521, t: "09:38", supervisor: false },
+  { code: "AR-06", name: "Lia Kusuma", level: "SILVER", role: "Tera", email: "lia@arcorp.id", phone: "089566201177", place: "Yogyakarta", lat: -7.7956, lng: 110.3695, t: "10:05", supervisor: false },
 ];
 
 const OFFICE_ACCOUNTS = [
@@ -50,7 +57,8 @@ async function main() {
       name: supervisorSeed.name,
       email: supervisorSeed.email,
       phone: supervisorSeed.phone,
-      level: supervisorSeed.level,
+      level: supervisorSeed.level ?? null,
+      salary: supervisorSeed.salary ?? null,
       role: supervisorSeed.role,
       accessRole: "KARYAWAN",
       homeLat: supervisorSeed.lat,
@@ -68,7 +76,8 @@ async function main() {
         name: e.name,
         email: e.email,
         phone: e.phone,
-        level: e.level,
+        level: e.level ?? null,
+        salary: e.salary ?? null,
         role: e.role,
         accessRole: "KARYAWAN",
         homeLat: e.lat,
@@ -87,7 +96,7 @@ async function main() {
         name: acc.name,
         email: acc.email,
         phone: acc.phone,
-        level: "PLATINUM",
+        level: null,
         role: acc.role,
         accessRole: acc.accessRole,
         homeLat: HQ.lat,
@@ -134,6 +143,7 @@ async function main() {
     for (let ei = 0; ei < fieldEmployees.length; ei++) {
       const emp = fieldEmployees[ei];
       const m = meta.get(emp.code)!;
+      if (m.role !== "Tera") continue; // only Tera earns via VCR — see EMPLOYEES comment above
       const r = seeded(back * 17 + ei * 7 + 1);
       const count = r > 0.72 ? 3 : r > 0.42 ? 2 : r > 0.16 ? 1 : 0;
       for (let c = 0; c < count; c++) {

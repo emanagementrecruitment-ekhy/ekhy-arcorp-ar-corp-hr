@@ -10,13 +10,14 @@ export interface EditableEmployee {
   name: string;
   email: string;
   phone: string;
-  level: EmployeeLevel;
+  level: EmployeeLevel | null;
   role: string;
   place: string;
   supervisorId: string;
   channelLink: string;
   supervisorNote: string;
   customRate: number | null;
+  salary: number | null;
 }
 
 export default function EditEmployeeForm({
@@ -34,13 +35,14 @@ export default function EditEmployeeForm({
     name: employee.name,
     email: employee.email,
     phone: employee.phone,
-    level: employee.level,
+    level: employee.level ?? "SILVER",
     role: employee.role,
     place: employee.place,
     supervisorId: employee.supervisorId,
     channelLink: employee.channelLink,
     supervisorNote: employee.supervisorNote,
     customRate: employee.customRate != null ? String(employee.customRate) : "",
+    salary: employee.salary != null ? String(employee.salary) : "",
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");

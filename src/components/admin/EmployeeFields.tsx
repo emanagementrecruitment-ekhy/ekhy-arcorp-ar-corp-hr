@@ -1,6 +1,6 @@
 "use client";
 
-import { FIELD_CITIES, FIELD_ROLES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { FIELD_CITIES, FIELD_ROLES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 
 export interface SupervisorOption {
   id: string;
@@ -19,6 +19,7 @@ export interface EmployeeFieldsValue {
   channelLink: string;
   supervisorNote: string;
   customRate: string;
+  salary: string;
 }
 
 const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]";
@@ -36,6 +37,7 @@ export function emptyEmployeeFields(): EmployeeFieldsValue {
     channelLink: "",
     supervisorNote: "",
     customRate: "",
+    salary: "",
   };
 }
 
@@ -98,28 +100,43 @@ export default function EmployeeFields({
           className={inputCls}
         />
       </div>
-      <div>
-        <label className={labelCls}>Pendapatan / VCR</label>
-        <select
-          value={value.level}
-          onChange={(e) => onChange({ level: e.target.value as EmployeeLevel })}
-          className={inputCls}
-        >
-          {(Object.keys(VOUCHER_AMOUNT) as EmployeeLevel[]).map((lvl) => (
-            <option key={lvl} value={lvl}>
-              {lvl === "MANUAL" ? VOUCHER_LABEL[lvl] : `${VOUCHER_LABEL[lvl]} (Rp ${VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")}/voucher)`}
-            </option>
-          ))}
-        </select>
-      </div>
-      {value.level === "MANUAL" && (
+      {usesVcr(value.role) ? (
+        <>
+          <div>
+            <label className={labelCls}>Pendapatan / VCR</label>
+            <select
+              value={value.level}
+              onChange={(e) => onChange({ level: e.target.value as EmployeeLevel })}
+              className={inputCls}
+            >
+              {(Object.keys(VOUCHER_AMOUNT) as EmployeeLevel[]).map((lvl) => (
+                <option key={lvl} value={lvl}>
+                  {lvl === "MANUAL" ? VOUCHER_LABEL[lvl] : `${VOUCHER_LABEL[lvl]} (Rp ${VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")}/voucher)`}
+                </option>
+              ))}
+            </select>
+          </div>
+          {value.level === "MANUAL" && (
+            <div>
+              <label className={labelCls}>Nominal Manual (Rp/voucher)</label>
+              <input
+                type="number"
+                value={value.customRate}
+                onChange={(e) => onChange({ customRate: e.target.value })}
+                placeholder="cth. 200000"
+                className={inputCls}
+              />
+            </div>
+          )}
+        </>
+      ) : (
         <div>
-          <label className={labelCls}>Nominal Manual (Rp/voucher)</label>
+          <label className={labelCls}>Nominal Gaji (Rp/bulan)</label>
           <input
             type="number"
-            value={value.customRate}
-            onChange={(e) => onChange({ customRate: e.target.value })}
-            placeholder="cth. 200000"
+            value={value.salary}
+            onChange={(e) => onChange({ salary: e.target.value })}
+            placeholder="cth. 4500000"
             className={inputCls}
           />
         </div>

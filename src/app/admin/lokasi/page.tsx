@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
-import { ATTENDANCE_RADIUS_KM, SALARIED_ROLES, type EmployeeLevel } from "@/lib/constants";
+import { ATTENDANCE_RADIUS_KM, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { fmtRp } from "@/lib/format";
 import type { MapPresence } from "@/components/admin/LocationsMap";
 
 const LocationsMap = dynamic(() => import("@/components/admin/LocationsMap"), { ssr: false });
@@ -13,8 +14,9 @@ const LocationsMap = dynamic(() => import("@/components/admin/LocationsMap"), { 
 interface Presence extends MapPresence {
   email: string;
   phone: string;
-  level: EmployeeLevel;
+  level: EmployeeLevel | null;
   customRate: number | null;
+  salary: number | null;
   role: string;
   supervisorId: string;
   channelLink: string;
@@ -22,7 +24,6 @@ interface Presence extends MapPresence {
   code: string;
   time: string;
   coord: string;
-  monthlyIncome: string;
 }
 
 interface Locations {
@@ -121,10 +122,10 @@ export default function LokasiPage() {
                 <br />
                 Login {p.time}
                 {!restricted && ` · ${p.coord}`}
-                {SALARIED_ROLES.includes(p.role) && (
+                {!usesVcr(p.role) && (
                   <>
                     <br />
-                    Pendapatan (Gaji) bulan ini: <span className="text-ar-gold2">{p.monthlyIncome}</span>
+                    Gaji: <span className="text-ar-gold2">{fmtRp(p.salary ?? 0)}</span>
                   </>
                 )}
               </div>
@@ -153,6 +154,7 @@ export default function LokasiPage() {
                 phone: editing.phone,
                 level: editing.level,
                 customRate: editing.customRate,
+                salary: editing.salary,
                 role: editing.role,
                 place: editing.place,
                 supervisorId: editing.supervisorId,

@@ -8,6 +8,7 @@ import {
   VOUCHER_LABEL,
   VOUCHER_STATUS_LABEL,
   employeeRate,
+  usesVcr,
   type EmployeeLevel,
   type VoucherStatus,
 } from "@/lib/constants";
@@ -22,7 +23,15 @@ export async function GET(req: Request) {
 
     const employee = await prisma.employee.findUnique({ where: { id: session.employeeId } });
     if (!employee) return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
+    const vcr = usesVcr(employee.role);
     const myLevel = employee.level as EmployeeLevel;
+
+    if (!vcr) {
+      return NextResponse.json({
+        usesVcr: false,
+        salary: fmtRp(employee.salary ?? 0),
+      });
+    }
 
     const [all, periodVouchers] = await Promise.all([
       prisma.voucher.findMany({ where: { employeeId: session.employeeId } }),
@@ -35,6 +44,7 @@ export async function GET(req: Request) {
     const unpaid = all.filter((v) => v.status !== "DICAIRKAN");
 
     return NextResponse.json({
+      usesVcr: true,
       period,
       periodLabel: PERIOD_LABEL[period],
       periodRange: `${dLabel(start)} – ${dLabel(now)}`,
@@ -103,6 +113,9 @@ export async function POST(req: Request) {
 
     const employee = await prisma.employee.findUnique({ where: { id: session.employeeId } });
     if (!employee) return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
+    if (!usesVcr(employee.role)) {
+      return NextResponse.json({ error: "Pendapatan/VCR tidak berlaku untuk peran Anda — gaji diatur oleh admin." }, { status: 400 });
+    }
     const level = employee.level as EmployeeLevel;
     const amount = employeeRate(level, employee.customRate);
 

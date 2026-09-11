@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, employeeRate, type EmployeeLevel } from "@/lib/constants";
+import { OFFICE_ROLES, VCR_ROLE, employeeRate, type EmployeeLevel } from "@/lib/constants";
 import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
 import { fmtRp, shortRp } from "@/lib/format";
 
@@ -13,8 +13,11 @@ export async function GET(req: Request) {
     const now = new Date();
     const start = periodStart(now, period);
 
+    // Only "Tera" earns via VCR — this report is a voucher-income recap, so
+    // salaried Peran (paid a flat monthly Gaji, tracked on the payslip
+    // instead) don't belong in it.
     const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN" },
+      where: { accessRole: "KARYAWAN", role: VCR_ROLE },
       include: {
         vouchers: { where: { occurredAt: { gte: start } } },
         kasbonRequests: { where: { status: "DISETUJUI", createdAt: { gte: start } } },

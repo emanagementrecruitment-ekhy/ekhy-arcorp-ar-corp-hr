@@ -3,8 +3,8 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Badge from "@/components/Badge";
 import LogoutButton from "@/components/LogoutButton";
-import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
-import { isLink } from "@/lib/format";
+import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { fmtRp, isLink } from "@/lib/format";
 
 export default async function ProfilPage() {
   const session = await getSession();
@@ -26,9 +26,13 @@ export default async function ProfilPage() {
     .slice(0, 2)
     .join("");
 
+  const vcr = usesVcr(employee.role);
+  const levelLabel = vcr ? VOUCHER_LABEL[employee.level as EmployeeLevel] : "GAJI";
+
   const rows: { k: string; v: string }[] = [
     { k: "Kode karyawan", v: employee.code },
-    { k: "Pendapatan/VCR", v: VOUCHER_LABEL[employee.level as EmployeeLevel] },
+    { k: "Pendapatan/VCR", v: levelLabel },
+    ...(vcr ? [] : [{ k: "Nominal Gaji", v: fmtRp(employee.salary ?? 0) }]),
     { k: "Peran", v: employee.role },
     { k: "Email", v: employee.email },
     { k: "No. HP", v: employee.phone },
@@ -44,7 +48,7 @@ export default async function ProfilPage() {
         <span>
           <span className="block font-display text-2xl">{employee.name}</span>
           <span className="block text-[11px] tracking-[0.14em] uppercase text-ar-gold mt-1">
-            {VOUCHER_LABEL[employee.level as EmployeeLevel]} · {employee.role}
+            {levelLabel} · {employee.role}
           </span>
         </span>
       </div>

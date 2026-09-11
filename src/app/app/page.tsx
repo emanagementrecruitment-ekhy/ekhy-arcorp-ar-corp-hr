@@ -43,43 +43,55 @@ export default async function BerandaPage() {
         </div>
       </div>
 
-      <div className="bg-ar-surface border border-ar-line rounded-2xl p-[18px] mb-3.5">
-        <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim">Saldo voucher belum dicairkan</div>
-        <div className="font-display text-[38px] leading-[1.12] text-ar-gold2 mt-1">{data.saldoTotal}</div>
-        <div className="text-[11.5px] text-ar-dim mt-1">
-          {data.saldoCount} voucher · pencairan {data.nextPayout}
-        </div>
-        <div className="flex gap-2 mt-[14px]">
-          <div className="flex-1 py-[11px] px-3 bg-ar-surface2 border border-ar-line rounded-xl">
-            <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-dim/80">Silver</div>
-            <div className="text-sm mt-1">{data.silverCount} × 150K</div>
+      {data.usesVcr ? (
+        <>
+          <div className="bg-ar-surface border border-ar-line rounded-2xl p-[18px] mb-3.5">
+            <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim">Saldo voucher belum dicairkan</div>
+            <div className="font-display text-[38px] leading-[1.12] text-ar-gold2 mt-1">{data.saldoTotal}</div>
+            <div className="text-[11.5px] text-ar-dim mt-1">
+              {data.saldoCount} voucher · pencairan {data.nextPayout}
+            </div>
+            <div className="flex gap-2 mt-[14px]">
+              <div className="flex-1 py-[11px] px-3 bg-ar-surface2 border border-ar-line rounded-xl">
+                <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-dim/80">Silver</div>
+                <div className="text-sm mt-1">{data.silverCount} × 150K</div>
+              </div>
+              <div className="flex-1 py-[11px] px-3 bg-ar-goldfill border border-ar-goldline rounded-xl">
+                <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-gold">Platinum / Jasmine</div>
+                <div className="text-sm mt-1">{data.platinumCount} × 400K</div>
+              </div>
+            </div>
           </div>
-          <div className="flex-1 py-[11px] px-3 bg-ar-goldfill border border-ar-goldline rounded-xl">
-            <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-gold">Platinum / Jasmine</div>
-            <div className="text-sm mt-1">{data.platinumCount} × 400K</div>
-          </div>
-        </div>
-      </div>
 
-      <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim mt-4 mb-2.5">Aktivitas terakhir</div>
-      <div className="flex flex-col gap-2">
-        {data.feed.length === 0 && (
-          <div className="text-[12px] text-ar-faint py-3">Belum ada voucher tercatat.</div>
-        )}
-        {data.feed.map((f, i) => (
-          <div
-            key={i}
-            className="flex gap-3 items-start py-3 px-3.5 bg-ar-surface2 border border-ar-line rounded-xl"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-ar-gold mt-1.5 shrink-0" />
-            <span className="flex-1 min-w-0">
-              <span className="block text-[12.5px]">{f.title}</span>
-              <span className="block text-[10.5px] text-ar-dim mt-1">{f.meta}</span>
-            </span>
-            <span className="text-[11px] text-ar-gold whitespace-nowrap">{f.amount}</span>
+          <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim mt-4 mb-2.5">Aktivitas terakhir</div>
+          <div className="flex flex-col gap-2">
+            {data.feed.length === 0 && (
+              <div className="text-[12px] text-ar-faint py-3">Belum ada voucher tercatat.</div>
+            )}
+            {data.feed.map((f, i) => (
+              <div
+                key={i}
+                className="flex gap-3 items-start py-3 px-3.5 bg-ar-surface2 border border-ar-line rounded-xl"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-ar-gold mt-1.5 shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-[12.5px]">{f.title}</span>
+                  <span className="block text-[10.5px] text-ar-dim mt-1">{f.meta}</span>
+                </span>
+                <span className="text-[11px] text-ar-gold whitespace-nowrap">{f.amount}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      ) : (
+        <div className="bg-ar-surface border border-ar-line rounded-2xl p-[18px] mb-3.5">
+          <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim">Gaji Bulanan</div>
+          <div className="font-display text-[38px] leading-[1.12] text-ar-gold2 mt-1">{data.salary}</div>
+          <div className="text-[11.5px] text-ar-dim mt-1">
+            Pendapatan/VCR tidak berlaku untuk peran Anda — lihat rincian di Rincian Totalan (Slip Pay).
+          </div>
+        </div>
+      )}
     </div>
   );
 }

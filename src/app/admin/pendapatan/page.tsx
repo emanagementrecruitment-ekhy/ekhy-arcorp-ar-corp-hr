@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp } from "@/lib/format";
 
 interface EmployeeOption {
@@ -10,6 +10,7 @@ interface EmployeeOption {
   name: string;
   code: string;
   place: string;
+  role: string;
 }
 
 interface Entry {
@@ -56,7 +57,11 @@ export default function PendapatanPage() {
     fetch("/api/admin/employees?pageSize=500")
       .then((r) => r.json())
       .then((d) =>
-        setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, place: e.place })))
+        setEmployees(
+          (d.employees ?? [])
+            .filter((e: EmployeeOption) => usesVcr(e.role))
+            .map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, place: e.place, role: e.role }))
+        )
       );
     fetch("/api/admin/vouchers")
       .then((r) => r.json())
@@ -128,7 +133,10 @@ export default function PendapatanPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Input Pendapatan" subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan" />
+      <AdminPageHeader
+        title="Input Pendapatan"
+        subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan — khusus Peran Tera"
+      />
 
       <div className="grid grid-cols-1 lg:[grid-template-columns:1fr_1.2fr] gap-4 pt-5.5">
         <div className="flex flex-col gap-4">

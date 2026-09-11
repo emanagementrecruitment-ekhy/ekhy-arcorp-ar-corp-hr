@@ -41,7 +41,10 @@ export default function LaporanPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Rekap Pendapatan" subtitle="Harian, mingguan, bulanan — dapat diunduh sebagai CSV" />
+      <AdminPageHeader
+        title="Rekap Pendapatan"
+        subtitle="Harian, mingguan, bulanan — dapat diunduh sebagai CSV — khusus Peran Tera (VCR); karyawan bergaji ada di Data Karyawan & Rincian Totalan"
+      />
 
       <div className="pt-5.5">
         <div className="flex flex-wrap gap-2.5 items-center justify-between mb-4">

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, type EmployeeLevel } from "@/lib/constants";
+import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
 
@@ -54,6 +54,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       employees: employees.map((e) => {
         const kasApproved = e.kasbonRequests.reduce((s, k) => s + k.amount, 0);
+        const vcr = usesVcr(e.role);
         return {
           id: e.id,
           name: e.name,
@@ -61,15 +62,16 @@ export async function GET(req: Request) {
           role: e.role,
           level: e.level,
           customRate: e.customRate,
+          salary: e.salary,
           email: e.email,
           phone: e.phone,
           place: e.homePlace,
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
           supervisorNote: e.supervisorNote ?? "",
-          count: `${e.vouchers.length} vc`,
+          count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
-          total: shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)),
+          total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp(e.salary ?? 0),
         };
       }),
       total,
@@ -110,14 +112,20 @@ export async function POST(req: Request) {
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
     const customRateRaw = Number(body?.customRate);
+    const salaryRaw = Number(body?.salary);
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
-    if (!EMPLOYEE_LEVELS.includes(level)) {
-      return NextResponse.json({ error: "Level tidak valid." }, { status: 400 });
-    }
-    if (level === "MANUAL" && (!Number.isFinite(customRateRaw) || customRateRaw <= 0)) {
-      return NextResponse.json({ error: "Nominal manual wajib diisi untuk Pendapatan/VCR Manual Input." }, { status: 400 });
+    // Only "Tera" earns via Pendapatan/VCR — every other Peran is salaried (Gaji).
+    if (usesVcr(role)) {
+      if (!EMPLOYEE_LEVELS.includes(level)) {
+        return NextResponse.json({ error: "Level tidak valid." }, { status: 400 });
+      }
+      if (level === "MANUAL" && (!Number.isFinite(customRateRaw) || customRateRaw <= 0)) {
+        return NextResponse.json({ error: "Nominal manual wajib diisi untuk Pendapatan/VCR Manual Input." }, { status: 400 });
+      }
+    } else if (!Number.isFinite(salaryRaw) || salaryRaw <= 0) {
+      return NextResponse.json({ error: "Nominal Gaji wajib diisi." }, { status: 400 });
     }
 
     const email = normalizeIdentifier(emailRaw);
@@ -153,8 +161,9 @@ export async function POST(req: Request) {
         name,
         email: email.value,
         phone: phone.value,
-        level,
-        customRate: level === "MANUAL" ? Math.round(customRateRaw) : null,
+        level: usesVcr(role) ? level : null,
+        customRate: usesVcr(role) && level === "MANUAL" ? Math.round(customRateRaw) : null,
+        salary: usesVcr(role) ? null : Math.round(salaryRaw),
         role,
         accessRole: "KARYAWAN",
         homeLat: city.lat,

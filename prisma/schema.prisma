@@ -23,8 +23,9 @@ model Employee {
   name        String
   email       String       @unique
   phone       String       @unique
-  level       String
+  level       String?      // Pendapatan/VCR preset — only set when role == "Tera" (see VCR_ROLE/usesVcr() in src/lib/constants.ts)
   customRate  Int?         // per-voucher rate when level == "MANUAL" (a preset doesn't fit); ignored otherwise
+  salary      Int?         // fixed monthly Gaji nominal — only set when role != "Tera"; that group never uses VCR
   role        String       // display role, e.g. "Konsultan Lapangan", "Supervisor Lapangan", "Owner AR Corp"
   accessRole  String       @default("KARYAWAN")
   homeLat     Float

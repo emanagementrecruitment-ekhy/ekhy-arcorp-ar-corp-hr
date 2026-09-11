@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
-import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink } from "@/lib/format";
 
 interface EmpRow {
@@ -12,8 +12,9 @@ interface EmpRow {
   name: string;
   code: string;
   role: string;
-  level: EmployeeLevel;
+  level: EmployeeLevel | null;
   customRate: number | null;
+  salary: number | null;
   email: string;
   phone: string;
   place: string;
@@ -185,6 +186,7 @@ export default function KaryawanPage() {
                     phone: e.phone,
                     level: e.level,
                     customRate: e.customRate,
+                    salary: e.salary,
                     role: e.role,
                     place: e.place,
                     supervisorId: e.supervisorId,
@@ -216,7 +218,7 @@ export default function KaryawanPage() {
                   </span>
                 </span>
                 <span className={e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
-                  {VOUCHER_LABEL[e.level]}
+                  {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}
                 </span>
                 <span className="text-[11px] text-ar-dim leading-[1.6]">
                   {e.email}

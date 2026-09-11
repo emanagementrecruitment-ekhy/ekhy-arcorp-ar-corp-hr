@@ -17,6 +17,8 @@ interface VoucherRow {
 }
 
 interface VoucherData {
+  usesVcr: boolean;
+  salary?: string;
   periodLabel: string;
   periodRange: string;
   vouchers: VoucherRow[];
@@ -83,6 +85,22 @@ export default function VoucherPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (data && !data.usesVcr) {
+    return (
+      <div>
+        <div className="font-display text-[26px] py-3 pb-3.5">Pendapatan</div>
+        <div className="bg-ar-goldfill border border-ar-goldline rounded-2xl p-4">
+          <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim">Gaji Bulanan</div>
+          <div className="font-display text-[32px] text-ar-gold2 mt-1">{data.salary}</div>
+          <div className="text-[11.5px] text-ar-dim mt-2.5">
+            Pendapatan/VCR tidak berlaku untuk peran Anda — gaji ditetapkan langsung oleh admin dan tampil di Rincian
+            Totalan (Slip Pay) setiap bulan.
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp, dLabel, timeLabel, dayKey } from "@/lib/format";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
@@ -86,6 +86,9 @@ export async function POST(req: Request) {
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
     if (!employee || employee.accessRole !== "KARYAWAN") {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
+    }
+    if (!usesVcr(employee.role)) {
+      return NextResponse.json({ error: "Karyawan ini menerima Gaji, bukan Pendapatan/VCR." }, { status: 400 });
     }
 
     await prisma.voucher.createMany({

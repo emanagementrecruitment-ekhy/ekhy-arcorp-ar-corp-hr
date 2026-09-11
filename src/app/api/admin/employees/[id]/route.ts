@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -25,14 +25,20 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
     const customRateRaw = Number(body?.customRate);
+    const salaryRaw = Number(body?.salary);
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
-    if (!EMPLOYEE_LEVELS.includes(level)) {
-      return NextResponse.json({ error: "Level tidak valid." }, { status: 400 });
-    }
-    if (level === "MANUAL" && (!Number.isFinite(customRateRaw) || customRateRaw <= 0)) {
-      return NextResponse.json({ error: "Nominal manual wajib diisi untuk Pendapatan/VCR Manual Input." }, { status: 400 });
+    // Only "Tera" earns via Pendapatan/VCR — every other Peran is salaried (Gaji).
+    if (usesVcr(role)) {
+      if (!EMPLOYEE_LEVELS.includes(level)) {
+        return NextResponse.json({ error: "Level tidak valid." }, { status: 400 });
+      }
+      if (level === "MANUAL" && (!Number.isFinite(customRateRaw) || customRateRaw <= 0)) {
+        return NextResponse.json({ error: "Nominal manual wajib diisi untuk Pendapatan/VCR Manual Input." }, { status: 400 });
+      }
+    } else if (!Number.isFinite(salaryRaw) || salaryRaw <= 0) {
+      return NextResponse.json({ error: "Nominal Gaji wajib diisi." }, { status: 400 });
     }
 
     const email = normalizeIdentifier(emailRaw);
@@ -70,22 +76,29 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (emailTaken) return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 });
     if (phoneTaken) return NextResponse.json({ error: "Nomor HP sudah terdaftar." }, { status: 409 });
 
-    const updated = await prisma.employee.update({
-      where: { id },
-      data: {
-        name,
-        email: email.value,
-        phone: phone.value,
-        level,
-        customRate: level === "MANUAL" ? Math.round(customRateRaw) : null,
-        role,
-        homeLat: city ? city.lat : existing.homeLat,
-        homeLng: city ? city.lng : existing.homeLng,
-        homePlace: city ? city.place : existing.homePlace,
-        supervisorId,
-        channelLink: channelLink || null,
-        supervisorNote: supervisorNote || null,
-      },
+    const vcr = usesVcr(role);
+    const updated = await prisma.$transaction(async (tx) => {
+      // Non-Tera never earns via VCR — clear out any voucher history a
+      // Peran change leaves behind so it can't linger in reports/payslips.
+      if (!vcr) await tx.voucher.deleteMany({ where: { employeeId: id } });
+      return tx.employee.update({
+        where: { id },
+        data: {
+          name,
+          email: email.value,
+          phone: phone.value,
+          level: vcr ? level : null,
+          customRate: vcr && level === "MANUAL" ? Math.round(customRateRaw) : null,
+          salary: vcr ? null : Math.round(salaryRaw),
+          role,
+          homeLat: city ? city.lat : existing.homeLat,
+          homeLng: city ? city.lng : existing.homeLng,
+          homePlace: city ? city.place : existing.homePlace,
+          supervisorId,
+          channelLink: channelLink || null,
+          supervisorNote: supervisorNote || null,
+        },
+      });
     });
 
     return NextResponse.json({ ok: true, code: updated.code });

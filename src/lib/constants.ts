@@ -102,9 +102,15 @@ export const FIELD_CITIES = [
 
 export const FIELD_ROLES = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff", "Tera"] as const;
 
-// Peran paid a fixed Gaji, shown on Lokasi & Absensi — everyone except Tera,
-// who instead earn per-voucher and are tracked on the Pendapatan pages.
-export const SALARIED_ROLES: string[] = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff"];
+// Only Peran "Tera" earns via Pendapatan/VCR (per-voucher commission) — every
+// other Peran is salaried (Gaji, a fixed monthly nominal on Employee.salary).
+// This is enforced everywhere an employee's income is read or recorded, not
+// just display: see the level/customRate vs. salary split in
+// prisma/schema.prisma and every call site that branches on usesVcr().
+export const VCR_ROLE = "Tera";
+export function usesVcr(role: string): boolean {
+  return role === VCR_ROLE;
+}
 
 // Peran values that come with a real elevated login (see /admin/jabatan —
 // Owner/Consultant appoint one karyawan holding this Peran into the matching
