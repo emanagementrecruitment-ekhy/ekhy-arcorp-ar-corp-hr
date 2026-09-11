@@ -21,6 +21,7 @@ interface Presence extends MapPresence {
   code: string;
   time: string;
   coord: string;
+  monthlyIncome: string;
 }
 
 interface Locations {
@@ -119,6 +120,8 @@ export default function LokasiPage() {
                 <br />
                 Login {p.time}
                 {!restricted && ` · ${p.coord}`}
+                <br />
+                Pendapatan (Gaji) bulan ini: <span className="text-ar-gold2">{p.monthlyIncome}</span>
               </div>
               {canEdit && (
                 <button onClick={() => setEditingId(p.id)} className="mt-2 text-[10.5px] text-ar-gold cursor-pointer">

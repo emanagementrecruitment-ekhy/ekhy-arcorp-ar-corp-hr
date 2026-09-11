@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, HQ_NAME, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
-import { timeLabel } from "@/lib/format";
+import { timeLabel, shortRp } from "@/lib/format";
 import { distanceKm } from "@/lib/geo";
+import { monthRange, parseMonth } from "@/lib/period";
 
 export async function GET() {
   try {
@@ -12,10 +13,22 @@ export async function GET() {
     const session = await requireSession([...OFFICE_ROLES, "SUPERVISOR"]);
     const restricted = session.accessRole === "SUPERVISOR";
 
-    const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN" },
-      include: { loginEvents: { orderBy: { createdAt: "desc" }, take: 1 } },
-    });
+    const { start: monthStart, end: monthEnd } = monthRange(parseMonth(null));
+    const [employees, monthVouchers] = await Promise.all([
+      prisma.employee.findMany({
+        where: { accessRole: "KARYAWAN" },
+        include: { loginEvents: { orderBy: { createdAt: "desc" }, take: 1 } },
+      }),
+      prisma.voucher.findMany({
+        where: { occurredAt: { gte: monthStart, lt: monthEnd } },
+        select: { employeeId: true, amount: true },
+      }),
+    ]);
+
+    const incomeByEmployee = new Map<string, number>();
+    for (const v of monthVouchers) {
+      incomeByEmployee.set(v.employeeId, (incomeByEmployee.get(v.employeeId) ?? 0) + v.amount);
+    }
 
     const presence = employees.map((e) => {
       const last = e.loginEvents[0];
@@ -41,6 +54,7 @@ export async function GET() {
         status: inRadius ? "Dalam radius" : "Luar radius",
         lat: restricted ? 0 : lat,
         lng: restricted ? 0 : lng,
+        monthlyIncome: shortRp(incomeByEmployee.get(e.id) ?? 0),
       };
     });
 

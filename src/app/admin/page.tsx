@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
 
+interface AttendanceRow {
+  name: string;
+  code: string;
+  daysPresent: number;
+  underMinimum: boolean;
+}
+
 interface Overview {
   kpis: { label: string; value: string; sub: string }[];
   loginFeed: { name: string; mono: string; detail: string; status: string }[];
@@ -12,6 +19,9 @@ interface Overview {
   barsTo: string;
   silverAll: number;
   platAll: number;
+  attendanceMonthLabel: string;
+  attendanceMinDays: number;
+  attendanceMonthly: AttendanceRow[];
 }
 
 export default function RingkasanPage() {
@@ -97,6 +107,34 @@ export default function RingkasanPage() {
                 <span className="text-ar-text">{data?.platAll ?? 0} voucher</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl mt-4">
+          <div className="flex justify-between items-center gap-3 mb-3.5">
+            <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
+              Total Absensi Bulan Ini — {data?.attendanceMonthLabel ?? "…"}
+            </span>
+            <span className="text-[10.5px] text-ar-faint">
+              Minimum {data?.attendanceMinDays ?? 20} hari/bulan · reset tiap bulan
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {data?.attendanceMonthly.map((a) => (
+              <div
+                key={a.code}
+                className={`flex justify-between items-center gap-2 py-2.5 px-3.5 rounded-xl border ${
+                  a.underMinimum ? "border-[rgba(228,117,107,.35)] bg-[rgba(228,117,107,.06)]" : "border-ar-line bg-ar-surface2"
+                }`}
+              >
+                <span className="text-[12px] truncate">
+                  {a.name} <span className="text-ar-dim">({a.code})</span>
+                </span>
+                <span className={`text-[12.5px] font-display shrink-0 ${a.underMinimum ? "text-ar-red" : "text-ar-gold2"}`}>
+                  {a.daysPresent} hari
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

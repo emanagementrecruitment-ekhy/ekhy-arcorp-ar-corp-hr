@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
-import { shortRp, dLabel, dayKey, timeLabel } from "@/lib/format";
+import { shortRp, dLabel, dayKey, timeLabel, monthLabel } from "@/lib/format";
+import { monthRange, parseMonth } from "@/lib/period";
+
+const MIN_ATTENDANCE_DAYS = 20;
 
 export async function GET() {
   try {
@@ -16,7 +19,10 @@ export async function GET() {
     start14.setHours(0, 0, 0, 0);
     const start30 = new Date(now.getTime() - 29 * 864e5);
 
-    const [employees, vouchers14, todayVouchers, monthVouchers, pendingKasbon, latestLoginPerEmployee] =
+    const currentMonth = parseMonth(null);
+    const { start: monthStart, end: monthEnd } = monthRange(currentMonth);
+
+    const [employees, vouchers14, todayVouchers, monthVouchers, pendingKasbon, latestLoginPerEmployee, monthLogins] =
       await Promise.all([
         prisma.employee.findMany({ where: { accessRole: "KARYAWAN" } }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: start14 } } }),
@@ -28,7 +34,29 @@ export async function GET() {
           orderBy: { createdAt: "desc" },
           take: 30,
         }),
+        // Every login this month, for a per-employee days-present count — not
+        // shown as individual log entries, just an aggregate that naturally
+        // resets each month since it's always scoped to the current month.
+        prisma.loginEvent.findMany({
+          where: { createdAt: { gte: monthStart, lt: monthEnd } },
+          select: { employeeId: true, createdAt: true },
+        }),
       ]);
+
+    const daysByEmployee = new Map<string, Set<string>>();
+    for (const l of monthLogins) {
+      const set = daysByEmployee.get(l.employeeId) ?? new Set<string>();
+      set.add(dayKey(l.createdAt));
+      daysByEmployee.set(l.employeeId, set);
+    }
+    const attendanceMonthly = employees
+      .map((e) => ({
+        name: e.name,
+        code: e.code,
+        daysPresent: daysByEmployee.get(e.id)?.size ?? 0,
+        underMinimum: (daysByEmployee.get(e.id)?.size ?? 0) < MIN_ATTENDANCE_DAYS,
+      }))
+      .sort((a, b) => a.daysPresent - b.daysPresent);
 
     // Most recent event per employee, for "who's currently in/out of radius".
     const seen = new Set<string>();
@@ -96,6 +124,9 @@ export async function GET() {
       silverAll: vouchers14.filter((v) => v.category === "SILVER").length,
       platAll: vouchers14.filter((v) => v.category === "PLATINUM").length,
       hqLabel: `${HQ.lat.toFixed(4)}, ${HQ.lng.toFixed(4)} · radius ${ATTENDANCE_RADIUS_KM} km`,
+      attendanceMonthLabel: monthLabel(currentMonth),
+      attendanceMinDays: MIN_ATTENDANCE_DAYS,
+      attendanceMonthly,
     });
   } catch (e) {
     return apiError(e);
