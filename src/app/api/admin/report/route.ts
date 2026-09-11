@@ -29,6 +29,7 @@ export async function GET(req: Request) {
       return {
         name: e.name,
         level,
+        voucherCount: e.vouchers.length,
         rateLabel: fmtRp(VOUCHER_AMOUNT[level]),
         kasbon: ks ? "-" + shortRp(ks) : "—",
         net: shortRp(gross - ks),
@@ -41,6 +42,7 @@ export async function GET(req: Request) {
       periodLabel: PERIOD_LABEL[period],
       rows,
       totals: {
+        voucherCount: rows.reduce((s, r) => s + r.voucherCount, 0),
         kasbon: (() => {
           const sum = rows.reduce((s, r) => s + r.ks, 0);
           return sum ? "-" + shortRp(sum) : "—";

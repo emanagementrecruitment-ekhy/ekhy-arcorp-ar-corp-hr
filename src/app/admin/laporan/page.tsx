@@ -9,6 +9,7 @@ type Period = "harian" | "mingguan" | "bulanan";
 interface ReportRow {
   name: string;
   level: string;
+  voucherCount: number;
   rateLabel: string;
   kasbon: string;
   net: string;
@@ -17,7 +18,7 @@ interface ReportRow {
 interface Report {
   periodLabel: string;
   rows: ReportRow[];
-  totals: { kasbon: string; net: string };
+  totals: { voucherCount: number; kasbon: string; net: string };
 }
 
 const PERIODS: { key: Period; label: string }[] = [
@@ -26,7 +27,7 @@ const PERIODS: { key: Period; label: string }[] = [
   { key: "bulanan", label: "Bulanan" },
 ];
 
-const cols = "1.7fr 1.1fr 1.1fr 1fr 1.1fr";
+const cols = "1.5fr 1fr .9fr 1.1fr 1fr 1.1fr";
 
 export default function LaporanPage() {
   const [period, setPeriod] = useState<Period>("harian");
@@ -70,6 +71,7 @@ export default function LaporanPage() {
           <div className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim" style={{ gridTemplateColumns: cols }}>
             <span>Karyawan/Tera</span>
             <span>Grade</span>
+            <span>Total Voucher</span>
             <span>Pendapatan/Voucher</span>
             <span>Total Kasbon</span>
             <span>Sisa Gaji</span>
@@ -80,6 +82,7 @@ export default function LaporanPage() {
               <span className={r.level === "PLATINUM" || r.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
                 {VOUCHER_LABEL[r.level as EmployeeLevel]}
               </span>
+              <span>{r.voucherCount} vcr</span>
               <span>{r.rateLabel}</span>
               <span className="text-ar-red">{r.kasbon}</span>
               <span className="font-display text-[18px] text-ar-gold2">{r.net}</span>
@@ -92,6 +95,7 @@ export default function LaporanPage() {
             >
               <span className="tracking-[0.14em] uppercase text-[10.5px] text-ar-gold">Total {data.periodLabel}</span>
               <span />
+              <span>{data.totals.voucherCount} vcr</span>
               <span />
               <span className="text-ar-red">{data.totals.kasbon}</span>
               <span className="font-display text-xl text-ar-gold2">{data.totals.net}</span>
