@@ -64,6 +64,7 @@ export async function GET(req: Request) {
           phone: e.phone,
           place: e.homePlace,
           supervisorId: e.supervisorId ?? "",
+          channelLink: e.channelLink ?? "",
           count: `${e.vouchers.length} vc`,
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
           total: shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)),
@@ -104,6 +105,7 @@ export async function POST(req: Request) {
     const role = typeof body?.role === "string" ? body.role.trim() : "";
     const place = typeof body?.place === "string" ? body.place : "";
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
+    const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
@@ -151,6 +153,7 @@ export async function POST(req: Request) {
         homeLng: city.lng,
         homePlace: city.place,
         supervisorId,
+        channelLink: channelLink || null,
       },
     });
 

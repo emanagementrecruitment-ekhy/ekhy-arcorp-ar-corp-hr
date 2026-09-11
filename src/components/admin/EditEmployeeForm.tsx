@@ -14,6 +14,7 @@ export interface EditableEmployee {
   role: string;
   place: string;
   supervisorId: string;
+  channelLink: string;
 }
 
 export default function EditEmployeeForm({
@@ -35,6 +36,7 @@ export default function EditEmployeeForm({
     role: employee.role,
     place: employee.place,
     supervisorId: employee.supervisorId,
+    channelLink: employee.channelLink,
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");

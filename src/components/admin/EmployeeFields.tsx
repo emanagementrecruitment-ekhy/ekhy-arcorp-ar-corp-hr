@@ -16,13 +16,23 @@ export interface EmployeeFieldsValue {
   role: string;
   place: string;
   supervisorId: string;
+  channelLink: string;
 }
 
 const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]";
 const labelCls = "text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block";
 
 export function emptyEmployeeFields(): EmployeeFieldsValue {
-  return { name: "", email: "", phone: "", level: "SILVER", role: FIELD_ROLES[0], place: FIELD_CITIES[0].place, supervisorId: "" };
+  return {
+    name: "",
+    email: "",
+    phone: "",
+    level: "SILVER",
+    role: FIELD_ROLES[0],
+    place: FIELD_CITIES[0].place,
+    supervisorId: "",
+    channelLink: "",
+  };
 }
 
 /** Shared field grid for both the add-employee and edit-employee forms. */
@@ -85,7 +95,7 @@ export default function EmployeeFields({
         />
       </div>
       <div>
-        <label className={labelCls}>Level</label>
+        <label className={labelCls}>Pendapatan / VCR</label>
         <select
           value={value.level}
           onChange={(e) => onChange({ level: e.target.value as EmployeeLevel })}
@@ -110,6 +120,15 @@ export default function EmployeeFields({
             </option>
           ))}
         </select>
+      </div>
+      <div>
+        <label className={labelCls}>Channel/Link</label>
+        <input
+          value={value.channelLink}
+          onChange={(e) => onChange({ channelLink: e.target.value })}
+          placeholder="cth. wa.me/62812xxxxxxx"
+          className={inputCls}
+        />
       </div>
       <div style={{ gridColumn: "1 / -1" }}>
         <label className={labelCls}>Supervisor (opsional)</label>

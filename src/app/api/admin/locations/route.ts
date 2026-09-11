@@ -32,6 +32,7 @@ export async function GET() {
         level: e.level,
         role: e.role,
         supervisorId: e.supervisorId ?? "",
+        channelLink: e.channelLink ?? "",
         place: last?.place ?? e.homePlace,
         km: `${km} km`,
         time: last ? timeLabel(last.createdAt) : "—",

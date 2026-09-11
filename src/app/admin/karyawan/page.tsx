@@ -17,6 +17,7 @@ interface EmpRow {
   phone: string;
   place: string;
   supervisorId: string;
+  channelLink: string;
   count: string;
   kasbon: string;
   total: string;
@@ -151,7 +152,7 @@ export default function KaryawanPage() {
             style={{ gridTemplateColumns: cols }}
           >
             <span>Karyawan</span>
-            <span>Level</span>
+            <span>Pendapatan/VCR</span>
             <span>Kontak</span>
             <span>Voucher</span>
             <span>Kasbon</span>
@@ -177,6 +178,7 @@ export default function KaryawanPage() {
                     role: e.role,
                     place: e.place,
                     supervisorId: e.supervisorId,
+                    channelLink: e.channelLink,
                   }}
                   supervisors={supervisors}
                   onSaved={onSaved}
@@ -209,6 +211,18 @@ export default function KaryawanPage() {
                   {e.email}
                   <br />
                   {e.phone}
+                  {e.channelLink && (
+                    <>
+                      <br />
+                      {isLink(e.channelLink) ? (
+                        <a href={e.channelLink} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline">
+                          {e.channelLink}
+                        </a>
+                      ) : (
+                        e.channelLink
+                      )}
+                    </>
+                  )}
                 </span>
                 <span>{e.count}</span>
                 <span className={e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}>{e.kasbon}</span>

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     });
 
     const rows = [
-      ["Tanggal", "Jam", "Kode", "Karyawan", "Level", "Kategori", "Nilai", "Klien", "Status"],
+      ["Tanggal", "Jam", "Kode", "Karyawan", "Pendapatan/VCR", "Kategori", "Nilai", "Klien", "Status"],
       ...vouchers.map((v) => [
         dayKey(v.occurredAt),
         timeLabel(v.occurredAt),

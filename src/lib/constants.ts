@@ -9,7 +9,8 @@ export type AccessRole = (typeof ACCESS_ROLES)[number];
 // in src/app/api/admin/lapor/route.ts and src/app/admin/layout.tsx).
 export const OFFICE_ROLES: AccessRole[] = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"];
 
-export const EMPLOYEE_LEVELS = ["SILVER", "PLATINUM", "FL", "MODEL", "CLASSIC_D"] as const;
+// Ordered lowest to highest pendapatan/VCR — drives dropdown display order.
+export const EMPLOYEE_LEVELS = ["CLASSIC_D", "FL", "SILVER", "PLATINUM", "MODEL"] as const;
 export type EmployeeLevel = (typeof EMPLOYEE_LEVELS)[number];
 
 export const VOUCHER_STATUSES = ["MENUNGGU_VALIDASI", "TERVALIDASI", "DICAIRKAN"] as const;
@@ -19,19 +20,19 @@ export const KASBON_STATUSES = ["MENUNGGU_OWNER", "DISETUJUI", "DITOLAK"] as con
 export type KasbonStatus = (typeof KASBON_STATUSES)[number];
 
 export const VOUCHER_AMOUNT: Record<EmployeeLevel, number> = {
+  CLASSIC_D: 95_000,
+  FL: 105_000,
   SILVER: 150_000,
   PLATINUM: 400_000,
-  FL: 105_000,
   MODEL: 700_000,
-  CLASSIC_D: 95_000,
 };
 
 export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
+  CLASSIC_D: "Classic D",
+  FL: "FL",
   SILVER: "Silver",
   PLATINUM: "Platinum / Jasmine",
-  FL: "FL",
   MODEL: "Model",
-  CLASSIC_D: "Classic D",
 };
 
 export const KASBON_LABEL: Record<KasbonStatus, string> = {
@@ -77,12 +78,12 @@ export const FIELD_CITIES = [
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
-export const FIELD_ROLES = ["COO", "Admin", "Tera", "Kepala Mess", "Salon", "Recruitment"] as const;
+export const FIELD_ROLES = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff", "Tera"] as const;
 
 // Peran values that come with a real elevated login (see /admin/jabatan —
 // Owner/Consultant appoint one karyawan holding this Peran into the matching
-// AccessRole). Every other Peran (COO, Tera, Salon, Recruitment) is purely a
-// descriptive label with no access change.
+// AccessRole). Every other Peran (Koordinator, Recruitment, Salon, Staff, Tera)
+// is purely a descriptive label with no access change.
 export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: string }[] = [
   { peran: "Admin", accessRole: "ADMIN_PUSAT", label: "Admin" },
   { peran: "Kepala Mess", accessRole: "SUPERVISOR", label: "Kepala Mess" },

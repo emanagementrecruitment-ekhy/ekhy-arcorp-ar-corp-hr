@@ -27,7 +27,7 @@ export default async function ProfilPage() {
 
   const rows: { k: string; v: string }[] = [
     { k: "Kode karyawan", v: employee.code },
-    { k: "Level", v: VOUCHER_LABEL[employee.level as EmployeeLevel] },
+    { k: "Pendapatan/VCR", v: VOUCHER_LABEL[employee.level as EmployeeLevel] },
     { k: "Peran", v: employee.role },
     { k: "Email", v: employee.email },
     { k: "No. HP", v: employee.phone },

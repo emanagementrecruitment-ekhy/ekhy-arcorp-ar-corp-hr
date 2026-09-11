@@ -69,7 +69,7 @@ export default function LaporanPage() {
         <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-hidden">
           <div className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim" style={{ gridTemplateColumns: cols }}>
             <span>Karyawan</span>
-            <span>Level</span>
+            <span>Pendapatan/VCR</span>
             <span>Silver</span>
             <span>Platinum</span>
             <span>Kasbon</span>

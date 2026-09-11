@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import { EMPLOYEE_LEVELS, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
+import { fmtRp } from "@/lib/format";
 
 interface EmployeeOption {
   id: string;
   name: string;
   code: string;
+  place: string;
 }
 
 interface Entry {
@@ -37,10 +39,11 @@ export default function PendapatanPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [employeeId, setEmployeeId] = useState("");
   const [category, setCategory] = useState<EmployeeLevel>("SILVER");
-  const [client, setClient] = useState("");
+  const [location, setLocation] = useState("");
   const [occurredAt, setOccurredAt] = useState(today());
   const [amount, setAmount] = useState(String(VOUCHER_AMOUNT.SILVER));
   const [amountTouched, setAmountTouched] = useState(false);
+  const [qty, setQty] = useState("1");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [success, setSuccess] = useState("");
@@ -52,7 +55,9 @@ export default function PendapatanPage() {
   function load() {
     fetch("/api/admin/employees?pageSize=500")
       .then((r) => r.json())
-      .then((d) => setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code }))));
+      .then((d) =>
+        setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, place: e.place })))
+      );
     fetch("/api/admin/vouchers")
       .then((r) => r.json())
       .then((d) => setEntries(d.vouchers ?? []));
@@ -65,6 +70,14 @@ export default function PendapatanPage() {
     if (!amountTouched) setAmount(String(VOUCHER_AMOUNT[next]));
   }
 
+  function onEmployeeChange(id: string) {
+    setEmployeeId(id);
+    const emp = employees.find((e) => e.id === id);
+    if (emp) setLocation(emp.place);
+  }
+
+  const total = (Number(amount) || 0) * (Number(qty) || 0);
+
   async function submit() {
     setBusy(true);
     setMsg("");
@@ -72,7 +85,7 @@ export default function PendapatanPage() {
       const res = await fetch("/api/admin/vouchers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employeeId, category, client, occurredAt, amount: Number(amount) }),
+        body: JSON.stringify({ employeeId, category, client: location, occurredAt, amount: Number(amount), qty: Number(qty) }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -80,9 +93,9 @@ export default function PendapatanPage() {
         return;
       }
       setSuccess("✓ Pendapatan berhasil dicatat.");
-      setClient("");
       setAmountTouched(false);
       setAmount(String(VOUCHER_AMOUNT[category]));
+      setQty("1");
       load();
       setTimeout(() => setSuccess(""), 2500);
     } finally {
@@ -159,7 +172,7 @@ export default function PendapatanPage() {
               <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Karyawan</label>
               <select
                 value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value)}
+                onChange={(e) => onEmployeeChange(e.target.value)}
                 className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
               >
                 <option value="">Pilih karyawan…</option>
@@ -180,7 +193,7 @@ export default function PendapatanPage() {
               />
             </div>
             <div>
-              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Level / Kategori</label>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Pendapatan / VCR</label>
               <select
                 value={category}
                 onChange={(e) => onCategoryChange(e.target.value as EmployeeLevel)}
@@ -194,27 +207,51 @@ export default function PendapatanPage() {
               </select>
             </div>
             <div>
-              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Nama Klien</label>
-              <input
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
-                placeholder="cth. Kirana Lounge"
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Lokasi Kerja</label>
+              <select
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-              />
+              >
+                <option value="">Pilih lokasi…</option>
+                {location && !FIELD_CITIES.some((c) => c.place === location) && (
+                  <option value={location}>{location} (lama)</option>
+                )}
+                {FIELD_CITIES.map((c) => (
+                  <option key={c.place} value={c.place}>
+                    {c.place}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
-              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">
-                Nominal (bisa diubah kalau beda dari default)
-              </label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  setAmountTouched(true);
-                }}
-                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-              />
+            <div className="grid gap-3.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div>
+                <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">
+                  Rate /VCR (bisa diubah)
+                </label>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    setAmountTouched(true);
+                  }}
+                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Jumlah VCR</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={qty}
+                  onChange={(e) => setQty(e.target.value)}
+                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                />
+              </div>
+            </div>
+            <div className="py-2.5 px-3.5 bg-ar-goldfill border border-ar-goldline rounded-[10px] text-[12.5px] text-ar-gold2">
+              {fmtRp(Number(amount) || 0)} × {Number(qty) || 0} = <strong>{fmtRp(total)}</strong>
             </div>
           </div>
 
@@ -222,7 +259,7 @@ export default function PendapatanPage() {
           {msg && <div className="mt-3.5 text-[11.5px] text-ar-red">{msg}</div>}
 
           <button
-            disabled={busy || !employeeId || !client}
+            disabled={busy || !employeeId || !location || !qty || Number(qty) <= 0}
             onClick={submit}
             className="mt-3.5 py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
           >

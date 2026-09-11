@@ -16,6 +16,7 @@ interface Presence extends MapPresence {
   level: EmployeeLevel;
   role: string;
   supervisorId: string;
+  channelLink: string;
   code: string;
   time: string;
   coord: string;
@@ -137,6 +138,7 @@ export default function LokasiPage() {
                 role: editing.role,
                 place: editing.place,
                 supervisorId: editing.supervisorId,
+                channelLink: editing.channelLink,
               }}
               supervisors={supervisors}
               onSaved={() => {

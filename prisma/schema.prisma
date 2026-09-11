@@ -29,6 +29,7 @@ model Employee {
   homeLat     Float
   homeLng     Float
   homePlace   String
+  channelLink String?      // manual free-text channel/link (e.g. WA/booking link), independent of Peran/supervisor
   supervisorId String?
   supervisor  Employee?    @relation("Supervision", fields: [supervisorId], references: [id])
   reports     Employee[]   @relation("Supervision")
