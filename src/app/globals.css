@@ -109,3 +109,22 @@ textarea:focus {
 .ar-in {
   animation: arIn 0.5s ease both;
 }
+
+/* Printing a Slip Pay (Rincian Totalan): hide every bit of app chrome —
+   sidebar, bottom nav, buttons/forms — and print only the payslip itself,
+   scoped so it never affects printing anywhere else in the app. */
+@media print {
+  body:has(#payslip-print-area) * {
+    visibility: hidden;
+  }
+  body:has(#payslip-print-area) #payslip-print-area,
+  body:has(#payslip-print-area) #payslip-print-area * {
+    visibility: visible;
+  }
+  body:has(#payslip-print-area) #payslip-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

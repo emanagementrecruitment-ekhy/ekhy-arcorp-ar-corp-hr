@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Badge from "@/components/Badge";
@@ -64,6 +65,14 @@ export default async function ProfilPage() {
           </div>
         ))}
       </div>
+
+      <Link
+        href="/app/payslip"
+        className="flex items-center justify-between mt-4.5 p-4 bg-ar-surface border border-ar-goldline rounded-2xl"
+      >
+        <span className="text-[13px]">📄 Rincian Totalan (Slip Pay)</span>
+        <span className="text-ar-gold text-[11px]">Lihat →</span>
+      </Link>
 
       <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim mt-5 mb-2.5">Riwayat login &amp; lokasi</div>
       <div className="flex flex-col gap-2">

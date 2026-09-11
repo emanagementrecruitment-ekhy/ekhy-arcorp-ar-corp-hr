@@ -43,6 +43,7 @@ model Employee {
   kasbonDecisions Kasbon[]    @relation("KasbonDecider")
   chatsAsEmployee ChatMessage[] @relation("ChatEmployee")
   chatsSent    ChatMessage[] @relation("ChatSender")
+  payslipItems PayslipItem[]
 }
 
 model OtpCode {
@@ -113,6 +114,29 @@ model ChatMessage {
   createdAt      DateTime @default(now())
 
   @@index([employeeId, createdAt])
+}
+
+// A manual line item on an employee's monthly Slip Pay (Rincian Totalan) —
+// things the app has no other record of: admin/mess fees, penalties, item
+// purchases, doctor top-ups, corrections, etc. "TOTAL VCR" and "KASBON" rows
+// are NOT stored here; the payslip API computes those live from Voucher/
+// Kasbon so they can never drift from the real numbers. debit/credit are
+// mutually exclusive per row in practice (UI enforces it) — the running
+// balance is previous + debit - credit, in (date, createdAt) order.
+model PayslipItem {
+  id          String    @id @default(cuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  month       String    // "YYYY-MM"
+  date        DateTime?
+  description String
+  qty         String?   // free text, e.g. "1 Pcs" — display only
+  debit       Int       @default(0)
+  credit      Int       @default(0)
+  note        String?
+  createdAt   DateTime  @default(now())
+
+  @@index([employeeId, month])
 }
 
 // In-app notifications, broadcast to a role rather than a specific person —
