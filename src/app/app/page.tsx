@@ -51,14 +51,10 @@ export default async function BerandaPage() {
             <div className="text-[11.5px] text-ar-dim mt-1">
               {data.saldoCount} voucher · pencairan {data.nextPayout}
             </div>
-            <div className="flex gap-2 mt-[14px]">
-              <div className="flex-1 py-[11px] px-3 bg-ar-surface2 border border-ar-line rounded-xl">
-                <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-dim/80">Silver</div>
-                <div className="text-sm mt-1">{data.silverCount} × 150K</div>
-              </div>
-              <div className="flex-1 py-[11px] px-3 bg-ar-goldfill border border-ar-goldline rounded-xl">
-                <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-gold">Platinum / Jasmine</div>
-                <div className="text-sm mt-1">{data.platinumCount} × 400K</div>
+            <div className="mt-[14px] py-[11px] px-3 bg-ar-goldfill border border-ar-goldline rounded-xl">
+              <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-gold">{data.meLevel}</div>
+              <div className="text-sm mt-1">
+                {data.saldoCount} × {data.myRateLabel}
               </div>
             </div>
           </div>

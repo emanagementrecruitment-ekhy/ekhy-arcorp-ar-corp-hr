@@ -27,7 +27,6 @@ interface VoucherData {
   myLevelLabel: string;
   myRate: number;
   myPlace: string;
-  places: string[];
 }
 
 const PERIODS: { key: Period; label: string }[] = [
@@ -43,7 +42,6 @@ function fmtRp(n: number) {
 export default function VoucherPage() {
   const [period, setPeriod] = useState<Period>("harian");
   const [data, setData] = useState<VoucherData | null>(null);
-  const [place, setPlace] = useState("");
   const [qty, setQty] = useState("1");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -52,10 +50,7 @@ export default function VoucherPage() {
   function load() {
     fetch(`/api/vouchers?period=${period}`)
       .then((r) => r.json())
-      .then((d) => {
-        setData(d);
-        setPlace((prev) => prev || d.myPlace || "");
-      });
+      .then(setData);
   }
 
   useEffect(load, [period]);
@@ -64,14 +59,14 @@ export default function VoucherPage() {
   const total = (data?.myRate ?? 0) * qtyNum;
 
   async function submit() {
-    if (!place || qtyNum <= 0) return;
+    if (qtyNum <= 0) return;
     setBusy(true);
     setMsg("");
     try {
       const res = await fetch("/api/vouchers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ client: place, qty: qtyNum }),
+        body: JSON.stringify({ qty: qtyNum }),
       });
       const d = await res.json();
       if (!res.ok) {
@@ -138,18 +133,10 @@ export default function VoucherPage() {
         </div>
 
         <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Lokasi Kerja</label>
-        <select
-          value={place}
-          onChange={(e) => setPlace(e.target.value)}
-          className="w-full py-2.5 px-3.5 mb-3 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
-        >
-          <option value="">Pilih lokasi…</option>
-          {(data?.places ?? []).map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
+        <div className="w-full py-2.5 px-3.5 mb-1.5 bg-ar-surface2 border border-ar-line rounded-[11px] text-ar-text text-[12.5px]">
+          {data?.myPlace ?? "…"}
+        </div>
+        <div className="text-[10px] text-ar-faint mb-3">Ditetapkan oleh pusat, tidak bisa diubah manual di sini.</div>
 
         <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Jumlah VCR</label>
         <input
@@ -168,7 +155,7 @@ export default function VoucherPage() {
         {msg && <div className="mb-2.5 text-[11.5px] text-ar-red">{msg}</div>}
 
         <button
-          disabled={busy || !place || qtyNum <= 0}
+          disabled={busy || qtyNum <= 0}
           onClick={submit}
           className="w-full py-3 ar-grad rounded-[11px] text-ar-ongold text-[11px] font-bold tracking-[0.16em] uppercase cursor-pointer disabled:opacity-60"
         >

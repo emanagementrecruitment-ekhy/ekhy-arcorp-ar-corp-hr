@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { fmtRp, dLabel, timeLabel } from "@/lib/format";
-import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { VOUCHER_LABEL, employeeRate, usesVcr, type EmployeeLevel } from "@/lib/constants";
 
 function greetingFor(now: Date) {
   const hour = now.getHours();
@@ -27,7 +27,13 @@ export async function getBerandaData(employeeId: string) {
   ]);
 
   const vcr = usesVcr(employee.role);
-  const unpaid = vouchers.filter((v) => v.status !== "DICAIRKAN");
+  const myLevel = employee.level as EmployeeLevel;
+  const myRate = vcr ? employeeRate(myLevel, employee.customRate) : 0;
+  // Saldo belum dicairkan only ever counts vouchers still logged under the
+  // employee's own current grade — a leftover voucher under a different
+  // category (e.g. after a Peran/grade change) isn't re-valued at today's
+  // rate, so it's excluded here rather than mixed into a single total.
+  const unpaid = vouchers.filter((v) => v.status !== "DICAIRKAN" && v.category === myLevel);
   const feed = vouchers
     .slice()
     .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())
@@ -37,7 +43,7 @@ export async function getBerandaData(employeeId: string) {
     usesVcr: vcr,
     greeting: greetingFor(now),
     meName: employee.name,
-    meLevel: vcr ? VOUCHER_LABEL[employee.level as EmployeeLevel] : "GAJI",
+    meLevel: vcr ? VOUCHER_LABEL[myLevel] : "GAJI",
     meCode: employee.code,
     checkInTime: lastLogin ? timeLabel(lastLogin.createdAt) : "—",
     myPlace: lastLogin?.place ?? employee.homePlace,
@@ -45,10 +51,9 @@ export async function getBerandaData(employeeId: string) {
     inRadius: lastLogin?.inRadius ?? false,
     myCoord: lastLogin ? `${lastLogin.lat.toFixed(4)}, ${lastLogin.lng.toFixed(4)}` : "—",
     salary: fmtRp(employee.salary ?? 0),
-    saldoTotal: fmtRp(unpaid.reduce((s, v) => s + v.amount, 0)),
+    saldoTotal: fmtRp(unpaid.length * myRate),
     saldoCount: unpaid.length,
-    silverCount: unpaid.filter((v) => v.category === "SILVER").length,
-    platinumCount: unpaid.filter((v) => v.category === "PLATINUM").length,
+    myRateLabel: fmtRp(myRate),
     nextPayout: nextPayoutLabel(now),
     feed: feed.map((v) => ({
       title: v.client,

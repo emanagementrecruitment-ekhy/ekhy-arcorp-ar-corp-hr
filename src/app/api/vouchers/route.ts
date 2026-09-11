@@ -4,7 +4,6 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
 import { fmtRp, dayLabel, timeLabel, dLabel } from "@/lib/format";
 import {
-  FIELD_CITIES,
   VOUCHER_LABEL,
   VOUCHER_STATUS_LABEL,
   employeeRate,
@@ -41,8 +40,6 @@ export async function GET(req: Request) {
       }),
     ]);
 
-    const unpaid = all.filter((v) => v.status !== "DICAIRKAN");
-
     return NextResponse.json({
       usesVcr: true,
       period,
@@ -52,13 +49,6 @@ export async function GET(req: Request) {
       myLevelLabel: VOUCHER_LABEL[myLevel],
       myRate: employeeRate(myLevel, employee.customRate),
       myPlace: employee.homePlace,
-      places: FIELD_CITIES.map((c) => c.place),
-      saldo: {
-        total: fmtRp(unpaid.reduce((s, v) => s + v.amount, 0)),
-        count: unpaid.length,
-        silverCount: unpaid.filter((v) => v.category === "SILVER").length,
-        platinumCount: unpaid.filter((v) => v.category === "PLATINUM").length,
-      },
       vouchers: periodVouchers.map((v) => ({
         id: v.id,
         client: v.client,
@@ -87,23 +77,21 @@ export async function GET(req: Request) {
 }
 
 /**
- * Self-service daily income entry for field employees ("Tera"/karyawan).
- * The rate always comes from the employee's own registered level in the DB —
- * never from the client — so a Silver-rate employee can only ever log Silver
- * vouchers for themselves, matching the rate set from head office.
+ * Self-service daily income entry for field employees ("Tera"/karyawan) —
+ * they only ever input how many VCR they got today. The rate AND the
+ * location both come from the employee's own record in the DB, never from
+ * the client: rate from their registered level (a Silver-rate employee can
+ * only ever log Silver vouchers), location from their homePlace as set by
+ * head office (Data Karyawan / Lokasi & Absensi) — it isn't pickable here.
  */
 export async function POST(req: Request) {
   try {
     const session = await requireSession(["KARYAWAN"]);
     const body = await req.json().catch(() => null);
 
-    const client = typeof body?.client === "string" ? body.client.trim() : "";
     const qty = Math.round(Number(body?.qty));
     const occurredAtRaw = typeof body?.occurredAt === "string" ? body.occurredAt : "";
 
-    if (!client || !FIELD_CITIES.some((c) => c.place === client)) {
-      return NextResponse.json({ error: "Lokasi kerja tidak valid." }, { status: 400 });
-    }
     if (!Number.isInteger(qty) || qty <= 0) {
       return NextResponse.json({ error: "Jumlah VCR tidak valid." }, { status: 400 });
     }
@@ -123,7 +111,7 @@ export async function POST(req: Request) {
       data: Array.from({ length: qty }, () => ({
         employeeId: employee.id,
         category: level,
-        client,
+        client: employee.homePlace,
         amount,
         occurredAt,
       })),
