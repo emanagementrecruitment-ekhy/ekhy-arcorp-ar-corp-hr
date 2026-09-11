@@ -9,13 +9,14 @@ interface ChatMsg {
   time: string;
 }
 
-const TEMPLATES = ["Sudah di lokasi klien", "Butuh approval diskon", "Kendala di lapangan"];
+const TEMPLATES = ["Kendala di lapangan", "Butuh approval kasbon"];
 
 export default function LaporPage() {
   const [supervisor, setSupervisor] = useState<{ name: string; role: string } | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [locBusy, setLocBusy] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,6 +50,23 @@ export default function LaporPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  // "Lokasi hotel" is a booking-luar report — grabs GPS right away and sends
+  // it as a Google Maps link, instead of just filling in template text.
+  function shareHotelLocation() {
+    if (locBusy || !navigator.geolocation) return;
+    setLocBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        const { latitude, longitude } = p.coords;
+        send(`📍 Lokasi hotel (booking luar): https://www.google.com/maps?q=${latitude},${longitude}`).finally(() =>
+          setLocBusy(false)
+        );
+      },
+      () => setLocBusy(false),
+      { timeout: 8000 }
+    );
   }
 
   return (
@@ -85,6 +103,13 @@ export default function LaporPage() {
             {t}
           </button>
         ))}
+        <button
+          onClick={shareHotelLocation}
+          disabled={locBusy}
+          className="py-1.5 px-3 bg-ar-goldfill border border-ar-goldline rounded-full text-ar-gold text-[10.5px] cursor-pointer disabled:opacity-60"
+        >
+          {locBusy ? "Mengambil lokasi…" : "📍 Lokasi hotel (booking luar)"}
+        </button>
       </div>
 
       <div className="flex gap-2 sticky bottom-24">
