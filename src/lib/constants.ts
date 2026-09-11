@@ -9,7 +9,7 @@ export type AccessRole = (typeof ACCESS_ROLES)[number];
 // in src/app/api/admin/lapor/route.ts and src/app/admin/layout.tsx).
 export const OFFICE_ROLES: AccessRole[] = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"];
 
-export const EMPLOYEE_LEVELS = ["SILVER", "PLATINUM", "FL", "MODEL"] as const;
+export const EMPLOYEE_LEVELS = ["SILVER", "PLATINUM", "FL", "MODEL", "CLASSIC_D"] as const;
 export type EmployeeLevel = (typeof EMPLOYEE_LEVELS)[number];
 
 export const VOUCHER_STATUSES = ["MENUNGGU_VALIDASI", "TERVALIDASI", "DICAIRKAN"] as const;
@@ -23,6 +23,7 @@ export const VOUCHER_AMOUNT: Record<EmployeeLevel, number> = {
   PLATINUM: 400_000,
   FL: 105_000,
   MODEL: 700_000,
+  CLASSIC_D: 95_000,
 };
 
 export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
@@ -30,6 +31,7 @@ export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
   PLATINUM: "Platinum / Jasmine",
   FL: "FL",
   MODEL: "Model",
+  CLASSIC_D: "Classic D",
 };
 
 export const KASBON_LABEL: Record<KasbonStatus, string> = {
