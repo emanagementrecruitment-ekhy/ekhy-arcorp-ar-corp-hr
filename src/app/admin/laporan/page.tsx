@@ -9,8 +9,7 @@ type Period = "harian" | "mingguan" | "bulanan";
 interface ReportRow {
   name: string;
   level: string;
-  silver: number;
-  plat: number;
+  rateLabel: string;
   kasbon: string;
   net: string;
 }
@@ -18,7 +17,7 @@ interface ReportRow {
 interface Report {
   periodLabel: string;
   rows: ReportRow[];
-  totals: { silver: number; plat: number; kasbon: string; net: string };
+  totals: { kasbon: string; net: string };
 }
 
 const PERIODS: { key: Period; label: string }[] = [
@@ -27,7 +26,7 @@ const PERIODS: { key: Period; label: string }[] = [
   { key: "bulanan", label: "Bulanan" },
 ];
 
-const cols = "1.7fr .9fr .8fr .8fr 1fr 1fr";
+const cols = "1.7fr 1.1fr 1.1fr 1fr 1.1fr";
 
 export default function LaporanPage() {
   const [period, setPeriod] = useState<Period>("harian");
@@ -69,12 +68,11 @@ export default function LaporanPage() {
         <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
           <div className="min-w-[640px]">
           <div className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim" style={{ gridTemplateColumns: cols }}>
-            <span>Karyawan</span>
-            <span>Pendapatan/VCR</span>
-            <span>Silver</span>
-            <span>Platinum</span>
-            <span>Kasbon</span>
-            <span>Diterima</span>
+            <span>Karyawan/Tera</span>
+            <span>Grade</span>
+            <span>Pendapatan/Voucher</span>
+            <span>Total Kasbon</span>
+            <span>Sisa Gaji</span>
           </div>
           {data?.rows.map((r, i) => (
             <div key={i} className="grid gap-3 py-3.5 px-4.5 border-t border-ar-line text-[12.5px] items-center" style={{ gridTemplateColumns: cols }}>
@@ -82,8 +80,7 @@ export default function LaporanPage() {
               <span className={r.level === "PLATINUM" || r.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
                 {VOUCHER_LABEL[r.level as EmployeeLevel]}
               </span>
-              <span>{r.silver}</span>
-              <span>{r.plat}</span>
+              <span>{r.rateLabel}</span>
               <span className="text-ar-red">{r.kasbon}</span>
               <span className="font-display text-[18px] text-ar-gold2">{r.net}</span>
             </div>
@@ -95,8 +92,7 @@ export default function LaporanPage() {
             >
               <span className="tracking-[0.14em] uppercase text-[10.5px] text-ar-gold">Total {data.periodLabel}</span>
               <span />
-              <span>{data.totals.silver}</span>
-              <span>{data.totals.plat}</span>
+              <span />
               <span className="text-ar-red">{data.totals.kasbon}</span>
               <span className="font-display text-xl text-ar-gold2">{data.totals.net}</span>
             </div>

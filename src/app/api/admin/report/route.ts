@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES } from "@/lib/constants";
+import { OFFICE_ROLES, VOUCHER_AMOUNT, type EmployeeLevel } from "@/lib/constants";
 import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
-import { shortRp } from "@/lib/format";
+import { fmtRp, shortRp } from "@/lib/format";
 
 export async function GET(req: Request) {
   try {
@@ -23,12 +23,13 @@ export async function GET(req: Request) {
     });
 
     const rows = employees.map((e) => {
-      const silver = e.vouchers.filter((v) => v.category === "SILVER").length;
-      const plat = e.vouchers.filter((v) => v.category === "PLATINUM").length;
+      const level = e.level as EmployeeLevel;
       const gross = e.vouchers.reduce((s, v) => s + v.amount, 0);
       const ks = e.kasbonRequests.reduce((s, k) => s + k.amount, 0);
       return {
-        name: e.name, level: e.level, silver, plat,
+        name: e.name,
+        level,
+        rateLabel: fmtRp(VOUCHER_AMOUNT[level]),
         kasbon: ks ? "-" + shortRp(ks) : "—",
         net: shortRp(gross - ks),
         gross, ks,
@@ -40,8 +41,6 @@ export async function GET(req: Request) {
       periodLabel: PERIOD_LABEL[period],
       rows,
       totals: {
-        silver: rows.reduce((s, r) => s + r.silver, 0),
-        plat: rows.reduce((s, r) => s + r.plat, 0),
         kasbon: (() => {
           const sum = rows.reduce((s, r) => s + r.ks, 0);
           return sum ? "-" + shortRp(sum) : "—";
