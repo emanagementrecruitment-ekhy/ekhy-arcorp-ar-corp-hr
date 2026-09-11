@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp } from "@/lib/format";
@@ -51,6 +51,7 @@ export default function PendapatanPage() {
   const [importBusy, setImportBusy] = useState(false);
   const [importMsg, setImportMsg] = useState("");
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   function load() {
     fetch("/api/admin/employees?pageSize=500")
@@ -119,6 +120,7 @@ export default function PendapatanPage() {
       }
       setImportSummary(data);
       setImportFile(null);
+      if (importInputRef.current) importInputRef.current.value = "";
       load();
     } finally {
       setImportBusy(false);
@@ -138,16 +140,29 @@ export default function PendapatanPage() {
               sheet per bulan, misal &quot;Juni 2026&quot;). Karyawan baru otomatis dibuat dengan email/HP
               placeholder — update lewat Data Karyawan setelah upload.
             </div>
+            <label
+              htmlFor="vcr-import-file"
+              className="flex flex-col items-center justify-center gap-1.5 w-full py-6 px-4 mb-3 bg-ar-input border-2 border-dashed border-ar-goldline rounded-[14px] text-center cursor-pointer hover:bg-ar-surface2 transition"
+            >
+              <span className="text-[13px] text-ar-gold2 font-semibold">
+                {importFile ? "📄 " + importFile.name : "📁 Ketuk untuk pilih file Excel"}
+              </span>
+              <span className="text-[10.5px] text-ar-dim">
+                {importFile ? "Ketuk lagi untuk ganti file" : "Dari galeri/file di HP, atau folder di komputer · .xlsx / .xls"}
+              </span>
+            </label>
             <input
+              ref={importInputRef}
+              id="vcr-import-file"
               type="file"
               accept=".xlsx,.xls"
               onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
-              className="w-full text-[11.5px] text-ar-dim mb-3"
+              className="hidden"
             />
             <button
               disabled={importBusy || !importFile}
               onClick={uploadImport}
-              className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              className="w-full py-3 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
             >
               {importBusy ? "Memproses…" : "Upload & Impor"}
             </button>
