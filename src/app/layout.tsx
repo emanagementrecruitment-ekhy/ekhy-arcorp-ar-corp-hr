@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -15,8 +15,17 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "DEAR Management · E-Management",
+  title: "DEAR Management",
   description: "Portal operasional DEAR Management — absensi GPS, voucher komisi, dan kasbon karyawan.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "DEAR Management",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#050508",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
