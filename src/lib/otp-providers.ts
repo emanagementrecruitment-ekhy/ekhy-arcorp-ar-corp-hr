@@ -32,11 +32,52 @@ function getMailer() {
   return mailer;
 }
 
+function parseSender(raw: string): { name?: string; email: string } {
+  const match = raw.match(/^(.*)<(.+)>$/);
+  if (match) return { name: match[1].trim() || undefined, email: match[2].trim() };
+  return { email: raw.trim() };
+}
+
+/**
+ * Sends over Brevo's HTTP API (https://api.brevo.com/v3/smtp/email) instead
+ * of SMTP. Preferred whenever BREVO_API_KEY is set: many hosts either block
+ * outbound SMTP ports outright, or — as with Brevo specifically — silently
+ * time out the connection once "unauthorized IP" blocking is turned on for
+ * SMTP keys, since the sending host's IP isn't on the allowlist and often
+ * isn't stable enough to add permanently. A plain HTTPS call sidesteps both.
+ */
+async function sendOtpEmailViaBrevoApi(to: string, code: string) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) throw new Error("Brevo API key is not configured");
+  const senderRaw = process.env.SMTP_FROM || process.env.SMTP_USER;
+  if (!senderRaw) throw new Error("No sender email configured for Brevo API");
+  const sender = parseSender(senderRaw);
+
+  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      sender: { email: sender.email, name: sender.name || "AR Corp" },
+      to: [{ email: to }],
+      subject: "Kode verifikasi AR Corp",
+      textContent: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+    }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`Brevo API send failed: ${res.status} ${detail}`);
+  }
+}
+
 export function emailProviderConfigured() {
-  return getMailer() !== null;
+  return Boolean(process.env.BREVO_API_KEY) || getMailer() !== null;
 }
 
 export async function sendOtpEmail(to: string, code: string) {
+  if (process.env.BREVO_API_KEY) {
+    await sendOtpEmailViaBrevoApi(to, code);
+    return;
+  }
   const transport = getMailer();
   if (!transport) throw new Error("SMTP is not configured");
   await transport.sendMail({
