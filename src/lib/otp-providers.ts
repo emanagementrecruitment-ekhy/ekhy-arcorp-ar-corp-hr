@@ -21,6 +21,13 @@ function getMailer() {
     port: Number(SMTP_PORT) || 587,
     secure: Number(SMTP_PORT) === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+    // A stuck/unreachable SMTP host must fail fast — otherwise the OTP
+    // request hangs on nodemailer's much longer default timeouts, and the
+    // login screen just sits there instead of falling back to the
+    // console-logged code.
+    connectionTimeout: 8_000,
+    greetingTimeout: 8_000,
+    socketTimeout: 8_000,
   });
   return mailer;
 }
