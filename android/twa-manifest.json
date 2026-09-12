@@ -1,0 +1,40 @@
+{
+  "packageId": "id.dearmanagement.app",
+  "host": "ekhy-arcorp-ar-corp-hr-production.up.railway.app",
+  "name": "DEAR Management",
+  "launcherName": "DEAR Mgmt",
+  "display": "standalone",
+  "themeColor": "#050508",
+  "themeColorDark": "#050508",
+  "navigationColor": "#050508",
+  "navigationColorDark": "#050508",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#050508",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://ekhy-arcorp-ar-corp-hr-production.up.railway.app/icons/icon-512.png",
+  "maskableIconUrl": "https://ekhy-arcorp-ar-corp-hr-production.up.railway.app/icons/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "dearmanagement"
+  },
+  "appVersionCode": 1,
+  "appVersion": "1.0.0",
+  "shortcuts": [],
+  "generatorApp": "manual",
+  "webManifestUrl": "https://ekhy-arcorp-ar-corp-hr-production.up.railway.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 21,
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}

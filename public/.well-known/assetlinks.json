@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "id.dearmanagement.app",
+    "sha256_cert_fingerprints": ["08:27:02:B8:C2:99:CF:6A:02:CA:26:1D:4B:5A:F4:8F:7C:F0:6F:3E:CA:1A:4E:78:73:F1:92:FA:DC:45:85:17"]
+  }
+}]

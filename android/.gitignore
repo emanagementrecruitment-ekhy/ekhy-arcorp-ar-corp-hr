@@ -1,0 +1,5 @@
+# Never commit the signing keystore or its passwords — keep them outside git.
+android.keystore
+keystore-credentials.txt
+*.aab
+*.apk
