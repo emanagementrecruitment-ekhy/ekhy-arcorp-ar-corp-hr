@@ -15,8 +15,8 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "AR Corp · E-Management",
-  description: "Portal operasional AR Corp — absensi GPS, voucher komisi, dan kasbon karyawan.",
+  title: "DEAR Management · E-Management",
+  description: "Portal operasional DEAR Management — absensi GPS, voucher komisi, dan kasbon karyawan.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

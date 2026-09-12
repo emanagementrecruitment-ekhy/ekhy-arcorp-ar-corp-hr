@@ -11,12 +11,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const roleLabel =
     session.accessRole === "OWNER"
-      ? "Owner AR Corp"
+      ? "Owner DEAR Management"
       : session.accessRole === "CONSULTANT"
-        ? "Consultant AR Corp"
+        ? "Consultant DEAR Management"
         : isSupervisor
-          ? "Kepala Mess AR Corp"
-          : "Admin Pusat AR Corp";
+          ? "Kepala Mess DEAR Management"
+          : "Admin Pusat DEAR Management";
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">

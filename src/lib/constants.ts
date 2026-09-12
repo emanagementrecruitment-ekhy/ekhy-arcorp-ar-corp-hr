@@ -64,7 +64,7 @@ export const VOUCHER_STATUS_LABEL: Record<VoucherStatus, string> = {
   DICAIRKAN: "Dicairkan",
 };
 
-// AR Corp head office — Jakarta.
+// DEAR Management head office — Jakarta.
 export const HQ = { lat: -6.2088, lng: 106.8456 };
 export const HQ_NAME = "Kantor Pusat — Jakarta";
 export const ATTENDANCE_RADIUS_KM = 500;

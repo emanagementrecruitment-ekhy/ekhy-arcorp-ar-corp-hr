@@ -95,7 +95,7 @@ export default function LoginPage() {
   function beginAttendance() {
     setStep("gps");
     setGpsSteps([
-      { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
+      { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · DEAR Management App 1.0" : "Desktop · DEAR Management Web 1.0" },
       { label: "Koordinat", value: "Mencari lokasi…" },
       { label: "Jarak dari kantor pusat", value: "Menghitung…" },
       { label: "Status absensi", value: "Menunggu koordinat…" },
@@ -111,7 +111,7 @@ export default function LoginPage() {
         .then((r) => r.json())
         .then((data) => {
           setGpsSteps([
-            { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
+            { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · DEAR Management App 1.0" : "Desktop · DEAR Management Web 1.0" },
             { label: "Koordinat", value: Number.isFinite(data.lat) ? `${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}` : "—" },
             { label: "Jarak dari kantor pusat", value: `${data.distanceKm} km · batas ${data.radiusKm} km` },
             { label: "Status absensi", value: data.inRadius ? "Diterima — dalam radius" : "Ditandai — di luar radius" },
@@ -132,19 +132,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center p-5 sm:p-10 ar-glow">
+    <div className="min-h-screen grid place-items-center p-5 sm:p-10 ar-glow-corners ar-stars">
       <div className="w-full max-w-[430px] ar-in">
         <div className="flex flex-col items-center gap-3.5 mb-6">
-          <Image
-            src="/ar-corp-logo.png"
-            alt="AR Corp"
-            width={104}
-            height={104}
-            className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
-          />
+          <div className="relative">
+            <div className="absolute -inset-2 rounded-full opacity-70 blur-md" style={{ background: "radial-gradient(circle, rgba(212,20,42,0.35), transparent 70%)" }} />
+            <Image
+              src="/ar-corp-logo.png"
+              alt="DEAR Management"
+              width={104}
+              height={104}
+              className="relative rounded-full object-contain bg-ar-bg border border-ar-goldline"
+            />
+          </div>
           <div className="text-center">
-            <div className="font-display text-[17px] tracking-[0.42em] text-ar-gold uppercase font-bold">
-              E-MANAGEMENT
+            <div className="font-display text-[17px] tracking-[0.42em] uppercase font-bold">
+              <span className="ar-shimmer-text">DEAR</span>{" "}
+              <span className="ar-shimmer-red">MANAGEMENT</span>
             </div>
             <div className="text-[10.5px] tracking-[0.24em] text-ar-dim mt-1.5 uppercase">
               Operations Portal Check Your Slip Pay
@@ -152,7 +156,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="bg-ar-surface border border-ar-goldline rounded-[18px] px-[26px] pt-7 pb-6 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.85)]">
+        <div className="ar-divider-ornate mb-5">
+          <span className="ar-divider-ornate-mark" />
+        </div>
+
+        <div className="ar-frame-luxury bg-ar-surface rounded-[18px] px-[26px] pt-7 pb-6">
           <div className="grid grid-cols-2 gap-2 p-[5px] bg-ar-surface2 rounded-xl mb-[22px]">
             <button
               onClick={() => pickPortal("karyawan")}
@@ -196,10 +204,7 @@ export default function LoginPage() {
                 Kirim Kode Verifikasi
               </button>
               <div className="mt-[18px] pt-4 border-t border-ar-line text-[11.5px] leading-[1.75] text-ar-dim text-center font-semibold">
-                Akun demo — Karyawan <span className="text-ar-gold">ekhy@arcorp.id</span> · Pusat{" "}
-                <span className="text-ar-gold">owner@arcorp.id</span>
-                <br />
-                Kode verifikasi dikirim ke konsol server (mode pengembangan).
+                Kode verifikasi dikirim ke email/WhatsApp terdaftar.
               </div>
             </div>
           )}

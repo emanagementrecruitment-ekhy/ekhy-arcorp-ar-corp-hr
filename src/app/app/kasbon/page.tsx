@@ -70,7 +70,7 @@ export default function KasbonPage() {
     <div>
       <div className="font-display text-[26px] pt-3 pb-1.5">Pengajuan Kasbon</div>
       <div className="text-[11.5px] leading-[1.65] text-ar-dim mb-4">
-        Persetujuan hanya oleh Owner AR Corp. Kasbon dipotong dari pencairan voucher berikutnya.
+        Persetujuan hanya oleh Owner DEAR Management. Kasbon dipotong dari pencairan voucher berikutnya.
       </div>
 
       <div className="bg-ar-surface border border-ar-line rounded-2xl p-[17px]">

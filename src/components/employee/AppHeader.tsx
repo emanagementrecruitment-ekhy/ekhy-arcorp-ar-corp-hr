@@ -7,13 +7,13 @@ export default function AppHeader({ name, code }: { name: string; code: string }
       <div className="flex items-center gap-3">
         <Image
           src="/ar-corp-logo.png"
-          alt="AR Corp"
+          alt="DEAR Management"
           width={42}
           height={42}
           className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
         />
         <div>
-          <div className="font-display text-[13px] tracking-[0.34em] text-ar-gold uppercase">AR Corp</div>
+          <div className="font-display text-[13px] tracking-[0.34em] text-ar-gold uppercase">DEAR Management</div>
           <div className="text-[10px] tracking-[0.16em] text-ar-dim mt-1 uppercase">
             Aplikasi Karyawan · {name} ({code})
           </div>

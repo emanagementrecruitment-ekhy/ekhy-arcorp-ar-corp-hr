@@ -57,9 +57,9 @@ async function sendOtpEmailViaBrevoApi(to: string, code: string) {
     method: "POST",
     headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({
-      sender: { email: sender.email, name: sender.name || "AR Corp" },
+      sender: { email: sender.email, name: sender.name || "DEAR Management" },
       to: [{ email: to }],
-      subject: "Kode verifikasi AR Corp",
+      subject: "Kode verifikasi DEAR Management",
       textContent: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
     }),
   });
@@ -83,7 +83,7 @@ export async function sendOtpEmail(to: string, code: string) {
   await transport.sendMail({
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to,
-    subject: "Kode verifikasi AR Corp",
+    subject: "Kode verifikasi DEAR Management",
     text: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
   });
 }
@@ -103,7 +103,7 @@ export async function sendOtpSms(toPhoneDigits: string, code: string) {
   const body = new URLSearchParams({
     To: to,
     From: TWILIO_FROM_NUMBER,
-    Body: `Kode verifikasi AR Corp Anda: ${code} (berlaku 5 menit).`,
+    Body: `Kode verifikasi DEAR Management Anda: ${code} (berlaku 5 menit).`,
   });
   const res = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`,
@@ -133,7 +133,7 @@ export async function sendOtpWhatsapp(toPhoneDigits: string, code: string) {
   const target = toPhoneDigits.startsWith("62") ? toPhoneDigits : `62${toPhoneDigits.replace(/^0/, "")}`;
   const body = new URLSearchParams({
     target,
-    message: `Kode verifikasi AR Corp Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+    message: `Kode verifikasi DEAR Management Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
   });
   const res = await fetch("https://api.fonnte.com/send", {
     method: "POST",
