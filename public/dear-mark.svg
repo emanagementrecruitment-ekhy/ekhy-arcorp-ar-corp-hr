@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 90 860 180">
+  <defs>
+    <linearGradient id="dmRedMark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a0f1c"/>
+      <stop offset="28%" stop-color="#e8202f"/>
+      <stop offset="52%" stop-color="#ff5c68"/>
+      <stop offset="78%" stop-color="#c8172a"/>
+      <stop offset="100%" stop-color="#6e0c16"/>
+    </linearGradient>
+    <linearGradient id="dmSilverMark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#eef0f3"/>
+      <stop offset="25%" stop-color="#aeb2b9"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="75%" stop-color="#8d9299"/>
+      <stop offset="100%" stop-color="#54585f"/>
+    </linearGradient>
+  </defs>
+  <path d="M70,215 C230,150 370,175 460,120 C420,165 345,198 258,222 C365,207 470,172 548,110 L552,132 C465,197 350,236 225,246 C155,246 100,238 70,215 Z" fill="url(#dmRedMark)"/>
+  <path d="M830,215 C670,150 530,175 440,120 C480,165 555,198 642,222 C535,207 430,172 352,110 L348,132 C435,197 550,236 675,246 C745,246 800,238 830,215 Z" fill="url(#dmSilverMark)"/>
+</svg>

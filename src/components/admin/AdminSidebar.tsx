@@ -86,7 +86,7 @@ export default function AdminSidebar({
       <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-ar-line">
         <div className="flex items-center gap-2.5">
           <Image
-            src="/ar-corp-logo.png"
+            src="/dear-mark.svg"
             alt="DEAR Management"
             width={32}
             height={32}
@@ -112,7 +112,7 @@ export default function AdminSidebar({
             <div className="flex items-center justify-between px-1.5">
               <div className="flex items-center gap-3">
                 <Image
-                  src="/ar-corp-logo.png"
+                  src="/dear-mark.svg"
                   alt="DEAR Management"
                   width={36}
                   height={36}
@@ -137,7 +137,7 @@ export default function AdminSidebar({
       <div className="hidden lg:flex w-60 shrink-0 border-r border-ar-line p-4 sm:p-5 flex-col gap-6">
         <div className="flex items-center gap-3 px-1.5">
           <Image
-            src="/ar-corp-logo.png"
+            src="/dear-mark.svg"
             alt="DEAR Management"
             width={40}
             height={40}

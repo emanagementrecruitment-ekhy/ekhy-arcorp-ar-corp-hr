@@ -21,7 +21,7 @@ export default function PayslipDocument({ payslip, onDeleteItem }: { payslip: Pa
     <div id="payslip-print-area" className="bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
       <div className="flex items-center gap-3 mb-5 print:mb-4">
         <Image
-          src="/ar-corp-logo.png"
+          src="/dear-mark.svg"
           alt="DEAR Management"
           width={52}
           height={52}

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <defs>
+    <linearGradient id="dmRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a0f1c"/>
+      <stop offset="28%" stop-color="#e8202f"/>
+      <stop offset="52%" stop-color="#ff5c68"/>
+      <stop offset="78%" stop-color="#c8172a"/>
+      <stop offset="100%" stop-color="#6e0c16"/>
+    </linearGradient>
+    <linearGradient id="dmSilver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#eef0f3"/>
+      <stop offset="25%" stop-color="#aeb2b9"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="75%" stop-color="#8d9299"/>
+      <stop offset="100%" stop-color="#54585f"/>
+    </linearGradient>
+    <linearGradient id="dmSilverText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7d828a"/>
+      <stop offset="18%" stop-color="#ffffff"/>
+      <stop offset="38%" stop-color="#c7ccd2"/>
+      <stop offset="58%" stop-color="#ffffff"/>
+      <stop offset="80%" stop-color="#9aa0a8"/>
+      <stop offset="100%" stop-color="#54585f"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M70,215 C230,150 370,175 460,120 C420,165 345,198 258,222 C365,207 470,172 548,110 L552,132 C465,197 350,236 225,246 C155,246 100,238 70,215 Z" fill="url(#dmRed)"/>
+  <path d="M830,215 C670,150 530,175 440,120 C480,165 555,198 642,222 C535,207 430,172 352,110 L348,132 C435,197 550,236 675,246 C745,246 800,238 830,215 Z" fill="url(#dmSilver)"/>
+
+  <text x="450" y="325" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="120" letter-spacing="6" fill="url(#dmSilverText)" stroke="#3d4045" stroke-width="1.5" paint-order="stroke">DEAR</text>
+
+  <line x1="185" y1="360" x2="255" y2="360" stroke="#e8202f" stroke-width="1.5"/>
+  <rect x="270" y="353" width="9" height="9" fill="none" stroke="#e8202f" stroke-width="1.5"/>
+  <rect x="286" y="353" width="9" height="9" fill="none" stroke="#e8202f" stroke-width="1.5"/>
+  <text x="450" y="368" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="30" letter-spacing="9" fill="#e8202f">Management</text>
+  <rect x="605" y="353" width="9" height="9" fill="none" stroke="#e8202f" stroke-width="1.5"/>
+  <rect x="621" y="353" width="9" height="9" fill="none" stroke="#e8202f" stroke-width="1.5"/>
+  <line x1="645" y1="360" x2="715" y2="360" stroke="#e8202f" stroke-width="1.5"/>
+</svg>
