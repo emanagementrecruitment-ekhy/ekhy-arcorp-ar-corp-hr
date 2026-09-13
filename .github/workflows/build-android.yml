@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -67,7 +69,25 @@ jobs:
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: bubblewrap build --skipPwaValidation
+        run: bubblewrap build --skipPwaValidation 2>&1 | tee build-output.log
+
+      # TEMPORARY debug aid: artifact downloads and raw log storage are both
+      # unreachable from where these workflow files are authored, so on
+      # failure the captured output is pushed to a throwaway branch instead
+      # (plain git push, which is reachable) purely so it can be read back.
+      # Remove once the build is green.
+      - name: Push build log to debug branch (on failure)
+        if: failure()
+        run: |
+          git config user.email "ci@dearmanagement.local"
+          git config user.name "CI Debug"
+          git checkout --orphan ci-debug-log
+          git rm -rf --cached . > /dev/null
+          mkdir -p debug
+          cp android/build-output.log debug/build-output.log 2>/dev/null || echo "no log file" > debug/build-output.log
+          git add debug/build-output.log
+          git commit -m "debug: build-output.log"
+          git push -f origin ci-debug-log
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
