@@ -1,20 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 90 860 180">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 90 860 175">
   <defs>
     <linearGradient id="dmRedMark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8a0f1c"/>
-      <stop offset="28%" stop-color="#e8202f"/>
-      <stop offset="52%" stop-color="#ff5c68"/>
+      <stop offset="0%" stop-color="#5c0710"/>
+      <stop offset="22%" stop-color="#c8172a"/>
+      <stop offset="42%" stop-color="#ff6b74"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="58%" stop-color="#ff6b74"/>
       <stop offset="78%" stop-color="#c8172a"/>
-      <stop offset="100%" stop-color="#6e0c16"/>
+      <stop offset="100%" stop-color="#4a0509"/>
     </linearGradient>
     <linearGradient id="dmSilverMark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#eef0f3"/>
-      <stop offset="25%" stop-color="#aeb2b9"/>
+      <stop offset="0%" stop-color="#4a4d52"/>
+      <stop offset="20%" stop-color="#c4c8cd"/>
+      <stop offset="42%" stop-color="#eef0f2"/>
       <stop offset="50%" stop-color="#ffffff"/>
-      <stop offset="75%" stop-color="#8d9299"/>
-      <stop offset="100%" stop-color="#54585f"/>
+      <stop offset="58%" stop-color="#eef0f2"/>
+      <stop offset="78%" stop-color="#9aa0a6"/>
+      <stop offset="100%" stop-color="#3d4045"/>
     </linearGradient>
+    <filter id="dmShadowMark" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
   </defs>
-  <path d="M70,215 C230,150 370,175 460,120 C420,165 345,198 258,222 C365,207 470,172 548,110 L552,132 C465,197 350,236 225,246 C155,246 100,238 70,215 Z" fill="url(#dmRedMark)"/>
-  <path d="M830,215 C670,150 530,175 440,120 C480,165 555,198 642,222 C535,207 430,172 352,110 L348,132 C435,197 550,236 675,246 C745,246 800,238 830,215 Z" fill="url(#dmSilverMark)"/>
+  <g filter="url(#dmShadowMark)">
+    <path d="M65,235 C240,175 360,150 460,108 C468,105 476,104 482,108 C420,150 320,190 210,225 C270,215 340,198 405,175 C412,172 419,173 423,178 C355,208 275,232 190,247 C145,255 100,250 65,235 Z"
+          fill="url(#dmRedMark)" stroke="#2a0307" stroke-width="1.5" stroke-opacity="0.5"/>
+    <path d="M835,235 C660,175 540,150 440,108 C432,105 424,104 418,108 C480,150 580,190 690,225 C630,215 560,198 495,175 C488,172 481,173 477,178 C545,208 625,232 710,247 C755,255 800,250 835,235 Z"
+          fill="url(#dmSilverMark)" stroke="#1c1d1f" stroke-width="1.5" stroke-opacity="0.5"/>
+    <rect x="440" y="150" width="20" height="20" transform="rotate(45 450 160)" fill="#ffffff" stroke="#c8172a" stroke-width="2"/>
+  </g>
 </svg>
