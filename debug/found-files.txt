@@ -1,0 +1,3 @@
+android/app-release-signed.apk
+android/app-release-unsigned-aligned.apk
+android/app-release-bundle.aab

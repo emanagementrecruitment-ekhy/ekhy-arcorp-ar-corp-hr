@@ -1,0 +1,24 @@
+total 3336
+drwxr-xr-x  6 runner runner    4096 Sep 13 01:11 .
+drwxr-xr-x 10 runner runner    4096 Sep 13 01:12 ..
+-rw-r--r--  1 runner runner     134 Sep 13 01:09 .gitignore
+drwxr-xr-x  5 runner runner    4096 Sep 13 01:11 .gradle
+-rw-r--r--  1 runner runner    3959 Sep 13 01:09 README.md
+-rw-r--r--  1 runner runner    2824 Sep 13 01:10 android.keystore
+drwxr-xr-x  4 runner runner    4096 Sep 13 01:11 app
+-rw-r--r--  1 runner runner 1183016 Sep 13 01:11 app-release-bundle.aab
+-rw-r--r--  1 runner runner 1069230 Sep 13 01:11 app-release-signed.apk
+-rw-r--r--  1 runner runner   17996 Sep 13 01:11 app-release-signed.apk.idsig
+-rw-r--r--  1 runner runner 1022947 Sep 13 01:11 app-release-unsigned-aligned.apk
+drwxr-xr-x  3 runner runner    4096 Sep 13 01:11 build
+-rw-r--r--  1 runner runner     617 Sep 13 01:12 build-output.log
+-rw-r--r--  1 runner runner    1130 Sep 13 01:10 build.gradle
+drwxr-xr-x  3 runner runner    4096 Sep 13 01:10 gradle
+-rw-r--r--  1 runner runner     751 Sep 13 01:10 gradle.properties
+-rwxr-xr-x  1 runner runner    8706 Sep 13 01:10 gradlew
+-rw-r--r--  1 runner runner    2918 Sep 13 01:10 gradlew.bat
+-rw-r--r--  1 runner runner      40 Sep 13 01:10 manifest-checksum.txt
+-rw-r--r--  1 runner runner      15 Sep 13 01:10 settings.gradle
+-rw-r--r--  1 runner runner   30145 Sep 13 01:10 store_icon.png
+-rw-r--r--  1 runner runner    1290 Sep 13 01:09 twa-manifest.json
+-rw-r--r--  1 runner runner     462 Sep 13 01:10 update-output.log
