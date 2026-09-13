@@ -52,6 +52,16 @@ jobs:
           printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
           cat "$HOME/.bubblewrap/config.json"
 
+      - name: Generate manifest checksum
+        # Without this file, `bubblewrap build` interactively asks to confirm
+        # regenerating the project on every run (twa-manifest.json here is
+        # hand-written, not produced by `bubblewrap init`) — another prompt
+        # that hangs with no TTY in CI. Precomputing the checksum it expects
+        # (a plain sha1 hex digest of the manifest file, no trailing newline)
+        # skips that prompt.
+        working-directory: android
+        run: printf '%s' "$(sha1sum twa-manifest.json | cut -d' ' -f1)" > manifest-checksum.txt
+
       - name: Build signed App Bundle + APK
         working-directory: android
         env:
