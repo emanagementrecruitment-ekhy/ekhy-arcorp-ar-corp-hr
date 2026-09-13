@@ -67,14 +67,35 @@ jobs:
         # TTY in CI). --skipVersionUpgrade avoids the only other prompt in
         # this command (bumping appVersionCode/appVersionName).
         working-directory: android
-        run: bubblewrap update --skipVersionUpgrade 2>&1 | tee update-output.log
+        # Bubblewrap's own CLI swallows internal errors (a failed icon
+        # download, a failed signing step, etc.) and still exits 0, so
+        # GitHub Actions reports the step as green even when it didn't do
+        # what it was supposed to — confirmed by build-output.log/
+        # update-output.log showing ERROR lines on runs this workflow still
+        # marked "success". Retry a few times (the icon fetch hits the
+        # Railway app directly and can hit a transient 502 on a cold start),
+        # then explicitly verify the expected output file exists and fail
+        # the step for real if it doesn't.
+        run: |
+          for attempt in 1 2 3; do
+            bubblewrap update --skipVersionUpgrade 2>&1 | tee update-output.log
+            if [ -f manifest-checksum.txt ] && [ -f gradlew ]; then
+              break
+            fi
+            echo "Attempt $attempt did not produce a valid project, retrying in 15s..."
+            sleep 15
+          done
+          test -f manifest-checksum.txt && test -f gradlew
 
       - name: Build signed App Bundle + APK
         working-directory: android
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: bubblewrap build --skipPwaValidation 2>&1 | tee build-output.log
+        run: |
+          bubblewrap build --skipPwaValidation 2>&1 | tee build-output.log
+          test -f app-release-bundle.aab
+          test -f app-release-signed.apk
 
       - name: List generated files (debug)
         if: always()
