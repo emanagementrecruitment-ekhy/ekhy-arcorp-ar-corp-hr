@@ -67,7 +67,7 @@ jobs:
         # TTY in CI). --skipVersionUpgrade avoids the only other prompt in
         # this command (bumping appVersionCode/appVersionName).
         working-directory: android
-        run: bubblewrap update --skipVersionUpgrade
+        run: bubblewrap update --skipVersionUpgrade 2>&1 | tee update-output.log
 
       - name: Build signed App Bundle + APK
         working-directory: android
@@ -94,6 +94,7 @@ jobs:
           git checkout --orphan ci-debug-log
           git rm -rf --cached . > /dev/null
           mkdir -p debug
+          cp android/update-output.log debug/update-output.log 2>/dev/null || echo "no log file" > debug/update-output.log
           cp android/build-output.log debug/build-output.log 2>/dev/null || echo "no log file" > debug/build-output.log
           find android -maxdepth 4 -type f \( -iname "*.aab" -o -iname "*.apk" \) > debug/found-files.txt 2>&1 || true
           ls -la android > debug/android-dir-listing.txt 2>&1 || true
