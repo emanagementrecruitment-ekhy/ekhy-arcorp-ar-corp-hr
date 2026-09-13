@@ -1,32 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 90 860 175">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 150 820 220">
   <defs>
     <linearGradient id="dmRedMark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5c0710"/>
-      <stop offset="22%" stop-color="#c8172a"/>
-      <stop offset="42%" stop-color="#ff6b74"/>
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.9"/>
-      <stop offset="58%" stop-color="#ff6b74"/>
-      <stop offset="78%" stop-color="#c8172a"/>
-      <stop offset="100%" stop-color="#4a0509"/>
+      <stop offset="0%" stop-color="#7a0d18"/>
+      <stop offset="30%" stop-color="#e0202f"/>
+      <stop offset="50%" stop-color="#ff8890"/>
+      <stop offset="70%" stop-color="#c8172a"/>
+      <stop offset="100%" stop-color="#5c0710"/>
     </linearGradient>
-    <linearGradient id="dmSilverMark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#4a4d52"/>
-      <stop offset="20%" stop-color="#c4c8cd"/>
-      <stop offset="42%" stop-color="#eef0f2"/>
-      <stop offset="50%" stop-color="#ffffff"/>
-      <stop offset="58%" stop-color="#eef0f2"/>
-      <stop offset="78%" stop-color="#9aa0a6"/>
-      <stop offset="100%" stop-color="#3d4045"/>
+    <linearGradient id="dmChromeMark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b8f94"/>
+      <stop offset="15%" stop-color="#ffffff"/>
+      <stop offset="32%" stop-color="#c9cdd1"/>
+      <stop offset="48%" stop-color="#ffffff"/>
+      <stop offset="65%" stop-color="#9599a0"/>
+      <stop offset="85%" stop-color="#e4e7ea"/>
+      <stop offset="100%" stop-color="#5c6167"/>
     </linearGradient>
     <filter id="dmShadowMark" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity="0.6"/>
     </filter>
   </defs>
   <g filter="url(#dmShadowMark)">
-    <path d="M65,235 C240,175 360,150 460,108 C468,105 476,104 482,108 C420,150 320,190 210,225 C270,215 340,198 405,175 C412,172 419,173 423,178 C355,208 275,232 190,247 C145,255 100,250 65,235 Z"
-          fill="url(#dmRedMark)" stroke="#2a0307" stroke-width="1.5" stroke-opacity="0.5"/>
-    <path d="M835,235 C660,175 540,150 440,108 C432,105 424,104 418,108 C480,150 580,190 690,225 C630,215 560,198 495,175 C488,172 481,173 477,178 C545,208 625,232 710,247 C755,255 800,250 835,235 Z"
-          fill="url(#dmSilverMark)" stroke="#1c1d1f" stroke-width="1.5" stroke-opacity="0.5"/>
-    <rect x="440" y="150" width="20" height="20" transform="rotate(45 450 160)" fill="#ffffff" stroke="#c8172a" stroke-width="2"/>
+    <path d="M70,340 C220,260 340,235 430,175 C440,168 452,168 460,175 C400,235 300,285 190,325 C270,305 350,275 420,235 C428,230 438,231 444,238 C370,285 275,320 175,350 C130,362 90,358 70,340 Z"
+          fill="url(#dmRedMark)" stroke="#3a0509" stroke-width="2" stroke-opacity="0.6"/>
+    <path d="M300,320 C370,285 425,250 465,205 C467,203 470,204 470,207 C452,238 415,270 365,300 Z"
+          fill="url(#dmRedMark)" opacity="0.9"/>
+
+    <path d="M830,340 C680,260 560,235 470,175 C460,168 448,168 440,175 C500,235 600,285 710,325 C630,305 550,275 480,235 C472,230 462,231 456,238 C530,285 625,320 725,350 C770,362 810,358 830,340 Z"
+          fill="url(#dmChromeMark)" stroke="#2a2c2e" stroke-width="2" stroke-opacity="0.6"/>
+    <path d="M600,320 C530,285 475,250 435,205 C433,203 430,204 430,207 C448,238 485,270 535,300 Z"
+          fill="url(#dmChromeMark)" opacity="0.9"/>
   </g>
 </svg>
