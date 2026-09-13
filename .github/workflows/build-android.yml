@@ -23,6 +23,17 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install required SDK packages
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.1.0"
+
+      - name: Bridge Android SDK layout for Bubblewrap compatibility
+        # Bubblewrap's SDK path check (and its own sdkmanager calls) look for a
+        # legacy `$ANDROID_HOME/tools/bin` folder, which modern cmdline-tools-only
+        # SDK installs (like the one above) no longer have — only `cmdline-tools/latest/bin`.
+        run: ln -s "$ANDROID_HOME/cmdline-tools/latest" "$ANDROID_HOME/tools"
+
       - name: Install Bubblewrap CLI
         run: npm install -g @bubblewrap/cli
 
