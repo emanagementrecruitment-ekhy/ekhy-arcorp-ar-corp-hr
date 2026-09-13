@@ -78,3 +78,5 @@ salah satu dari itu berubah, naikkan `appVersionCode` dan `appVersion` di
 dengan aplikasi Android ini (supaya aplikasi tampil tanpa address bar
 browser, benar-benar terasa seperti aplikasi native). Sudah otomatis
 disiapkan dan cocok dengan sertifikat di `android.keystore` yang sama.
+
+<!-- secrets configured, triggering build -->
