@@ -147,7 +147,7 @@ export default function LoginPage() {
           </div>
           <div className="text-center">
             <div className="font-display text-[17px] tracking-[0.42em] uppercase font-bold">
-              <span className="ar-shimmer-text">DEAR</span>{" "}
+              <span className="ar-shimmer-gold">DEAR</span>{" "}
               <span className="ar-shimmer-red">MANAGEMENT</span>
             </div>
             <div className="text-[10.5px] tracking-[0.24em] text-ar-dim mt-1.5 uppercase">
@@ -160,12 +160,13 @@ export default function LoginPage() {
           <span className="ar-divider-ornate-mark" />
         </div>
 
+        <div className="ar-ring-gold">
         <div className="ar-frame-luxury bg-ar-surface rounded-[18px] px-[26px] pt-7 pb-6">
           <div className="grid grid-cols-2 gap-2 p-[5px] bg-ar-surface2 rounded-xl mb-[22px]">
             <button
               onClick={() => pickPortal("karyawan")}
               className={`py-[11px] rounded-[9px] text-[11px] font-semibold tracking-[0.14em] uppercase cursor-pointer transition ${
-                portal === "karyawan" ? "bg-ar-goldfill text-ar-gold2 shadow-[inset_0_0_0_1px_var(--ar-goldline)]" : "text-ar-dim"
+                portal === "karyawan" ? "ar-tab-active-gold shadow-[inset_0_0_0_1px_var(--ar-truegold-line)]" : "text-ar-dim"
               }`}
             >
               STAFF &amp; PR
@@ -173,7 +174,7 @@ export default function LoginPage() {
             <button
               onClick={() => pickPortal("pusat")}
               className={`py-[11px] rounded-[9px] text-[11px] font-semibold tracking-[0.14em] uppercase cursor-pointer transition ${
-                portal === "pusat" ? "bg-ar-goldfill text-ar-gold2 shadow-[inset_0_0_0_1px_var(--ar-goldline)]" : "text-ar-dim"
+                portal === "pusat" ? "ar-tab-active-gold shadow-[inset_0_0_0_1px_var(--ar-truegold-line)]" : "text-ar-dim"
               }`}
             >
               OFFICE
@@ -182,29 +183,55 @@ export default function LoginPage() {
 
           {step === "id" && (
             <div>
-              <div className="text-[10.5px] tracking-[0.16em] uppercase text-ar-dim mb-2.5 text-center">
-                Login Dengan Email Terdaftar
+              <div className="relative">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="absolute left-[14px] top-1/2 -translate-y-1/2 w-4 h-4 text-ar-truegold opacity-75 pointer-events-none"
+                >
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 7l9 6 9-6" />
+                </svg>
+                <input
+                  value={loginId}
+                  onChange={(e) => {
+                    setLoginId(e.target.value);
+                    setError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && sendOtp()}
+                  placeholder="YOUR EMAIL"
+                  className="w-full py-[14px] pl-11 pr-4 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[10.5px] text-left"
+                />
               </div>
-              <input
-                value={loginId}
-                onChange={(e) => {
-                  setLoginId(e.target.value);
-                  setError("");
-                }}
-                onKeyDown={(e) => e.key === "Enter" && sendOtp()}
-                placeholder="YOUR GMAIL"
-                className="w-full py-[14px] px-[15px] bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[10.5px] text-center"
-              />
               <div className="min-h-[19px] text-[11.5px] text-ar-red mt-2">{error}</div>
               <button
                 disabled={busy}
                 onClick={sendOtp}
-                className="w-full py-[15px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer disabled:opacity-60"
+                className="w-full py-[15px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                Kirim Kode Verifikasi
+                <span>Kirim Kode Verifikasi</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-3.5 h-3.5 shrink-0"
+                >
+                  <path d="M5 12h14" />
+                  <path d="M13 6l6 6-6 6" />
+                </svg>
               </button>
-              <div className="mt-[18px] pt-4 border-t border-ar-line text-[11.5px] leading-[1.75] text-ar-dim text-center font-semibold">
-                Kode verifikasi dikirim ke email/WhatsApp terdaftar.
+              <div className="mt-[18px] pt-4 border-t border-ar-line flex items-center justify-center gap-1.5 text-[11.5px] leading-[1.75] text-ar-dim text-center font-semibold">
+                <svg viewBox="0 0 24 24" fill="#25D366" className="w-3.5 h-3.5 shrink-0">
+                  <path d="M12 2C6.477 2 2 6.477 2 12c0 1.9.525 3.68 1.438 5.2L2 22l4.938-1.395A9.94 9.94 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm4.472 12.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.148.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                </svg>
+                <span>Kode verifikasi dikirim ke email/WhatsApp terdaftar.</span>
               </div>
             </div>
           )}
@@ -280,6 +307,18 @@ export default function LoginPage() {
               </button>
             </div>
           )}
+        </div>
+        </div>
+
+        <div className="mt-7 text-center">
+          <div className="text-[10px] tracking-[0.32em] uppercase ar-shimmer-gold font-semibold">
+            Professional &middot; Trusted &middot; Together
+          </div>
+          <div className="ar-tagline-underline" />
+        </div>
+
+        <div className="mt-5 text-center text-[9px] tracking-[0.15em] text-ar-faint opacity-50">
+          Project By : AR
         </div>
       </div>
     </div>

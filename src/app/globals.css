@@ -29,6 +29,13 @@
   --ar-moonlight: rgba(255, 255, 255, 0.05);
   --ar-red: #e4756b;
   --ar-green: #7fd1a8;
+
+  /* True gold accent — distinct from the brand-red-holding ar-gold* tokens
+     above. Used for the login screen's decorative ring frame, wordmark and
+     tagline where an actual gold tone (not the red/silver theme) is wanted. */
+  --ar-truegold: #cda438;
+  --ar-truegold2: #f3dfa0;
+  --ar-truegold-line: rgba(205, 164, 56, 0.45);
 }
 
 @theme inline {
@@ -49,6 +56,8 @@
   --color-ar-goldfill: var(--ar-goldfill);
   --color-ar-red: var(--ar-red);
   --color-ar-green: var(--ar-green);
+  --color-ar-truegold: var(--ar-truegold);
+  --color-ar-truegold2: var(--ar-truegold2);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
 }
@@ -171,6 +180,17 @@ textarea:focus {
   animation: arSheen 5s ease-in-out infinite;
 }
 
+/* Gold counterpart to ar-shimmer-text/ar-shimmer-red, for the login
+   screen's gold wordmark and tagline. */
+.ar-shimmer-gold {
+  background: linear-gradient(100deg, #8a6d1f 15%, var(--ar-truegold) 40%, #fff3cf 55%, var(--ar-truegold) 75%, #8a6d1f);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: arSheen 5s ease-in-out infinite;
+}
+
 @keyframes arSheen {
   0% {
     background-position: 0% 50%;
@@ -226,6 +246,47 @@ textarea:focus {
     0 30px 70px -30px rgba(0, 0, 0, 0.9),
     0 0 0 1px rgba(0, 0, 0, 0.4),
     0 0 40px -12px rgba(212, 20, 42, 0.3);
+}
+
+/* Active-tab fill for the login portal switcher: a soft gold gradient,
+   distinct from the red-tinted ar-goldfill used elsewhere. */
+.ar-tab-active-gold {
+  background: linear-gradient(135deg, rgba(205, 164, 56, 0.28), rgba(243, 223, 160, 0.32));
+  color: var(--ar-truegold2);
+}
+
+/* Decorative gold ring/oval frame drawn around the login card — a double
+   hairline with a faint outer glow, sitting behind the card via negative
+   inset so it reads as an ornamental border rather than a hard box. */
+.ar-ring-gold {
+  position: relative;
+}
+.ar-ring-gold::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 34px;
+  border: 1.5px solid var(--ar-truegold-line);
+  box-shadow:
+    0 0 26px -4px rgba(205, 164, 56, 0.4),
+    inset 0 0 26px -10px rgba(205, 164, 56, 0.25);
+  pointer-events: none;
+}
+.ar-ring-gold::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 26px;
+  border: 1px solid rgba(205, 164, 56, 0.3);
+  pointer-events: none;
+}
+
+/* Thin gold accent underline for the bottom tagline. */
+.ar-tagline-underline {
+  width: 64px;
+  height: 2px;
+  margin: 9px auto 0;
+  background: linear-gradient(90deg, transparent, var(--ar-truegold), transparent);
 }
 
 @keyframes arPulse {
