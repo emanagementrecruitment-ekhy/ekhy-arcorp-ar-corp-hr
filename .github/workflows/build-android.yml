@@ -42,7 +42,15 @@ jobs:
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
 
       - name: Point Bubblewrap at the JDK/Android SDK installed above
-        run: bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+        # `bubblewrap updateConfig` always goes through Bubblewrap's interactive
+        # first-run wizard first (it re-checks its own ~/.bubblewrap/config.json
+        # on every invocation, prompt included, regardless of the subcommand or
+        # flags passed) — which hangs forever with no TTY in CI. Writing the
+        # config file directly skips that wizard entirely.
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
+          cat "$HOME/.bubblewrap/config.json"
 
       - name: Build signed App Bundle + APK
         working-directory: android
