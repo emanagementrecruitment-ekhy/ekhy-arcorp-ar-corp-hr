@@ -54,15 +54,20 @@ jobs:
           printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
           cat "$HOME/.bubblewrap/config.json"
 
-      - name: Generate manifest checksum
-        # Without this file, `bubblewrap build` interactively asks to confirm
-        # regenerating the project on every run (twa-manifest.json here is
-        # hand-written, not produced by `bubblewrap init`) — another prompt
-        # that hangs with no TTY in CI. Precomputing the checksum it expects
-        # (a plain sha1 hex digest of the manifest file, no trailing newline)
-        # skips that prompt.
+      - name: Generate the Android project from twa-manifest.json
+        # Every CI run starts from a clean checkout, so the Gradle project
+        # (gradlew, app/, etc.) never exists yet — it must be generated fresh
+        # every time via `update`, not left for `build` to do implicitly.
+        # `build` only regenerates the project when it thinks the manifest
+        # changed (comparing against manifest-checksum.txt); `update` also
+        # writes that checksum file itself, so the immediately-following
+        # `build` step correctly sees the project as already up to date and
+        # skips straight to compiling instead of hitting its own interactive
+        # "no checksum file found, regenerate?" prompt (which hangs with no
+        # TTY in CI). --skipVersionUpgrade avoids the only other prompt in
+        # this command (bumping appVersionCode/appVersionName).
         working-directory: android
-        run: printf '%s' "$(sha1sum twa-manifest.json | cut -d' ' -f1)" > manifest-checksum.txt
+        run: bubblewrap update --skipVersionUpgrade
 
       - name: Build signed App Bundle + APK
         working-directory: android
