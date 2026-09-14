@@ -15,6 +15,8 @@ interface Seat {
   label: string;
   holder: { id: string; name: string; code: string; email: string } | null;
   candidates: Candidate[];
+  canAppoint: boolean;
+  appointerLabel: string;
 }
 
 export default function JabatanPage() {
@@ -116,13 +118,15 @@ export default function JabatanPage() {
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : seat.canAppoint ? (
               <button
                 onClick={() => setPickerFor(seat.peran)}
                 className="py-2 px-3.5 bg-ar-surface2 border border-ar-line rounded-[9px] text-ar-gold text-[11px] cursor-pointer"
               >
                 {seat.holder ? "Ganti" : "Angkat"}
               </button>
+            ) : (
+              <div className="text-[11px] text-ar-faint">Hanya {seat.appointerLabel} yang bisa mengangkat jabatan ini.</div>
             )}
           </div>
         ))}

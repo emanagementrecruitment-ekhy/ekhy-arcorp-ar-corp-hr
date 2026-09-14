@@ -26,6 +26,9 @@ model Employee {
   level       String?      // Pendapatan/VCR preset — only set when role == "Tera" (see VCR_ROLE/usesVcr() in src/lib/constants.ts)
   customRate  Int?         // per-voucher rate when level == "MANUAL" (a preset doesn't fit); ignored otherwise
   salary      Int?         // fixed monthly Gaji nominal — only set when role != "Tera"; that group never uses VCR
+  ageYears    Int?         // physical stats shown for talent listing — only meaningful when role == "Tera"
+  weightKg    Int?
+  heightCm    Int?
   role        String       // display role, e.g. "Konsultan Lapangan", "Supervisor Lapangan", "Owner AR Corp"
   accessRole  String       @default("KARYAWAN")
   homeLat     Float
@@ -155,4 +158,24 @@ model Notification {
   createdAt     DateTime  @default(now())
 
   @@index([recipientRole, createdAt])
+}
+
+// Single-row app-wide config (always id "singleton" — see src/lib/settings.ts).
+// themeColor/themeFont drive the dashboard's switchable palette/font (see
+// THEME_COLORS/THEME_FONTS in src/lib/constants.ts). logoDataUrl holds an
+// uploaded logo as a data: URL (small enough to store inline — see the
+// size cap in /api/admin/settings/logo); null means "use the default DEAR
+// Management mark". logoUpdatedAt/logoUpdatedById back the 30-day
+// re-upload lock. demoCleanupAt marks that the one-time production demo
+// purge (prisma/cleanup-demo-employees.ts) has already run, so it never
+// fires again and silently wipe real employees added after that first run.
+model AppSetting {
+  id              String    @id
+  themeColor      String    @default("classic")
+  themeFont       String    @default("classic")
+  logoDataUrl     String?
+  logoUpdatedAt   DateTime?
+  logoUpdatedById String?
+  demoCleanupAt   DateTime?
+  updatedAt       DateTime  @updatedAt
 }

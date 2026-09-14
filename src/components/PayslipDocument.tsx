@@ -21,10 +21,11 @@ export default function PayslipDocument({ payslip, onDeleteItem }: { payslip: Pa
     <div id="payslip-print-area" className="bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
       <div className="flex items-center gap-3 mb-5 print:mb-4">
         <Image
-          src="/dear-mark.svg"
+          src="/api/brand-logo"
           alt="DEAR Management"
           width={52}
           height={52}
+          unoptimized
           className="rounded-full object-contain bg-ar-bg border border-ar-goldline print:border-black"
         />
         <div>

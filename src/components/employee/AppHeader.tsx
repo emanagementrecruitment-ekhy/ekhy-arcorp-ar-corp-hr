@@ -6,10 +6,11 @@ export default function AppHeader({ name, code }: { name: string; code: string }
     <div className="max-w-[720px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 px-4 sm:px-5 pt-6 pb-5 border-b border-ar-line">
       <div className="flex items-center gap-3">
         <Image
-          src="/dear-mark.svg"
+          src="/api/brand-logo"
           alt="DEAR Management"
           width={42}
           height={42}
+          unoptimized
           className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
         />
         <div>

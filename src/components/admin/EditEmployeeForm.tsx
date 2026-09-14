@@ -18,6 +18,12 @@ export interface EditableEmployee {
   supervisorNote: string;
   customRate: number | null;
   salary: number | null;
+  // Optional: pages that don't otherwise load an employee's physical stats
+  // (e.g. Lokasi & Absensi) can omit these rather than plumb them through
+  // just to satisfy this type — the form simply starts them blank.
+  ageYears?: number | null;
+  weightKg?: number | null;
+  heightCm?: number | null;
 }
 
 export default function EditEmployeeForm({
@@ -43,6 +49,9 @@ export default function EditEmployeeForm({
     supervisorNote: employee.supervisorNote,
     customRate: employee.customRate != null ? String(employee.customRate) : "",
     salary: employee.salary != null ? String(employee.salary) : "",
+    ageYears: employee.ageYears != null ? String(employee.ageYears) : "",
+    weightKg: employee.weightKg != null ? String(employee.weightKg) : "",
+    heightCm: employee.heightCm != null ? String(employee.heightCm) : "",
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");

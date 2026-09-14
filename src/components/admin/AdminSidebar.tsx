@@ -16,6 +16,7 @@ const DESKS = [
   { href: "/admin/payslip", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   { href: "/admin/lapor-lapangan", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
   { href: "/admin/jabatan", label: "Jabatan Kantor", roles: ["OWNER", "CONSULTANT"] },
+  { href: "/admin/pengaturan", label: "Pengaturan Tampilan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
 ] as const;
 
 export default function AdminSidebar({
@@ -86,10 +87,11 @@ export default function AdminSidebar({
       <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-ar-line">
         <div className="flex items-center gap-2.5">
           <Image
-            src="/dear-mark.svg"
+            src="/api/brand-logo"
             alt="DEAR Management"
             width={32}
             height={32}
+            unoptimized
             className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
           />
           <div className="font-display text-[11px] tracking-[0.24em] text-ar-gold uppercase">DEAR Management</div>
@@ -112,10 +114,11 @@ export default function AdminSidebar({
             <div className="flex items-center justify-between px-1.5">
               <div className="flex items-center gap-3">
                 <Image
-                  src="/dear-mark.svg"
+                  src="/api/brand-logo"
                   alt="DEAR Management"
                   width={36}
                   height={36}
+                  unoptimized
                   className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
                 />
                 <div>
@@ -137,10 +140,11 @@ export default function AdminSidebar({
       <div className="hidden lg:flex w-60 shrink-0 border-r border-ar-line p-4 sm:p-5 flex-col gap-6">
         <div className="flex items-center gap-3 px-1.5">
           <Image
-            src="/dear-mark.svg"
+            src="/api/brand-logo"
             alt="DEAR Management"
             width={40}
             height={40}
+            unoptimized
             className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
           />
           <div>

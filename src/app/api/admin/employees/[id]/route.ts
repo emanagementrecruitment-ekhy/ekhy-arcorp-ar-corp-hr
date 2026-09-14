@@ -26,6 +26,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
     const customRateRaw = Number(body?.customRate);
     const salaryRaw = Number(body?.salary);
+    const ageYearsRaw = Number(body?.ageYears);
+    const weightKgRaw = Number(body?.weightKg);
+    const heightCmRaw = Number(body?.heightCm);
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
@@ -90,6 +93,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           level: vcr ? level : null,
           customRate: vcr && level === "MANUAL" ? Math.round(customRateRaw) : null,
           salary: vcr ? null : Math.round(salaryRaw),
+          ageYears: vcr && Number.isFinite(ageYearsRaw) && ageYearsRaw > 0 ? Math.round(ageYearsRaw) : null,
+          weightKg: vcr && Number.isFinite(weightKgRaw) && weightKgRaw > 0 ? Math.round(weightKgRaw) : null,
+          heightCm: vcr && Number.isFinite(heightCmRaw) && heightCmRaw > 0 ? Math.round(heightCmRaw) : null,
           role,
           homeLat: city ? city.lat : existing.homeLat,
           homeLng: city ? city.lng : existing.homeLng,

@@ -63,6 +63,9 @@ export async function GET(req: Request) {
           level: e.level,
           customRate: e.customRate,
           salary: e.salary,
+          ageYears: e.ageYears,
+          weightKg: e.weightKg,
+          heightCm: e.heightCm,
           email: e.email,
           phone: e.phone,
           place: e.homePlace,
@@ -113,6 +116,9 @@ export async function POST(req: Request) {
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
     const customRateRaw = Number(body?.customRate);
     const salaryRaw = Number(body?.salary);
+    const ageYearsRaw = Number(body?.ageYears);
+    const weightKgRaw = Number(body?.weightKg);
+    const heightCmRaw = Number(body?.heightCm);
 
     if (!name) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
     if (!role) return NextResponse.json({ error: "Peran wajib diisi." }, { status: 400 });
@@ -164,6 +170,9 @@ export async function POST(req: Request) {
         level: usesVcr(role) ? level : null,
         customRate: usesVcr(role) && level === "MANUAL" ? Math.round(customRateRaw) : null,
         salary: usesVcr(role) ? null : Math.round(salaryRaw),
+        ageYears: usesVcr(role) && Number.isFinite(ageYearsRaw) && ageYearsRaw > 0 ? Math.round(ageYearsRaw) : null,
+        weightKg: usesVcr(role) && Number.isFinite(weightKgRaw) && weightKgRaw > 0 ? Math.round(weightKgRaw) : null,
+        heightCm: usesVcr(role) && Number.isFinite(heightCmRaw) && heightCmRaw > 0 ? Math.round(heightCmRaw) : null,
         role,
         accessRole: "KARYAWAN",
         homeLat: city.lat,

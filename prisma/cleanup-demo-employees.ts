@@ -3,17 +3,26 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// One-time production cleanup, run on every start (see package.json
-// "start:railway") so it applies the moment this deploy goes live and is
-// a safe no-op forever after: keeps only the Consultant account (full
-// Owner-equivalent access — see OFFICE_ROLES in src/lib/constants.ts) and
-// permanently deletes every other employee — the seeded demo field staff
-// and the retired placeholder office accounts (Owner/Admin Pusat/Kepala
-// Mess) alike. Any real office-holder or field employee going forward is
-// added deliberately through the admin panel.
 const KEEP_CODE = "HQ-CONSULT";
+const SETTING_ID = "singleton";
 
+// True one-time production cleanup, guarded by AppSetting.demoCleanupAt so it
+// actually only ever fires once no matter how many deploys/restarts follow
+// (see package.json "start:railway", which runs this on every start).
+//
+// Before this guard existed, the deleteMany below ran unconditionally on
+// EVERY start — the comment called it "one-time" and "a safe no-op forever
+// after", but nothing in the code enforced that: any real employee added
+// through the admin panel between one deploy and the next would have been
+// silently wiped, right alongside the demo data it was meant to purge. The
+// guard is what actually makes the "safe no-op forever after" claim true.
 async function main() {
+  const setting = await prisma.appSetting.findUnique({ where: { id: SETTING_ID } });
+  if (setting?.demoCleanupAt) {
+    console.log(`[cleanup-demo-employees] already ran at ${setting.demoCleanupAt.toISOString()} — skipping.`);
+    return;
+  }
+
   // Clear self-referential (supervisorId) and cross-employee (Kasbon.decidedById)
   // foreign keys first so the bulk delete below can never trip a constraint
   // regardless of row order.
@@ -23,7 +32,13 @@ async function main() {
   const { count } = await prisma.employee.deleteMany({ where: { code: { not: KEEP_CODE } } });
   await prisma.notification.deleteMany();
 
-  console.log(`[cleanup-demo-employees] removed ${count} non-Consultant employee(s) and cleared notifications.`);
+  await prisma.appSetting.upsert({
+    where: { id: SETTING_ID },
+    update: { demoCleanupAt: new Date() },
+    create: { id: SETTING_ID, demoCleanupAt: new Date() },
+  });
+
+  console.log(`[cleanup-demo-employees] removed ${count} non-Consultant employee(s) and cleared notifications. Marked done — will not run again.`);
 }
 
 main()

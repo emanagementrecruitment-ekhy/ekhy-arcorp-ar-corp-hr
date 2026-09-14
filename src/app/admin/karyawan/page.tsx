@@ -15,6 +15,9 @@ interface EmpRow {
   level: EmployeeLevel | null;
   customRate: number | null;
   salary: number | null;
+  ageYears: number | null;
+  weightKg: number | null;
+  heightCm: number | null;
   email: string;
   phone: string;
   place: string;
@@ -187,6 +190,9 @@ export default function KaryawanPage() {
                     level: e.level,
                     customRate: e.customRate,
                     salary: e.salary,
+                    ageYears: e.ageYears,
+                    weightKg: e.weightKg,
+                    heightCm: e.heightCm,
                     role: e.role,
                     place: e.place,
                     supervisorId: e.supervisorId,
@@ -216,6 +222,13 @@ export default function KaryawanPage() {
                       e.role
                     )}
                   </span>
+                  {(e.ageYears || e.weightKg || e.heightCm) && (
+                    <span className="block text-[10.5px] text-ar-faint mt-0.5">
+                      {[e.ageYears && `${e.ageYears} thn`, e.weightKg && `${e.weightKg} kg`, e.heightCm && `${e.heightCm} cm`]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  )}
                 </span>
                 <span className={e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
                   {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}

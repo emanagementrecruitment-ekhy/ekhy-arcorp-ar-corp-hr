@@ -100,7 +100,7 @@ export const FIELD_CITIES = [
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
-export const FIELD_ROLES = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff", "Tera"] as const;
+export const FIELD_ROLES = ["Admin", "Kepala Mess", "Koordinator", "Recruitment", "Salon", "Staff", "Tera", "Owner"] as const;
 
 // Only Peran "Tera" earns via Pendapatan/VCR (per-voucher commission) — every
 // other Peran is salaried (Gaji, a fixed monthly nominal on Employee.salary).
@@ -116,7 +116,42 @@ export function usesVcr(role: string): boolean {
 // Owner/Consultant appoint one karyawan holding this Peran into the matching
 // AccessRole). Every other Peran (Koordinator, Recruitment, Salon, Staff, Tera)
 // is purely a descriptive label with no access change.
-export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: string }[] = [
+//
+// appointerRoles restricts who may perform THAT seat's appointment (defaults
+// to the full OWNER/CONSULTANT manager set when omitted — see MANAGERS in
+// src/app/api/admin/jabatan/route.ts). The Owner seat is deliberately
+// narrower: only Consultant (DEAR Management's own account) can install or
+// replace the business owner's login, so an Owner can never re-appoint
+// themselves or hand the seat to someone else unilaterally.
+export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: string; appointerRoles?: AccessRole[] }[] = [
   { peran: "Admin", accessRole: "ADMIN_PUSAT", label: "Admin" },
   { peran: "Kepala Mess", accessRole: "SUPERVISOR", label: "Kepala Mess" },
+  { peran: "Owner", accessRole: "OWNER", label: "Owner (Pemilik)", appointerRoles: ["CONSULTANT"] },
 ];
+
+// Dashboard appearance — switchable color palette and font pairing (see
+// /admin/pengaturan). Both lists double as the source of truth for
+// validating a saved AppSetting row; "classic" is the original DEAR
+// Management look (merah + silver chrome + hitam) and stays the default so
+// nothing changes visually until an Owner/Consultant/Admin Pusat picks
+// something else.
+export const THEME_COLORS = [
+  { id: "classic", label: "Merah Elegan", desc: "Merah berani + silver chrome + hitam pekat (tampilan asli)" },
+  { id: "sand", label: "Emas Pasir", desc: "Coklat pasir hangat + krem — nuansa natural" },
+  { id: "sage", label: "Hijau Zaitun", desc: "Hijau zaitun lembut + krem" },
+  { id: "terracotta", label: "Terracotta", desc: "Oranye tanah liat + krem" },
+] as const;
+export type ThemeColorId = (typeof THEME_COLORS)[number]["id"];
+export const THEME_COLOR_IDS = THEME_COLORS.map((t) => t.id) as ThemeColorId[];
+
+export const THEME_FONTS = [
+  { id: "classic", label: "Klasik", desc: "Cormorant Garamond + Manrope (tampilan asli)" },
+  { id: "modern", label: "Modern", desc: "Playfair Display + Inter" },
+  { id: "bold", label: "Tegas", desc: "Montserrat + Work Sans" },
+] as const;
+export type ThemeFontId = (typeof THEME_FONTS)[number]["id"];
+export const THEME_FONT_IDS = THEME_FONTS.map((t) => t.id) as ThemeFontId[];
+
+// Minimum days a newly uploaded logo must stay in place (see
+// /api/admin/settings/logo) before it can be replaced again.
+export const LOGO_LOCK_DAYS = 30;

@@ -7,7 +7,7 @@ const MANAGERS = ["OWNER", "CONSULTANT"] as const;
 
 export async function GET() {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
 
     const seats = await Promise.all(
       APPOINTABLE_ROLES.map(async (seat) => {
@@ -19,12 +19,15 @@ export async function GET() {
             orderBy: { name: "asc" },
           }),
         ]);
+        const appointerRoles = seat.appointerRoles ?? [...MANAGERS];
         return {
           peran: seat.peran,
           accessRole: seat.accessRole,
           label: seat.label,
           holder: holder ? { id: holder.id, name: holder.name, code: holder.code, email: holder.email } : null,
           candidates,
+          canAppoint: appointerRoles.includes(session.accessRole),
+          appointerLabel: appointerRoles.join(" / "),
         };
       })
     );
@@ -37,13 +40,18 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
     const body = await req.json().catch(() => null);
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
     const peran = typeof body?.peran === "string" ? body.peran : "";
 
     const seat = APPOINTABLE_ROLES.find((s) => s.peran === peran);
     if (!seat) return NextResponse.json({ error: "Jabatan tidak dikenali." }, { status: 400 });
+
+    const appointerRoles = seat.appointerRoles ?? [...MANAGERS];
+    if (!appointerRoles.includes(session.accessRole)) {
+      throw new ApiAuthError(403, `Hanya ${appointerRoles.join("/")} yang bisa mengangkat jabatan "${seat.peran}".`);
+    }
 
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
     if (!employee || employee.accessRole !== "KARYAWAN" || employee.role !== peran) {

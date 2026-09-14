@@ -20,12 +20,23 @@
   --ar-dim: rgba(244, 245, 247, 0.55);
   --ar-faint: rgba(244, 245, 247, 0.32);
   --ar-input: rgba(0, 0, 0, 0.45);
+
+  /* The brand accent, split into three pieces (rgb triplet for opacity-varied
+     glows/shadows, plus dark/bright stops for the enamel gradient) so a
+     dashboard color theme (see [data-theme] below and THEME_COLORS in
+     src/lib/constants.ts) can swap the whole accent family by redefining
+     just these three variables — everything downstream (ar-gold, goldfill,
+     glows, sparkle, pulse) is derived from them. */
+  --ar-accent-rgb: 212, 20, 42;
+  --ar-accent-dark: #7a0d18;
+  --ar-accent-bright: #ff3b4a;
+
   --ar-gold: #d4142a;
   --ar-gold2: #e9edf2;
   --ar-gold3: #ffffff;
   --ar-ongold: #ffffff;
   --ar-goldline: rgba(224, 227, 232, 0.32);
-  --ar-goldfill: rgba(212, 20, 42, 0.1);
+  --ar-goldfill: rgba(var(--ar-accent-rgb), 0.1);
   --ar-moonlight: rgba(255, 255, 255, 0.05);
   --ar-red: #e4756b;
   --ar-green: #7fd1a8;
@@ -36,6 +47,48 @@
   --ar-truegold: #cda438;
   --ar-truegold2: #f3dfa0;
   --ar-truegold-line: rgba(205, 164, 56, 0.45);
+
+  /* Font pack indirection: a page's font-display/font-sans utilities always
+     read --font-display/--font-sans; [data-font] below just repoints those
+     two at a different pre-loaded next/font pack (see layout.tsx), so
+     switching fonts never needs a client-side font fetch or causes FOUC. */
+  --font-display: var(--font-display-classic);
+  --font-sans: var(--font-sans-classic);
+}
+
+/* Dashboard color themes (see THEME_COLORS in src/lib/constants.ts and the
+   Pengaturan Tampilan page) — each swaps only the brand-accent family
+   (ar-accent-*, ar-gold, ar-goldfill); backgrounds, text and the neutral
+   silver/chrome tones stay the same across all four so the app keeps its
+   dark-luxury identity regardless of which natural accent is active.
+   "classic" (the original merah/red look) needs no block — it's the :root
+   default above. */
+[data-theme="sand"] {
+  --ar-accent-rgb: 181, 120, 46;
+  --ar-accent-dark: #5c3a14;
+  --ar-accent-bright: #e7a94f;
+  --ar-gold: #b5782e;
+}
+[data-theme="sage"] {
+  --ar-accent-rgb: 122, 135, 79;
+  --ar-accent-dark: #3f4a2a;
+  --ar-accent-bright: #a8b878;
+  --ar-gold: #7a874f;
+}
+[data-theme="terracotta"] {
+  --ar-accent-rgb: 193, 90, 53;
+  --ar-accent-dark: #6e2f18;
+  --ar-accent-bright: #e8905f;
+  --ar-gold: #c15a35;
+}
+
+[data-font="modern"] {
+  --font-display: var(--font-display-modern);
+  --font-sans: var(--font-sans-modern);
+}
+[data-font="bold"] {
+  --font-display: var(--font-display-bold);
+  --font-sans: var(--font-sans-bold);
 }
 
 @theme inline {
@@ -103,7 +156,14 @@ textarea:focus {
 .ar-grad {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #7a0d18, var(--ar-gold) 45%, #ff3b4a 55%, var(--ar-gold) 70%, #7a0d18);
+  background: linear-gradient(
+    135deg,
+    var(--ar-accent-dark),
+    var(--ar-gold) 45%,
+    var(--ar-accent-bright) 55%,
+    var(--ar-gold) 70%,
+    var(--ar-accent-dark)
+  );
   background-size: 220% auto;
   animation: arSheen 5s ease-in-out infinite;
 }
@@ -120,7 +180,7 @@ textarea:focus {
 /* Base page wash: deep-black vignette from the center-top, kept for pages
    that don't need the full four-corner treatment below. */
 .ar-glow {
-  background: radial-gradient(900px 500px at 50% -10%, rgba(212, 20, 42, 0.12), transparent 70%);
+  background: radial-gradient(900px 500px at 50% -10%, rgba(var(--ar-accent-rgb), 0.12), transparent 70%);
 }
 
 /* Full luxury backdrop — bold red bleeding in from all four corners
@@ -129,10 +189,10 @@ textarea:focus {
    with color dropped on top. */
 .ar-glow-corners {
   background:
-    radial-gradient(560px 420px at 0% 0%, rgba(212, 20, 42, 0.16), transparent 62%),
-    radial-gradient(560px 420px at 100% 0%, rgba(212, 20, 42, 0.16), transparent 62%),
-    radial-gradient(620px 460px at 0% 100%, rgba(212, 20, 42, 0.12), transparent 62%),
-    radial-gradient(620px 460px at 100% 100%, rgba(212, 20, 42, 0.12), transparent 62%),
+    radial-gradient(560px 420px at 0% 0%, rgba(var(--ar-accent-rgb), 0.16), transparent 62%),
+    radial-gradient(560px 420px at 100% 0%, rgba(var(--ar-accent-rgb), 0.16), transparent 62%),
+    radial-gradient(620px 460px at 0% 100%, rgba(var(--ar-accent-rgb), 0.12), transparent 62%),
+    radial-gradient(620px 460px at 100% 100%, rgba(var(--ar-accent-rgb), 0.12), transparent 62%),
     radial-gradient(1000px 700px at 50% 15%, var(--ar-moonlight), transparent 65%),
     var(--ar-bg-deep);
 }
@@ -153,7 +213,7 @@ textarea:focus {
     radial-gradient(1.5px 1.5px at 82% 12%, rgba(255, 255, 255, 0.38), transparent 100%),
     radial-gradient(1px 1px at 68% 78%, rgba(255, 255, 255, 0.4), transparent 100%),
     radial-gradient(1px 1px at 24% 82%, rgba(255, 255, 255, 0.32), transparent 100%),
-    radial-gradient(1.5px 1.5px at 92% 55%, rgba(212, 20, 42, 0.5), transparent 100%),
+    radial-gradient(1.5px 1.5px at 92% 55%, rgba(var(--ar-accent-rgb), 0.5), transparent 100%),
     radial-gradient(1px 1px at 6% 52%, rgba(255, 255, 255, 0.3), transparent 100%);
 }
 
@@ -172,7 +232,14 @@ textarea:focus {
 /* Bold-red counterpart to ar-shimmer-text, for the red half of the
    wordmark and other statement accents. */
 .ar-shimmer-red {
-  background: linear-gradient(100deg, #8f0f1c 15%, var(--ar-gold) 40%, #ff4d5a 55%, var(--ar-gold) 75%, #8f0f1c);
+  background: linear-gradient(
+    100deg,
+    var(--ar-accent-dark) 15%,
+    var(--ar-gold) 40%,
+    var(--ar-accent-bright) 55%,
+    var(--ar-gold) 75%,
+    var(--ar-accent-dark)
+  );
   background-size: 220% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -235,7 +302,7 @@ textarea:focus {
   flex-shrink: 0;
   transform: rotate(45deg);
   background: linear-gradient(135deg, var(--ar-gold), #ffffff);
-  box-shadow: 0 0 10px 1px rgba(212, 20, 42, 0.55);
+  box-shadow: 0 0 10px 1px rgba(var(--ar-accent-rgb), 0.55);
 }
 
 /* Gives a card a fine chrome hairline plus a soft outer red bloom, for
@@ -245,7 +312,7 @@ textarea:focus {
   box-shadow:
     0 30px 70px -30px rgba(0, 0, 0, 0.9),
     0 0 0 1px rgba(0, 0, 0, 0.4),
-    0 0 40px -12px rgba(212, 20, 42, 0.3);
+    0 0 40px -12px rgba(var(--ar-accent-rgb), 0.3);
 }
 
 /* Active-tab fill for the login portal switcher: a soft gold gradient,
@@ -291,13 +358,13 @@ textarea:focus {
 
 @keyframes arPulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(212, 20, 42, 0.45);
+    box-shadow: 0 0 0 0 rgba(var(--ar-accent-rgb), 0.45);
   }
   70% {
-    box-shadow: 0 0 0 9px rgba(212, 20, 42, 0);
+    box-shadow: 0 0 0 9px rgba(var(--ar-accent-rgb), 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(212, 20, 42, 0);
+    box-shadow: 0 0 0 0 rgba(var(--ar-accent-rgb), 0);
   }
 }
 .ar-pulse {

@@ -138,10 +138,11 @@ export default function LoginPage() {
           <div className="relative">
             <div className="absolute -inset-2 rounded-full opacity-70 blur-md" style={{ background: "radial-gradient(circle, rgba(212,20,42,0.35), transparent 70%)" }} />
             <Image
-              src="/dear-mark.svg"
+              src="/api/brand-logo"
               alt="DEAR Management"
               width={104}
               height={104}
+              unoptimized
               className="relative rounded-full object-contain bg-ar-bg border border-ar-goldline"
             />
           </div>

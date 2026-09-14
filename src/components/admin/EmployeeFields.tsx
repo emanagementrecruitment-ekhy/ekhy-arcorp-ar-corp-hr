@@ -20,6 +20,9 @@ export interface EmployeeFieldsValue {
   supervisorNote: string;
   customRate: string;
   salary: string;
+  ageYears: string;
+  weightKg: string;
+  heightCm: string;
 }
 
 const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]";
@@ -38,6 +41,9 @@ export function emptyEmployeeFields(): EmployeeFieldsValue {
     supervisorNote: "",
     customRate: "",
     salary: "",
+    ageYears: "",
+    weightKg: "",
+    heightCm: "",
   };
 }
 
@@ -128,6 +134,36 @@ export default function EmployeeFields({
               />
             </div>
           )}
+          <div>
+            <label className={labelCls}>Usia (tahun)</label>
+            <input
+              type="number"
+              value={value.ageYears}
+              onChange={(e) => onChange({ ageYears: e.target.value })}
+              placeholder="cth. 21"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Berat Badan (kg)</label>
+            <input
+              type="number"
+              value={value.weightKg}
+              onChange={(e) => onChange({ weightKg: e.target.value })}
+              placeholder="cth. 55"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Tinggi Badan (cm)</label>
+            <input
+              type="number"
+              value={value.heightCm}
+              onChange={(e) => onChange({ heightCm: e.target.value })}
+              placeholder="cth. 165"
+              className={inputCls}
+            />
+          </div>
         </>
       ) : (
         <div>
