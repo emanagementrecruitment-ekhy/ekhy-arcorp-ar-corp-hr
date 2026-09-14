@@ -8,6 +8,14 @@ import { SETTING_ID } from "@/lib/settings";
 // one exists, otherwise falls back to the shipped default mark, so every
 // place in the app that shows the brand mark can point at this single URL
 // instead of a static file path and pick up a change immediately.
+//
+// A bare GET with no cookies()/headers() call is otherwise eligible for
+// Next's build-time static generation — which would either bake in
+// whatever the build container's (nonexistent) database returns, or fail
+// the build outright the way the root layout's DB read did. force-dynamic
+// keeps this reading the real database on every request instead.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const setting = await prisma.appSetting.findUnique({ where: { id: SETTING_ID } });
   const match = setting?.logoDataUrl?.match(/^data:([^;]+);base64,([A-Za-z0-9+/=]+)$/);

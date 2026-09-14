@@ -59,6 +59,15 @@ export const viewport: Viewport = {
   themeColor: "#050508",
 };
 
+// The root layout now reads the appearance setting from the database on
+// every request (see getAppearanceSetting below) so a saved theme/font
+// change applies immediately without a rebuild. Next would otherwise try to
+// prerender pages like /app at BUILD time, when the SQLite volume isn't
+// mounted yet — force-dynamic keeps every page rendered per-request, which
+// this app already needs anyway since nearly every page reads the session
+// cookie.
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { themeColor, themeFont } = await getAppearanceSetting();
 
