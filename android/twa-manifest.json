@@ -20,8 +20,8 @@
     "path": "./android.keystore",
     "alias": "dearmanagement"
   },
-  "appVersionCode": 1,
-  "appVersion": "1.0.0",
+  "appVersionCode": 2,
+  "appVersion": "1.0.1",
   "shortcuts": [],
   "generatorApp": "manual",
   "webManifestUrl": "https://ekhy-arcorp-ar-corp-hr-production.up.railway.app/manifest.webmanifest",
