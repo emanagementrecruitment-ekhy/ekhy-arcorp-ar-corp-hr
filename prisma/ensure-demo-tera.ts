@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { HQ } from "../src/lib/constants";
+import { HQ, DEMO_TERA_CODE } from "../src/lib/constants";
 
 const prisma = new PrismaClient();
 
@@ -12,8 +12,13 @@ const prisma = new PrismaClient();
 // survives every redeploy/restart and any field edited here stays in sync.
 // Level/customRate/salary aren't touched on update so an admin's later
 // change via Data Karyawan sticks.
+//
+// email/phone below aren't real — nobody can receive an OTP sent to them.
+// issueOtp() (src/lib/otp.ts) special-cases DEMO_TERA_CODE to always show
+// the code on-screen instead, in every environment, so this account stays
+// loggable without a real inbox/WhatsApp.
 const DEMO_TERA = {
-  code: "DEMO-01",
+  code: DEMO_TERA_CODE,
   name: "Grace",
   email: "grace.demo@dearmanagement.id",
   phone: "081200000064",

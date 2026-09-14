@@ -27,8 +27,12 @@ function generateCode(): string {
  * logging the code server-side and — outside production — returning it in
  * the API response, so the login flow stays testable end to end without any
  * credentials.
+ *
+ * alwaysReturnCode overrides that production gating for a specific account
+ * whose email/phone aren't real (see DEMO_TERA_CODE) — otherwise no one
+ * could ever retrieve its code at all.
  */
-export async function issueOtp(employeeId: string, target: string, kind: IdentifierKind) {
+export async function issueOtp(employeeId: string, target: string, kind: IdentifierKind, alwaysReturnCode = false) {
   const code = generateCode();
   const codeHash = await bcrypt.hash(code, 10);
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
@@ -40,24 +44,27 @@ export async function issueOtp(employeeId: string, target: string, kind: Identif
   const channel =
     kind === "email" ? "email" : whatsappProviderConfigured() ? "whatsapp" : smsProviderConfigured() ? "sms" : null;
 
+  // alwaysReturnCode's target is never a real inbox/number, so "delivered"
+  // here would only mean a mail/API server accepted the handoff — never
+  // that anyone could actually read it. Show the code regardless of outcome.
   if (channel === "email" && emailProviderConfigured()) {
     try {
       await sendOtpEmail(target, code);
-      return { devCode: undefined, delivered: true as const };
+      return { devCode: alwaysReturnCode ? code : undefined, delivered: true as const };
     } catch (err) {
       console.error(`[otp] email delivery failed for employee ${employeeId}, falling back to console:`, err);
     }
   } else if (channel === "whatsapp") {
     try {
       await sendOtpWhatsapp(target, code);
-      return { devCode: undefined, delivered: true as const };
+      return { devCode: alwaysReturnCode ? code : undefined, delivered: true as const };
     } catch (err) {
       console.error(`[otp] whatsapp delivery failed for employee ${employeeId}, falling back to console:`, err);
     }
   } else if (channel === "sms") {
     try {
       await sendOtpSms(target, code);
-      return { devCode: undefined, delivered: true as const };
+      return { devCode: alwaysReturnCode ? code : undefined, delivered: true as const };
     } catch (err) {
       console.error(`[otp] sms delivery failed for employee ${employeeId}, falling back to console:`, err);
     }
@@ -66,7 +73,7 @@ export async function issueOtp(employeeId: string, target: string, kind: Identif
   console.log(`[otp] code for employee ${employeeId}: ${code} (expires ${expiresAt.toISOString()})`);
 
   return {
-    devCode: process.env.NODE_ENV === "production" ? undefined : code,
+    devCode: alwaysReturnCode || process.env.NODE_ENV !== "production" ? code : undefined,
     delivered: false as const,
   };
 }

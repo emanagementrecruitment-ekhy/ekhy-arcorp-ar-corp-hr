@@ -155,3 +155,10 @@ export const THEME_FONT_IDS = THEME_FONTS.map((t) => t.id) as ThemeFontId[];
 // Minimum days a newly uploaded logo must stay in place (see
 // /api/admin/settings/logo) before it can be replaced again.
 export const LOGO_LOCK_DAYS = 30;
+
+// The standing demo Tera account (see prisma/ensure-demo-tera.ts) — its
+// email/phone aren't real, so nobody can ever receive its OTP by email or
+// WhatsApp. issueOtp() (src/lib/otp.ts) checks this code to always surface
+// the code on-screen for this one account, in every environment including
+// production, so the demo stays usable without real delivery.
+export const DEMO_TERA_CODE = "DEMO-01";

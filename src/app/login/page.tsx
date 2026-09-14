@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [devCode, setDevCode] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
   const [delivered, setDelivered] = useState(false);
   const [busy, setBusy] = useState(false);
   const [gpsSteps, setGpsSteps] = useState<GpsStep[]>([]);
@@ -31,6 +32,7 @@ export default function LoginPage() {
     setStep("id");
     setError("");
     setDevCode(null);
+    setIsDemo(false);
     setDelivered(false);
   }
 
@@ -53,6 +55,7 @@ export default function LoginPage() {
         return;
       }
       setDevCode(data.devCode ?? null);
+      setIsDemo(Boolean(data.isDemo));
       setDelivered(Boolean(data.delivered));
       setOtp("");
       setStep("otp");
@@ -244,7 +247,8 @@ export default function LoginPage() {
               </div>
               {devCode && (
                 <div className="mb-3 py-2 px-3 rounded-lg border border-ar-goldline bg-ar-goldfill text-ar-gold2 text-[12px] text-center tracking-[0.1em]">
-                  Mode pengembangan — kode Anda: <strong>{devCode}</strong>
+                  {isDemo ? "Akun demo — kode Anda: " : "Mode pengembangan — kode Anda: "}
+                  <strong>{devCode}</strong>
                 </div>
               )}
               {delivered && (
