@@ -98,7 +98,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dear-management-android-${{ github.run_number }}
+          name: arcorp-android-${{ github.run_number }}
           path: |
             android/app-release-bundle.aab
             android/app-release-signed.apk
