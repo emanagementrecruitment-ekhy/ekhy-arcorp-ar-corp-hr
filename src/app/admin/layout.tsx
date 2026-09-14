@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="min-h-screen flex flex-col lg:flex-row">
       <AdminSidebar
         roleLabel={roleLabel}
-        canApprove={session.accessRole === "OWNER"}
+        canApprove={session.accessRole === "OWNER" || session.accessRole === "CONSULTANT"}
         accessRole={session.accessRole}
         supervisorOnly={isSupervisor}
       />

@@ -42,11 +42,18 @@ export default function LaporLapanganPage() {
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then((d) => setCanReply(["OWNER", "CONSULTANT", "SUPERVISOR"].includes(d.session?.accessRole)));
+    // Poll the thread list — new incoming reports should show up without a
+    // manual refresh, same as any normal chat inbox.
+    const id = setInterval(loadThreads, 4000);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
     if (!selectedId) return;
     loadDetail(selectedId);
+    // Poll the open thread for the employee's next message.
+    const id = setInterval(() => loadDetail(selectedId), 3000);
+    return () => clearInterval(id);
   }, [selectedId]);
 
   async function sendReply() {

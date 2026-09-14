@@ -20,12 +20,20 @@ export default function LaporPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch("/api/chat")
-      .then((r) => r.json())
-      .then((d) => {
-        setSupervisor(d.supervisor);
-        setMessages(d.messages ?? []);
-      });
+    function load() {
+      fetch("/api/chat")
+        .then((r) => r.json())
+        .then((d) => {
+          setSupervisor(d.supervisor);
+          setMessages(d.messages ?? []);
+        });
+    }
+    load();
+    // Poll for the supervisor's replies — this app has no live-push
+    // transport (WebSocket/SSE), so a short interval is what keeps the
+    // thread feeling like an actual chat instead of a static page.
+    const id = setInterval(load, 3000);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {

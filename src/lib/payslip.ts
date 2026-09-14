@@ -16,7 +16,7 @@ export interface PayslipRow {
 }
 
 export interface Payslip {
-  employee: { name: string; code: string; role: string; level: EmployeeLevel | null; levelLabel: string };
+  employee: { name: string; code: string; role: string; place: string; level: EmployeeLevel | null; levelLabel: string };
   month: string;
   monthLabel: string;
   rows: PayslipRow[];
@@ -80,6 +80,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
       name: employee.name,
       code: employee.code,
       role: employee.role,
+      place: employee.homePlace,
       level,
       levelLabel: level ? VOUCHER_LABEL[level] : "GAJI",
     },

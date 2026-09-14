@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
+import ResetAppearance from "@/components/admin/ResetAppearance";
 
 const OPTIONS = [
   {
@@ -60,6 +61,8 @@ export default async function NavLayoutDevPage() {
           </div>
         ))}
       </div>
+
+      <ResetAppearance />
     </div>
   );
 }

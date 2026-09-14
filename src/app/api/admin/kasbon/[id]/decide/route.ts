@@ -3,9 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { fmtRp } from "@/lib/format";
 
+const APPROVERS = ["OWNER", "CONSULTANT"] as const;
+
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await requireSession(["OWNER"]);
+    const session = await requireSession([...APPROVERS]);
     const { id } = await params;
     const body = await req.json().catch(() => null);
     const approve = body?.approve === true;
@@ -22,6 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const finalAmount = hasEditedAmount ? Math.round(editedAmountRaw) : existing.amount;
     const amountChanged = hasEditedAmount && finalAmount !== existing.amount;
+    const deciderLabel = session.accessRole === "CONSULTANT" ? "Consultant" : "Owner";
 
     await prisma.kasbon.update({
       where: { id },
@@ -32,15 +35,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         decidedAt: new Date(),
         note: approve
           ? amountChanged
-            ? `Disetujui Owner · nominal diubah dari ${fmtRp(existing.amount)} jadi ${fmtRp(finalAmount)} · dipotong pencairan voucher berikutnya`
-            : "Disetujui Owner · dipotong pencairan voucher berikutnya"
-          : "Ditolak Owner",
+            ? `Disetujui ${deciderLabel} · nominal diubah dari ${fmtRp(existing.amount)} jadi ${fmtRp(finalAmount)} · dipotong pencairan voucher berikutnya`
+            : `Disetujui ${deciderLabel} · dipotong pencairan voucher berikutnya`
+          : `Ditolak ${deciderLabel}`,
       },
     });
 
     if (approve) {
       await prisma.notification.create({
-        data: { recipientRole: "ADMIN_PUSAT", text: `Kasbon ${existing.employee.name} disetujui Owner.` },
+        data: { recipientRole: "ADMIN_PUSAT", text: `Kasbon ${existing.employee.name} disetujui ${deciderLabel}.` },
       });
     }
 

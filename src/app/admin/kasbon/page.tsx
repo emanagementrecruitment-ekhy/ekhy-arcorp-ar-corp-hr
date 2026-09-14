@@ -19,7 +19,7 @@ interface KasbonRow {
 
 export default function AdminKasbonPage() {
   const [rows, setRows] = useState<KasbonRow[]>([]);
-  const [isOwner, setIsOwner] = useState(false);
+  const [canApprove, setCanApprove] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editAmounts, setEditAmounts] = useState<Record<string, string>>({});
 
@@ -33,7 +33,7 @@ export default function AdminKasbonPage() {
     load();
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setIsOwner(d.session?.accessRole === "OWNER"));
+      .then((d) => setCanApprove(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
   }, []);
 
   async function decide(k: KasbonRow, approve: boolean) {
@@ -56,7 +56,7 @@ export default function AdminKasbonPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Persetujuan Kasbon" subtitle="Hanya Owner yang dapat menyetujui atau menolak" />
+      <AdminPageHeader title="Persetujuan Kasbon" subtitle="Hanya Owner & Consultant yang dapat menyetujui atau menolak" />
 
       <div className="pt-5.5 flex flex-col gap-2.5">
         {rows.length === 0 && <div className="text-[12px] text-ar-faint py-3">Belum ada pengajuan kasbon.</div>}
@@ -72,7 +72,7 @@ export default function AdminKasbonPage() {
               </div>
             </div>
             <div className="flex-1 min-w-[220px] text-xs leading-[1.6] text-ar-dim">{k.reason}</div>
-            {k.pending && isOwner ? (
+            {k.pending && canApprove ? (
               <div className="min-w-[150px]">
                 <label className="text-[9.5px] tracking-[0.12em] uppercase text-ar-dim mb-1 block">
                   Nominal (bisa diubah)
@@ -89,7 +89,7 @@ export default function AdminKasbonPage() {
             )}
             <div className="flex gap-2 items-center min-w-[230px] justify-end">
               {k.pending ? (
-                isOwner ? (
+                canApprove ? (
                   <span className="flex gap-2">
                     <button
                       disabled={busyId === k.id}
@@ -116,8 +116,8 @@ export default function AdminKasbonPage() {
           </div>
         ))}
         <div className="mt-1.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
-          Setiap keputusan tercatat dengan nama pemberi persetujuan dan waktunya. Owner bisa mengubah nominal sebelum
-          menyetujui. Nominal yang disetujui otomatis dipotong dari pencairan voucher berikutnya.
+          Setiap keputusan tercatat dengan nama pemberi persetujuan dan waktunya. Owner &amp; Consultant bisa mengubah
+          nominal sebelum menyetujui. Nominal yang disetujui otomatis dipotong dari pencairan voucher berikutnya.
         </div>
       </div>
     </div>

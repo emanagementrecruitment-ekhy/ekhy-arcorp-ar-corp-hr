@@ -51,20 +51,8 @@ export async function POST(req: Request) {
   }
 }
 
-// Clears a custom logo back to the shipped default. Deliberately bypasses
-// the 30-day lock — that lock exists to slow down churn between DIFFERENT
-// custom logos, not to trap an Owner/Consultant who wants back the default
-// they started with.
-export async function DELETE() {
-  try {
-    const session = await requireSession([...MANAGERS]);
-    await prisma.appSetting.upsert({
-      where: { id: SETTING_ID },
-      update: { logoDataUrl: null, logoUpdatedAt: null, logoUpdatedById: session.employeeId },
-      create: { id: SETTING_ID },
-    });
-    return NextResponse.json({ ok: true });
-  } catch (e) {
-    return apiError(e);
-  }
-}
+// A password-gated full reset (theme + font + logo) lives at
+// /api/admin/settings/reset instead of here — deliberately not a DELETE on
+// this route, since that would let anyone with logo-management access
+// clear it with no passcode, bypassing the whole point of gating the reset
+// behind a code only the Consultant hands out.

@@ -52,7 +52,7 @@ export default function AdminSidebar({
             key={d.href}
             href={d.href}
             onClick={onNavigate}
-            className={`flex items-center justify-between py-2.5 px-3 rounded-[10px] text-[12.5px] ${
+            className={`flex items-center justify-between py-2 px-2.5 rounded-[9px] text-[12.5px] ${
               active ? "bg-ar-goldfill text-ar-gold2" : "text-ar-dim"
             }`}
           >
@@ -83,25 +83,24 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* Mobile top bar — replaces the persistent sidebar below the lg breakpoint */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-ar-line">
-        <div className="flex items-center gap-2.5">
-          <Image
-            src="/api/brand-logo"
-            alt="AR Corp"
-            width={32}
-            height={32}
-            unoptimized
-            className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
-          />
-          <div className="font-display text-[11px] tracking-[0.24em] text-ar-gold uppercase">AR Corp</div>
-        </div>
-        <button
-          onClick={() => setMobileOpen(true)}
-          aria-label="Buka menu"
-          className="py-2 px-3 border border-ar-line rounded-[9px] text-ar-dim text-[13px] cursor-pointer"
-        >
-          ☰ Menu
+      {/* Mobile top bar — replaces the persistent sidebar below the lg breakpoint.
+          Kept deliberately minimal: small logo, no brand text/border box, an
+          icon-only menu button. */}
+      <div className="lg:hidden flex items-center justify-between px-4 py-2.5">
+        <Image
+          src="/api/brand-logo"
+          alt="AR Corp"
+          width={26}
+          height={26}
+          unoptimized
+          className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
+        />
+        <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" className="p-2 text-ar-dim cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
         </button>
       </div>
 
@@ -110,28 +109,28 @@ export default function AdminSidebar({
           className="lg:hidden fixed inset-0 z-50 flex bg-black/60"
           onClick={(e) => e.target === e.currentTarget && setMobileOpen(false)}
         >
-          <div className="w-[78%] max-w-[300px] h-full bg-ar-bg border-r border-ar-line p-4 flex flex-col gap-6 overflow-y-auto">
-            <div className="flex items-center justify-between px-1.5">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/api/brand-logo"
-                  alt="AR Corp"
-                  width={36}
-                  height={36}
-                  unoptimized
-                  className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
-                />
-                <div>
-                  <div className="font-display text-[12px] tracking-[0.3em] text-ar-gold uppercase">AR Corp</div>
-                  <div className="text-[9px] tracking-[0.14em] text-ar-dim mt-1 uppercase">Kantor Pusat</div>
-                </div>
-              </div>
-              <button onClick={() => setMobileOpen(false)} className="text-ar-dim text-[18px] cursor-pointer px-1">
-                ×
+          <div className="w-[75%] max-w-[280px] h-full bg-ar-bg p-3.5 flex flex-col gap-5 overflow-y-auto">
+            <div className="flex items-center justify-between px-1">
+              <Image
+                src="/api/brand-logo"
+                alt="AR Corp"
+                width={30}
+                height={30}
+                unoptimized
+                className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
+              />
+              <button onClick={() => setMobileOpen(false)} aria-label="Tutup menu" className="p-1.5 text-ar-dim cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="5" y1="5" x2="19" y2="19" />
+                  <line x1="19" y1="5" x2="5" y2="19" />
+                </svg>
               </button>
             </div>
             {navLinks(() => setMobileOpen(false))}
-            {accountCard}
+            <div className="mt-auto pt-3 border-t border-ar-line text-[11px] text-ar-dim flex items-center justify-between">
+              <span>{roleLabel}</span>
+              <LogoutButton className="text-ar-faint cursor-pointer" />
+            </div>
           </div>
         </div>
       )}

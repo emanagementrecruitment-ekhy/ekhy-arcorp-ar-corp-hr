@@ -47,6 +47,9 @@ export default function PayslipDocument({ payslip, onDeleteItem }: { payslip: Pa
         <div>
           <span className="text-ar-dim print:text-black/60">Grade</span> : {payslip.employee.levelLabel}
         </div>
+        <div>
+          <span className="text-ar-dim print:text-black/60">Outlet/Lokasi Kerja</span> : {payslip.employee.place}
+        </div>
       </div>
 
       <div className="text-[10px] tracking-[0.16em] uppercase text-ar-gold mb-2 print:text-black print:font-bold">
