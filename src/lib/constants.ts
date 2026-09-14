@@ -64,7 +64,7 @@ export const VOUCHER_STATUS_LABEL: Record<VoucherStatus, string> = {
   DICAIRKAN: "Dicairkan",
 };
 
-// DEAR Management head office — Jakarta.
+// AR Corp head office — Jakarta.
 export const HQ = { lat: -6.2088, lng: 106.8456 };
 export const HQ_NAME = "Kantor Pusat — Jakarta";
 export const ATTENDANCE_RADIUS_KM = 500;
@@ -120,9 +120,9 @@ export function usesVcr(role: string): boolean {
 // appointerRoles restricts who may perform THAT seat's appointment (defaults
 // to the full OWNER/CONSULTANT manager set when omitted — see MANAGERS in
 // src/app/api/admin/jabatan/route.ts). The Owner seat is deliberately
-// narrower: only Consultant (DEAR Management's own account) can install or
-// replace the business owner's login, so an Owner can never re-appoint
-// themselves or hand the seat to someone else unilaterally.
+// narrower: only Consultant (AR Corp's own account) can install or replace
+// the business owner's login, so an Owner can never re-appoint themselves or
+// hand the seat to someone else unilaterally.
 export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: string; appointerRoles?: AccessRole[] }[] = [
   { peran: "Admin", accessRole: "ADMIN_PUSAT", label: "Admin" },
   { peran: "Kepala Mess", accessRole: "SUPERVISOR", label: "Kepala Mess" },
@@ -131,12 +131,11 @@ export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: 
 
 // Dashboard appearance — switchable color palette and font pairing (see
 // /admin/pengaturan). Both lists double as the source of truth for
-// validating a saved AppSetting row; "classic" is the original DEAR
-// Management look (merah + silver chrome + hitam) and stays the default so
-// nothing changes visually until an Owner/Consultant/Admin Pusat picks
-// something else.
+// validating a saved AppSetting row; "classic" is AR Corp's own gold-black
+// look and stays the default so nothing changes visually until an
+// Owner/Consultant/Admin Pusat picks something else.
 export const THEME_COLORS = [
-  { id: "classic", label: "Merah Elegan", desc: "Merah berani + silver chrome + hitam pekat (tampilan asli)" },
+  { id: "classic", label: "AR Corp Emas", desc: "Emas klasik + hitam pekat (tampilan asli AR Corp)" },
   { id: "sand", label: "Emas Pasir", desc: "Coklat pasir hangat + krem — nuansa natural" },
   { id: "sage", label: "Hijau Zaitun", desc: "Hijau zaitun lembut + krem" },
   { id: "terracotta", label: "Terracotta", desc: "Oranye tanah liat + krem" },

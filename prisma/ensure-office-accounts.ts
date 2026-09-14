@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 const CONSULTANT_ACCOUNT = {
   code: "HQ-CONSULT",
   name: "Consultant",
-  role: "Consultant DEAR Management",
+  role: "Consultant AR Corp",
   accessRole: "CONSULTANT",
   email: "aldhilarizky@gmail.com",
   phone: "087843860999",
@@ -26,7 +26,12 @@ const CONSULTANT_ACCOUNT = {
 async function main() {
   await prisma.employee.upsert({
     where: { code: CONSULTANT_ACCOUNT.code },
-    update: { name: CONSULTANT_ACCOUNT.name, email: CONSULTANT_ACCOUNT.email, phone: CONSULTANT_ACCOUNT.phone },
+    update: {
+      name: CONSULTANT_ACCOUNT.name,
+      role: CONSULTANT_ACCOUNT.role,
+      email: CONSULTANT_ACCOUNT.email,
+      phone: CONSULTANT_ACCOUNT.phone,
+    },
     create: { ...CONSULTANT_ACCOUNT, level: "PLATINUM", homeLat: HQ.lat, homeLng: HQ.lng, homePlace: "Kantor Pusat Jakarta" },
   });
   console.log(`[ensure-office-accounts] consultant pinned to ${CONSULTANT_ACCOUNT.email}`);

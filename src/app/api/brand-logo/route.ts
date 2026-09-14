@@ -27,8 +27,8 @@ export async function GET() {
     });
   }
 
-  const defaultMark = await readFile(path.join(process.cwd(), "public", "dear-mark.svg"));
+  const defaultMark = await readFile(path.join(process.cwd(), "public", "ar-corp-logo.png"));
   return new Response(defaultMark, {
-    headers: { "Content-Type": "image/svg+xml", "Cache-Control": "no-cache" },
+    headers: { "Content-Type": "image/png", "Cache-Control": "no-cache" },
   });
 }

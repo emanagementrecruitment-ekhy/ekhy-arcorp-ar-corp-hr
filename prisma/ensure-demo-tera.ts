@@ -20,7 +20,7 @@ const prisma = new PrismaClient();
 const DEMO_TERA = {
   code: DEMO_TERA_CODE,
   name: "Grace",
-  email: "grace.demo@dearmanagement.id",
+  email: "grace.demo@arcorp.id",
   phone: "081200000064",
   role: "Tera",
   level: "GOLD",
@@ -34,6 +34,7 @@ async function main() {
     where: { code: DEMO_TERA.code },
     update: {
       name: DEMO_TERA.name,
+      email: DEMO_TERA.email,
       role: DEMO_TERA.role,
       ageYears: DEMO_TERA.ageYears,
       weightKg: DEMO_TERA.weightKg,

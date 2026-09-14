@@ -22,6 +22,8 @@ export default function PengaturanPage() {
   const [msg, setMsg] = useState("");
   const [logoMsg, setLogoMsg] = useState("");
   const [saved, setSaved] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetMsg, setResetMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   function load() {
@@ -90,6 +92,29 @@ export default function PengaturanPage() {
       setLogoMsg("✓ Logo berhasil diganti.");
     } finally {
       setLogoBusy(false);
+    }
+  }
+
+  async function resetToDefault() {
+    setResetBusy(true);
+    setResetMsg("");
+    try {
+      const [themeRes, logoRes] = await Promise.all([
+        fetch("/api/admin/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ themeColor: "classic", themeFont: "classic" }),
+        }),
+        fetch("/api/admin/settings/logo", { method: "DELETE" }),
+      ]);
+      if (!themeRes.ok || !logoRes.ok) {
+        setResetMsg("Gagal mereset ke tampilan bawaan.");
+        return;
+      }
+      setResetMsg("✓ Direset — memuat ulang…");
+      setTimeout(() => window.location.reload(), 700);
+    } finally {
+      setResetBusy(false);
     }
   }
 
@@ -176,7 +201,7 @@ export default function PengaturanPage() {
                   className="w-16 h-16 rounded-full object-contain bg-ar-bg border border-ar-goldline"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12.5px] text-ar-text">{logo.hasCustom ? "Logo kustom aktif" : "Logo bawaan DEAR Management"}</div>
+                  <div className="text-[12.5px] text-ar-text">{logo.hasCustom ? "Logo kustom aktif" : "Logo bawaan AR Corp"}</div>
                   {logo.locked && logo.unlockAt ? (
                     <div className="text-[10.5px] text-ar-gold mt-1">
                       Terkunci — bisa diganti lagi mulai{" "}
@@ -196,6 +221,17 @@ export default function PengaturanPage() {
                 </button>
               </div>
               {logoMsg && <div className="text-[11.5px] text-ar-green mt-2">{logoMsg}</div>}
+
+              <div className="mt-3.5">
+                <button
+                  disabled={resetBusy}
+                  onClick={resetToDefault}
+                  className="py-2 px-3.5 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[11px] cursor-pointer disabled:opacity-50"
+                >
+                  {resetBusy ? "Mereset…" : "Reset ke Tampilan Bawaan (AR Corp)"}
+                </button>
+                {resetMsg && <div className="text-[11.5px] text-ar-green mt-2">{resetMsg}</div>}
+              </div>
             </>
           ) : (
             <div className="text-[11.5px] text-ar-dim leading-[1.6]">
@@ -226,7 +262,7 @@ export default function PengaturanPage() {
 }
 
 const THEME_SWATCH: Record<ThemeColorId, string> = {
-  classic: "#d4142a",
+  classic: "#c9a24a",
   sand: "#b5782e",
   sage: "#7a874f",
   terracotta: "#c15a35",

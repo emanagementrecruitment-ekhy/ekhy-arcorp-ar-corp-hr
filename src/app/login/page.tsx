@@ -98,7 +98,7 @@ export default function LoginPage() {
   function beginAttendance() {
     setStep("gps");
     setGpsSteps([
-      { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · DEAR Management App 1.0" : "Desktop · DEAR Management Web 1.0" },
+      { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
       { label: "Koordinat", value: "Mencari lokasi…" },
       { label: "Jarak dari kantor pusat", value: "Menghitung…" },
       { label: "Status absensi", value: "Menunggu koordinat…" },
@@ -114,7 +114,7 @@ export default function LoginPage() {
         .then((r) => r.json())
         .then((data) => {
           setGpsSteps([
-            { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · DEAR Management App 1.0" : "Desktop · DEAR Management Web 1.0" },
+            { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
             { label: "Koordinat", value: Number.isFinite(data.lat) ? `${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}` : "—" },
             { label: "Jarak dari kantor pusat", value: `${data.distanceKm} km · batas ${data.radiusKm} km` },
             { label: "Status absensi", value: data.inRadius ? "Diterima — dalam radius" : "Ditandai — di luar radius" },
@@ -139,10 +139,10 @@ export default function LoginPage() {
       <div className="w-full max-w-[430px] ar-in">
         <div className="flex flex-col items-center gap-3.5 mb-6">
           <div className="relative">
-            <div className="absolute -inset-2 rounded-full opacity-70 blur-md" style={{ background: "radial-gradient(circle, rgba(212,20,42,0.35), transparent 70%)" }} />
+            <div className="absolute -inset-2 rounded-full opacity-70 blur-md" style={{ background: "radial-gradient(circle, rgba(201,162,74,0.35), transparent 70%)" }} />
             <Image
               src="/api/brand-logo"
-              alt="DEAR Management"
+              alt="AR Corp"
               width={104}
               height={104}
               unoptimized
@@ -151,8 +151,7 @@ export default function LoginPage() {
           </div>
           <div className="text-center">
             <div className="font-display text-[17px] tracking-[0.42em] uppercase font-bold">
-              <span className="ar-shimmer-gold">DEAR</span>{" "}
-              <span className="ar-shimmer-red">MANAGEMENT</span>
+              <span className="ar-shimmer-gold">E-MANAGEMENT</span>
             </div>
             <div className="text-[10.5px] tracking-[0.24em] text-ar-dim mt-1.5 uppercase">
               Operations Portal Check Your Slip Pay

@@ -50,3 +50,21 @@ export async function POST(req: Request) {
     return apiError(e);
   }
 }
+
+// Clears a custom logo back to the shipped default. Deliberately bypasses
+// the 30-day lock — that lock exists to slow down churn between DIFFERENT
+// custom logos, not to trap an Owner/Consultant who wants back the default
+// they started with.
+export async function DELETE() {
+  try {
+    const session = await requireSession([...MANAGERS]);
+    await prisma.appSetting.upsert({
+      where: { id: SETTING_ID },
+      update: { logoDataUrl: null, logoUpdatedAt: null, logoUpdatedById: session.employeeId },
+      create: { id: SETTING_ID },
+    });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    return apiError(e);
+  }
+}

@@ -46,17 +46,17 @@ const fontVariables = [
 ].join(" ");
 
 export const metadata: Metadata = {
-  title: "DEAR Management",
-  description: "Portal operasional DEAR Management — absensi GPS, voucher komisi, dan kasbon karyawan.",
+  title: "AR Corp · E-Management",
+  description: "Portal operasional AR Corp — absensi GPS, voucher komisi, dan kasbon karyawan.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "DEAR Management",
+    title: "AR Corp",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050508",
+  themeColor: "#08080a",
 };
 
 // The root layout now reads the appearance setting from the database on

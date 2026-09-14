@@ -88,13 +88,13 @@ export default function AdminSidebar({
         <div className="flex items-center gap-2.5">
           <Image
             src="/api/brand-logo"
-            alt="DEAR Management"
+            alt="AR Corp"
             width={32}
             height={32}
             unoptimized
             className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
           />
-          <div className="font-display text-[11px] tracking-[0.24em] text-ar-gold uppercase">DEAR Management</div>
+          <div className="font-display text-[11px] tracking-[0.24em] text-ar-gold uppercase">AR Corp</div>
         </div>
         <button
           onClick={() => setMobileOpen(true)}
@@ -115,14 +115,14 @@ export default function AdminSidebar({
               <div className="flex items-center gap-3">
                 <Image
                   src="/api/brand-logo"
-                  alt="DEAR Management"
+                  alt="AR Corp"
                   width={36}
                   height={36}
                   unoptimized
                   className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
                 />
                 <div>
-                  <div className="font-display text-[12px] tracking-[0.3em] text-ar-gold uppercase">DEAR Management</div>
+                  <div className="font-display text-[12px] tracking-[0.3em] text-ar-gold uppercase">AR Corp</div>
                   <div className="text-[9px] tracking-[0.14em] text-ar-dim mt-1 uppercase">Kantor Pusat</div>
                 </div>
               </div>
@@ -141,14 +141,14 @@ export default function AdminSidebar({
         <div className="flex items-center gap-3 px-1.5">
           <Image
             src="/api/brand-logo"
-            alt="DEAR Management"
+            alt="AR Corp"
             width={40}
             height={40}
             unoptimized
             className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
           />
           <div>
-            <div className="font-display text-[12.5px] tracking-[0.3em] text-ar-gold uppercase">DEAR Management</div>
+            <div className="font-display text-[12.5px] tracking-[0.3em] text-ar-gold uppercase">AR Corp</div>
             <div className="text-[9.5px] tracking-[0.14em] text-ar-dim mt-1 uppercase">Kantor Pusat</div>
           </div>
         </div>

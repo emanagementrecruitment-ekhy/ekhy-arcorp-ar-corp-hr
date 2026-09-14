@@ -1,25 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* DEAR Management brand palette: deep black base ("hitam pekat"), a bold
-     statement red, and a luxury chrome-silver accent — the same three
-     tones as the DEAR Management mark (silver wordmark, red swoosh/
-     sub-line, black field). Variable names keep the historic "ar-gold*"
-     prefix so the hundreds of existing `text-ar-gold`, `bg-ar-goldfill`,
-     etc. classes across the app re-theme automatically — ar-gold now
-     carries the brand RED, ar-gold2/ar-gold3 carry the brand SILVER.
-     ar-red stays a separate, desaturated coral reserved for error/danger
-     states so it never gets confused with the bold brand red. */
-  --ar-bg: #030304;
+  /* AR Corp brand palette: deep black base with a warm classic gold accent
+     — matching the original AR Corp mark (gold "AR" monogram + crown on
+     black). Variable names keep the historic "ar-gold*" prefix directly
+     matching the brand this time (no more red/silver indirection). ar-red
+     stays a separate, desaturated coral reserved for error/danger states. */
+  --ar-bg: #08080a;
   --ar-bg-deep: #000000;
-  --ar-bezel: #17171a;
-  --ar-surface: #0e0e10;
-  --ar-surface2: rgba(255, 255, 255, 0.035);
-  --ar-line: rgba(224, 227, 232, 0.14);
-  --ar-text: #f4f5f7;
-  --ar-dim: rgba(244, 245, 247, 0.55);
-  --ar-faint: rgba(244, 245, 247, 0.32);
-  --ar-input: rgba(0, 0, 0, 0.45);
+  --ar-bezel: #191920;
+  --ar-surface: #131317;
+  --ar-surface2: rgba(255, 255, 255, 0.03);
+  --ar-line: rgba(255, 255, 255, 0.08);
+  --ar-text: #ede9e2;
+  --ar-dim: rgba(237, 233, 226, 0.5);
+  --ar-faint: rgba(237, 233, 226, 0.32);
+  --ar-input: rgba(0, 0, 0, 0.4);
 
   /* The brand accent, split into three pieces (rgb triplet for opacity-varied
      glows/shadows, plus dark/bright stops for the enamel gradient) so a
@@ -27,17 +23,17 @@
      src/lib/constants.ts) can swap the whole accent family by redefining
      just these three variables — everything downstream (ar-gold, goldfill,
      glows, sparkle, pulse) is derived from them. */
-  --ar-accent-rgb: 212, 20, 42;
-  --ar-accent-dark: #7a0d18;
-  --ar-accent-bright: #ff3b4a;
+  --ar-accent-rgb: 201, 162, 74;
+  --ar-accent-dark: #6b4f1a;
+  --ar-accent-bright: #fdf0ce;
 
-  --ar-gold: #d4142a;
-  --ar-gold2: #e9edf2;
-  --ar-gold3: #ffffff;
-  --ar-ongold: #ffffff;
-  --ar-goldline: rgba(224, 227, 232, 0.32);
-  --ar-goldfill: rgba(var(--ar-accent-rgb), 0.1);
-  --ar-moonlight: rgba(255, 255, 255, 0.05);
+  --ar-gold: #c9a24a;
+  --ar-gold2: #f2dc9b;
+  --ar-gold3: #f2dc9b;
+  --ar-ongold: #1a1408;
+  --ar-goldline: rgba(229, 196, 102, 0.3);
+  --ar-goldfill: rgba(229, 196, 102, 0.08);
+  --ar-moonlight: rgba(255, 255, 255, 0.04);
   --ar-red: #e4756b;
   --ar-green: #7fd1a8;
 
@@ -59,10 +55,9 @@
 /* Dashboard color themes (see THEME_COLORS in src/lib/constants.ts and the
    Pengaturan Tampilan page) — each swaps only the brand-accent family
    (ar-accent-*, ar-gold, ar-goldfill); backgrounds, text and the neutral
-   silver/chrome tones stay the same across all four so the app keeps its
-   dark-luxury identity regardless of which natural accent is active.
-   "classic" (the original merah/red look) needs no block — it's the :root
-   default above. */
+   tones stay the same across all four so the app keeps its dark-luxury
+   identity regardless of which natural accent is active. "classic" (AR
+   Corp's own gold) needs no block — it's the :root default above. */
 [data-theme="sand"] {
   --ar-accent-rgb: 181, 120, 46;
   --ar-accent-dark: #5c3a14;

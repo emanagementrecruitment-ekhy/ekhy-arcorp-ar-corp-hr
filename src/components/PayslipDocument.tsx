@@ -22,14 +22,14 @@ export default function PayslipDocument({ payslip, onDeleteItem }: { payslip: Pa
       <div className="flex items-center gap-3 mb-5 print:mb-4">
         <Image
           src="/api/brand-logo"
-          alt="DEAR Management"
+          alt="AR Corp"
           width={52}
           height={52}
           unoptimized
           className="rounded-full object-contain bg-ar-bg border border-ar-goldline print:border-black"
         />
         <div>
-          <div className="font-display text-[13px] tracking-[0.3em] text-ar-gold uppercase print:text-black">DEAR Management</div>
+          <div className="font-display text-[13px] tracking-[0.3em] text-ar-gold uppercase print:text-black">AR Corp</div>
           <div className="font-display text-[22px] print:text-black">Slip Pay</div>
         </div>
       </div>

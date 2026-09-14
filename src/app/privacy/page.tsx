@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Kebijakan Privasi · DEAR Management",
+  title: "Kebijakan Privasi · AR Corp",
 };
 
 export default function PrivacyPage() {
@@ -9,12 +9,12 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-ar-bg text-ar-text">
       <div className="max-w-2xl mx-auto px-5 py-12 sm:py-16">
         <div className="font-display text-[28px] mb-1">Kebijakan Privasi</div>
-        <div className="text-[11.5px] text-ar-dim mb-8">DEAR Management · Terakhir diperbarui: September 2026</div>
+        <div className="text-[11.5px] text-ar-dim mb-8">AR Corp · Terakhir diperbarui: September 2026</div>
 
         <div className="flex flex-col gap-6 text-[13px] leading-[1.8] text-ar-text">
           <p>
-            Aplikasi DEAR Management (&ldquo;Aplikasi&rdquo;) adalah sistem internal untuk mengelola absensi, komisi/voucher, dan
-            kasbon karyawan DEAR Management. Aplikasi ini digunakan oleh karyawan dan staf kantor DEAR Management —
+            Aplikasi AR Corp (&ldquo;Aplikasi&rdquo;) adalah sistem internal untuk mengelola absensi, komisi/voucher, dan
+            kasbon karyawan AR Corp. Aplikasi ini digunakan oleh karyawan dan staf kantor AR Corp —
             bukan untuk umum. Halaman ini menjelaskan data apa yang dikumpulkan Aplikasi dan bagaimana data itu
             digunakan.
           </p>
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 flex flex-col gap-1.5">
               <li>
                 <strong>Data identitas karyawan</strong> — nama, kode karyawan, jabatan, alamat email, dan nomor
-                WhatsApp/telepon, yang didaftarkan oleh admin/pusat DEAR Management untuk keperluan login dan
+                WhatsApp/telepon, yang didaftarkan oleh admin/pusat AR Corp untuk keperluan login dan
                 penggajian.
               </li>
               <li>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Bagaimana Data Digunakan</div>
             <p>
-              Data di atas digunakan semata-mata untuk operasional internal DEAR Management: verifikasi kehadiran,
+              Data di atas digunakan semata-mata untuk operasional internal AR Corp: verifikasi kehadiran,
               perhitungan komisi/gaji, persetujuan kasbon, dan pelaporan kepada manajemen. Data tidak dijual atau
               dibagikan kepada pihak ketiga untuk kepentingan iklan.
             </p>
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Penyimpanan &amp; Keamanan</div>
             <p>
-              Data disimpan pada server milik DEAR Management dan dilindungi dengan otentikasi berbasis kode OTP.
+              Data disimpan pada server milik AR Corp dan dilindungi dengan otentikasi berbasis kode OTP.
               Akses ke data karyawan dibatasi hanya untuk peran Owner, Admin Pusat, Konsultan, dan Kepala Mess sesuai
               kebutuhan operasional masing-masing.
             </p>
@@ -69,8 +69,8 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Hak Karyawan</div>
             <p>
-              Karyawan dapat meminta koreksi atau penghapusan data pribadinya dengan menghubungi admin/pusat DEAR
-              Management melalui kontak di bawah.
+              Karyawan dapat meminta koreksi atau penghapusan data pribadinya dengan menghubungi admin/pusat AR Corp
+              melalui kontak di bawah.
             </p>
           </section>
 
