@@ -3,6 +3,8 @@ import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { FIELD_CITIES, HQ, type EmployeeLevel } from "@/lib/constants";
+import { notifyOffice } from "@/lib/notify";
+import { fmtRp } from "@/lib/format";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
 
@@ -158,6 +160,10 @@ export async function POST(req: Request) {
 
       if (sheetHadData) sheetsProcessed++;
       else skippedSheets.push(sheetName);
+    }
+
+    if (vouchersInserted > 0) {
+      await notifyOffice(`Import Pendapatan: ${vouchersInserted} voucher dari ${sheetsProcessed} outlet · ${fmtRp(totalAmount)}`);
     }
 
     return NextResponse.json({

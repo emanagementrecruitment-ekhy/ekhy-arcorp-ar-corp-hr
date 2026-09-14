@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { timeLabel } from "@/lib/format";
+import { notifyOffice } from "@/lib/notify";
 
 export async function GET() {
   try {
@@ -49,9 +50,7 @@ export async function POST(req: Request) {
       },
     });
 
-    await prisma.notification.create({
-      data: { recipientRole: "SUPERVISOR", text: `Laporan baru dari ${session.name}: ${text.slice(0, 80)}` },
-    });
+    await notifyOffice(`Laporan baru dari ${session.name}: ${text.slice(0, 80)}`);
 
     return NextResponse.json({
       ok: true,

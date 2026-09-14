@@ -11,6 +11,7 @@ import {
   type EmployeeLevel,
   type VoucherStatus,
 } from "@/lib/constants";
+import { notifyOffice } from "@/lib/notify";
 
 export async function GET(req: Request) {
   try {
@@ -116,6 +117,8 @@ export async function POST(req: Request) {
         occurredAt,
       })),
     });
+
+    await notifyOffice(`Pendapatan baru dari ${employee.name} (self-entry): ${qty} voucher · ${fmtRp(amount * qty)}`);
 
     return NextResponse.json({ ok: true, count: qty, total: amount * qty });
   } catch (e) {

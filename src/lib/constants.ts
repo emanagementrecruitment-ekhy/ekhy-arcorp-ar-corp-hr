@@ -9,6 +9,12 @@ export type AccessRole = (typeof ACCESS_ROLES)[number];
 // in src/app/api/admin/lapor/route.ts and src/app/admin/layout.tsx).
 export const OFFICE_ROLES: AccessRole[] = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"];
 
+// Every role that should hear about day-to-day activity (new chat/report,
+// voucher/pendapatan entries, a Tera login) — OFFICE_ROLES plus SUPERVISOR
+// (Kepala Mess), who's otherwise scoped to Laporan Lapangan only. See
+// src/lib/notify.ts.
+export const NOTIFY_ROLES: AccessRole[] = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"];
+
 // Ordered lowest to highest pendapatan/VCR — drives dropdown display order.
 // MANUAL sits last: it has no fixed rate (see VOUCHER_AMOUNT and
 // employeeRate() below — its real rate lives on Employee.customRate).

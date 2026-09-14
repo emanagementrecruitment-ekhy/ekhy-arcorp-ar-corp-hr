@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp, dLabel, timeLabel, dayKey } from "@/lib/format";
+import { notifyOffice } from "@/lib/notify";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
 
@@ -94,6 +95,8 @@ export async function POST(req: Request) {
     await prisma.voucher.createMany({
       data: Array.from({ length: qty }, () => ({ employeeId, category, client, amount, occurredAt })),
     });
+
+    await notifyOffice(`Pendapatan baru untuk ${employee.name}: ${qty} voucher · ${fmtRp(amount * qty)}`);
 
     return NextResponse.json({ ok: true, count: qty, total: amount * qty });
   } catch (e) {

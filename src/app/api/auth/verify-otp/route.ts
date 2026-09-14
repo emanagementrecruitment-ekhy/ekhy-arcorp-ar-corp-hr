@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { findEmployeeForPortal, type Portal } from "@/lib/lookup";
 import { verifyOtp } from "@/lib/otp";
 import { createSession } from "@/lib/auth";
-import type { AccessRole } from "@/lib/constants";
+import { usesVcr, type AccessRole } from "@/lib/constants";
+import { notifyOffice } from "@/lib/notify";
 
 const REASON_MESSAGE: Record<string, string> = {
   not_found: "Kode belum diminta atau sudah kedaluwarsa. Kirim ulang kode.",
@@ -36,9 +36,9 @@ export async function POST(req: Request) {
   });
 
   if (employee.accessRole !== "KARYAWAN") {
-    await prisma.notification.create({
-      data: { recipientRole: "OWNER", text: `${employee.name} (${employee.role}) login ke Office.` },
-    });
+    await notifyOffice(`${employee.name} (${employee.role}) login ke Office.`);
+  } else if (usesVcr(employee.role)) {
+    await notifyOffice(`${employee.name} (Tera) login.`);
   }
 
   return NextResponse.json({
