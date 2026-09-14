@@ -203,6 +203,23 @@ export default function PengaturanPage() {
             </div>
           )}
         </div>
+
+        {logo?.canManage && (
+          <div className="pt-4 border-t border-ar-line">
+            <div className="font-display text-[19px] text-ar-gold2 mb-1">Cadangkan Data</div>
+            <div className="text-[11.5px] text-ar-dim mb-3 leading-[1.6]">
+              Unduh seluruh database aplikasi (data karyawan, voucher, kasbon, rincian totalan, dan pengaturan) sebagai
+              satu file. Simpan file ini di tempat aman di luar aplikasi — ini satu-satunya salinan lengkap data
+              bisnis Anda.
+            </div>
+            <a
+              href="/api/admin/backup"
+              className="inline-block py-2.5 px-4 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-semibold tracking-[0.1em] uppercase cursor-pointer"
+            >
+              Unduh Cadangan Database
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
