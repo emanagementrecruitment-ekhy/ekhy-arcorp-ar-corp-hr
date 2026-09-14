@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -103,3 +105,23 @@ jobs:
             android/app-release-bundle.aab
             android/app-release-signed.apk
           retention-days: 90
+
+      - name: Publish APK for in-app download
+        # Copies the freshly built APK into the Next.js public/ folder and
+        # commits it back to main under a fixed filename, so the live site
+        # always serves the latest build at a stable URL — no manual
+        # artifact download needed. This path is outside android/**, so it
+        # doesn't retrigger this workflow.
+        run: |
+          mkdir -p public/downloads
+          cp android/app-release-signed.apk public/downloads/arcorp.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/downloads/arcorp.apk
+          if git diff --cached --quiet; then
+            echo "APK unchanged, nothing to publish."
+          else
+            git commit -m "Publish APK terbaru ke /downloads (auto dari CI build #${{ github.run_number }})"
+            git pull --rebase origin main
+            git push
+          fi

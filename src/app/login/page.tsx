@@ -321,6 +321,16 @@ export default function LoginPage() {
           <div className="ar-tagline-underline" />
         </div>
 
+        <div className="mt-5 flex justify-center">
+          <a
+            href="/downloads/arcorp.apk"
+            download
+            className="text-[10px] tracking-[0.14em] uppercase text-ar-gold border border-ar-goldline rounded-full px-4 py-2 hover:bg-ar-goldfill transition"
+          >
+            ⬇ Unduh Aplikasi Android (APK)
+          </a>
+        </div>
+
         <div className="mt-5 text-center text-[9px] tracking-[0.15em] text-ar-faint opacity-50">
           Project By : AR
         </div>
