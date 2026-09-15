@@ -12,6 +12,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Masukkan email terdaftar atau nomor HP." }, { status: 400 });
   }
 
+  // AR Corp Desktop's offline fallback (see desktop/) is scoped to office
+  // staff only — karyawan/Tera keep using the phone app, which also sidesteps
+  // syncing offline karyawan data back through a later office-only login.
+  if (process.env.ARCORP_LOCAL_MODE === "1" && portal !== "pusat") {
+    return NextResponse.json(
+      { error: "Mode offline kantor hanya untuk akun Admin/Owner/Consultant/Kepala Mess. Karyawan tetap pakai aplikasi HP seperti biasa." },
+      { status: 403 }
+    );
+  }
+
   const employee = await findEmployeeForPortal(identifier, portal);
   if (!employee) {
     return NextResponse.json(

@@ -18,6 +18,13 @@ export async function POST(req: Request) {
   const code = typeof body?.code === "string" ? body.code : "";
   const portal: Portal = body?.portal === "pusat" ? "pusat" : "karyawan";
 
+  if (process.env.ARCORP_LOCAL_MODE === "1" && portal !== "pusat") {
+    return NextResponse.json(
+      { error: "Mode offline kantor hanya untuk akun Admin/Owner/Consultant/Kepala Mess." },
+      { status: 403 }
+    );
+  }
+
   const employee = await findEmployeeForPortal(identifier, portal);
   if (!employee) {
     return NextResponse.json({ error: "Akun tidak terdaftar." }, { status: 404 });

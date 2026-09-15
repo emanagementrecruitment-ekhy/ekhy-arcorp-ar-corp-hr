@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone Electron wrapper — its own plain-JS main process code, not
+    // part of the Next.js app; keep it out of both eslint and the tsc scope.
+    "desktop/**",
   ]),
 ]);
 

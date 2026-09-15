@@ -1,0 +1,57 @@
+{
+  "name": "arcorp-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AR Corp Desktop — pembungkus aplikasi AR Corp untuk komputer/laptop kantor (online ke Railway, otomatis cadangan lokal saat internet mati).",
+  "author": "AR Corp",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "id.arcorp.desktop",
+    "productName": "AR Corp Desktop",
+    "asar": true,
+    "publish": null,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "package.json",
+      "main.js",
+      "preload.js",
+      "server-wrapper.js",
+      "sync.js",
+      "config.js"
+    ],
+    "extraResources": [
+      {
+        "from": "nextapp",
+        "to": "nextapp",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "template.db",
+        "to": "template.db"
+      }
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AR Corp Desktop"
+    }
+  }
+}

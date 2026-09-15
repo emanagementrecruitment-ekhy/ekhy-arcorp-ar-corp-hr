@@ -2,7 +2,11 @@
 // See /project/AR Corp HR.dc.html (design prototype) and /chats/chat1.md (design intent) at repo root.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" keeps Railway's Linux build working exactly as before;
+  // "windows" additionally bundles the Windows query engine so the desktop
+  // app (see desktop/) can ship a working Prisma Client on office PCs.
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {

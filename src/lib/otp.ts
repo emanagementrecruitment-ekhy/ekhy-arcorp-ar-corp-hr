@@ -72,8 +72,13 @@ export async function issueOtp(employeeId: string, target: string, kind: Identif
 
   console.log(`[otp] code for employee ${employeeId}: ${code} (expires ${expiresAt.toISOString()})`);
 
+  // ARCORP_LOCAL_MODE: the AR Corp Desktop app's offline fallback server
+  // (see desktop/server-wrapper.js) — there's no internet there to deliver a
+  // real code through any channel, so the on-screen fallback is the only way
+  // to log in at all while offline.
+  const showCode = alwaysReturnCode || process.env.NODE_ENV !== "production" || process.env.ARCORP_LOCAL_MODE === "1";
   return {
-    devCode: alwaysReturnCode || process.env.NODE_ENV !== "production" ? code : undefined,
+    devCode: showCode ? code : undefined,
     delivered: false as const,
   };
 }

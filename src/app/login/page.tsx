@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import DesktopStatusBar from "@/components/DesktopStatusBar";
 
 type Portal = "karyawan" | "pusat";
 type Step = "id" | "otp" | "gps";
@@ -25,8 +26,19 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [gpsSteps, setGpsSteps] = useState<GpsStep[]>([]);
   const [gpsReady, setGpsReady] = useState(false);
+  const [desktopOffline, setDesktopOffline] = useState(false);
+
+  useEffect(() => {
+    window.arcorpDesktop?.getMode().then((mode) => {
+      if (mode === "offline") {
+        setDesktopOffline(true);
+        setPortal("pusat");
+      }
+    });
+  }, []);
 
   function pickPortal(p: Portal) {
+    if (desktopOffline && p === "karyawan") return;
     setPortal(p);
     setLoginId("");
     setStep("id");
@@ -136,6 +148,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid place-items-center p-5 sm:p-10 ar-glow-corners ar-stars">
+      <DesktopStatusBar />
       <div className="w-full max-w-[430px] ar-in">
         <div className="flex flex-col items-center gap-3.5 mb-6">
           <div className="relative">
@@ -165,12 +178,13 @@ export default function LoginPage() {
 
         <div className="ar-ring-gold">
         <div className="ar-frame-luxury bg-ar-surface rounded-[18px] px-[26px] pt-7 pb-6">
-          <div className="grid grid-cols-2 gap-2 p-[5px] bg-ar-surface2 rounded-xl mb-[22px]">
+          <div className="grid grid-cols-2 gap-2 p-[5px] bg-ar-surface2 rounded-xl mb-2">
             <button
               onClick={() => pickPortal("karyawan")}
-              className={`py-[11px] rounded-[9px] text-[11px] font-semibold tracking-[0.14em] uppercase cursor-pointer transition ${
-                portal === "karyawan" ? "ar-tab-active-gold shadow-[inset_0_0_0_1px_var(--ar-truegold-line)]" : "text-ar-dim"
-              }`}
+              disabled={desktopOffline}
+              className={`py-[11px] rounded-[9px] text-[11px] font-semibold tracking-[0.14em] uppercase transition ${
+                desktopOffline ? "opacity-35 cursor-not-allowed" : "cursor-pointer"
+              } ${portal === "karyawan" ? "ar-tab-active-gold shadow-[inset_0_0_0_1px_var(--ar-truegold-line)]" : "text-ar-dim"}`}
             >
               STAFF &amp; PR
             </button>
@@ -183,6 +197,11 @@ export default function LoginPage() {
               OFFICE
             </button>
           </div>
+          {desktopOffline && (
+            <div className="text-[10px] text-ar-faint mb-[14px] leading-[1.5]">
+              Mode offline kantor: hanya login Admin/Owner/Consultant/Kepala Mess. Karyawan tetap pakai aplikasi HP.
+            </div>
+          )}
 
           {step === "id" && (
             <div>
