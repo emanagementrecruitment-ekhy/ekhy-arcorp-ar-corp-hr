@@ -1,0 +1,58 @@
+name: Build AR Corp Desktop (Windows installer)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "desktop/**"
+      - ".github/workflows/build-windows-desktop.yml"
+
+jobs:
+  build:
+    # Runs on a real Windows machine — no wine, no cross-compile risk. The
+    # local build-desktop.sh (see desktop/) is reused as-is via Git Bash,
+    # which ships on GitHub's windows-latest runners.
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install root app dependencies
+        run: npm ci
+
+      - name: Build app + template database + Windows installer
+        shell: bash
+        run: bash desktop/build-desktop.sh
+
+      - name: Upload installer as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcorp-desktop-installer-${{ github.run_number }}
+          path: desktop/dist/*.exe
+          retention-days: 90
+
+      - name: Publish as a GitHub Release (stable download link)
+        # Release assets don't touch git history the way a committed binary
+        # would (see build-android.yml, which commits the much smaller APK
+        # straight into public/downloads/) — this installer is far too big
+        # for that (GitHub blocks pushes with files over 100MB), and Release
+        # assets give a stable, ever-current URL on their own:
+        # https://github.com/<owner>/<repo>/releases/latest/download/AR-Corp-Desktop-Setup.exe
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          installer=$(ls desktop/dist/*.exe)
+          cp "$installer" "AR-Corp-Desktop-Setup.exe"
+          gh release delete desktop-latest --yes || true
+          git push origin :refs/tags/desktop-latest || true
+          gh release create desktop-latest "AR-Corp-Desktop-Setup.exe" \
+            --title "AR Corp Desktop — installer terbaru" \
+            --notes "Dibuat otomatis dari commit ${{ github.sha }} (build #${{ github.run_number }}). Unduh dan jalankan langsung di komputer/laptop Windows kantor." \
+            --latest

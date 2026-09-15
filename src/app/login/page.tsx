@@ -340,7 +340,7 @@ export default function LoginPage() {
           <div className="ar-tagline-underline" />
         </div>
 
-        <div className="mt-5 flex justify-center">
+        <div className="mt-5 flex flex-wrap gap-2.5 justify-center">
           <a
             href="/downloads/arcorp.apk"
             download
@@ -348,6 +348,15 @@ export default function LoginPage() {
           >
             ⬇ Unduh Aplikasi Android (APK)
           </a>
+          <a
+            href="https://github.com/emanagementrecruitment-ekhy/ekhy-arcorp-ar-corp-hr/releases/latest/download/AR-Corp-Desktop-Setup.exe"
+            className="text-[10px] tracking-[0.14em] uppercase text-ar-gold border border-ar-goldline rounded-full px-4 py-2 hover:bg-ar-goldfill transition"
+          >
+            ⬇ Unduh AR Corp Desktop (Windows)
+          </a>
+        </div>
+        <div className="mt-2.5 text-center text-[9px] text-ar-faint opacity-70">
+          AR Corp Desktop untuk Admin/Owner/Consultant/Kepala Mess — bisa dipakai offline saat internet kantor mati.
         </div>
 
         <div className="mt-5 text-center text-[9px] tracking-[0.15em] text-ar-faint opacity-50">
