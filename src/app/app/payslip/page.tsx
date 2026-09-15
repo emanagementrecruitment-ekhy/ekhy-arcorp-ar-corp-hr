@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface MonthOption {
   month: string;
@@ -9,36 +9,51 @@ interface MonthOption {
 }
 
 export default function PayslipMonthsPage() {
+  const router = useRouter();
   const [months, setMonths] = useState<MonthOption[] | null>(null);
+  const [selected, setSelected] = useState("");
 
   useEffect(() => {
     fetch("/api/payslip/months")
       .then((r) => r.json())
-      .then((d) => setMonths(d.months ?? []));
+      .then((d) => {
+        const list: MonthOption[] = d.months ?? [];
+        setMonths(list);
+        setSelected(list[0]?.month ?? "");
+      });
   }, []);
 
   return (
     <div>
       <div className="font-display text-[26px] pt-3 pb-1">Rincian Totalan</div>
-      <div className="text-[11.5px] text-ar-dim mb-4">Slip Pay bulanan — ketuk untuk lihat & simpan sebagai PDF.</div>
-
-      <div className="flex flex-col gap-2.5">
-        {months === null && <div className="text-[12px] text-ar-faint py-3">Memuat…</div>}
-        {months?.length === 0 && <div className="text-[12px] text-ar-faint py-3">Belum ada data.</div>}
-        {months?.map((m) => (
-          <Link
-            key={m.month}
-            href={`/app/payslip/${m.month}`}
-            className="flex items-center justify-between p-4 bg-ar-surface border border-ar-line rounded-[13px]"
-          >
-            <span className="flex items-center gap-3">
-              <span className="text-[18px]">📄</span>
-              <span className="text-[13px]">{m.label}</span>
-            </span>
-            <span className="text-ar-gold text-[11px]">Lihat →</span>
-          </Link>
-        ))}
+      <div className="text-[11.5px] text-ar-dim mb-4">
+        Slip Pay bulanan (5 bulan terakhir) — pilih bulan lalu lihat & simpan sebagai PDF.
       </div>
+
+      {months === null && <div className="text-[12px] text-ar-faint py-3">Memuat…</div>}
+      {months?.length === 0 && <div className="text-[12px] text-ar-faint py-3">Belum ada data.</div>}
+
+      {months && months.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <select
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+            className="w-full py-3 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[13px]"
+          >
+            {months.map((m) => (
+              <option key={m.month} value={m.month}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => selected && router.push(`/app/payslip/${selected}`)}
+            className="w-full py-3 ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer"
+          >
+            Lihat Slip Pay
+          </button>
+        </div>
+      )}
     </div>
   );
 }

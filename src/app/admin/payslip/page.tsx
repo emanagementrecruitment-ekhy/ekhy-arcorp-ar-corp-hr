@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import PayslipDocument from "@/components/PayslipDocument";
 import type { Payslip } from "@/lib/payslip";
+import { PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
 
 interface EmployeeOption {
   id: string;
   name: string;
   code: string;
+  role: string;
 }
 
 function today() {
@@ -25,6 +27,7 @@ export default function AdminPayslipPage() {
   const [month, setMonth] = useState(currentMonth());
   const [payslip, setPayslip] = useState<Payslip | null>(null);
 
+  const [category, setCategory] = useState<string>("");
   const [date, setDate] = useState(today());
   const [description, setDescription] = useState("");
   const [qty, setQty] = useState("");
@@ -34,10 +37,21 @@ export default function AdminPayslipPage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
+  const [savingDate, setSavingDate] = useState(today());
+  const [savingAmount, setSavingAmount] = useState("");
+  const [savingNote, setSavingNote] = useState("");
+  const [savingBusy, setSavingBusy] = useState(false);
+  const [savingMsg, setSavingMsg] = useState("");
+
+  const selectedEmployee = employees.find((e) => e.id === employeeId);
+  const isTera = selectedEmployee ? usesVcr(selectedEmployee.role) : false;
+
   useEffect(() => {
     fetch("/api/admin/employees?pageSize=500")
       .then((r) => r.json())
-      .then((d) => setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code }))));
+      .then((d) =>
+        setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, role: e.role })))
+      );
   }, []);
 
   function load() {
@@ -50,11 +64,20 @@ export default function AdminPayslipPage() {
   useEffect(load, [employeeId, month]);
 
   function resetForm() {
+    setCategory("");
     setDate(today());
     setDescription("");
     setQty("");
-    setAmount("");
     setNote("");
+    setAmount("");
+  }
+
+  function pickCategory(v: string) {
+    setCategory(v);
+    if (v) {
+      setDescription(v);
+      setKind("credit");
+    }
   }
 
   async function submitItem() {
@@ -74,6 +97,7 @@ export default function AdminPayslipPage() {
           month,
           date,
           description,
+          category: category || undefined,
           qty,
           note,
           debit: kind === "debit" ? num : 0,
@@ -94,6 +118,40 @@ export default function AdminPayslipPage() {
 
   async function deleteItem(id: string) {
     const res = await fetch(`/api/admin/payslip/items/${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (res.ok) setPayslip(data.payslip);
+  }
+
+  async function submitSaving() {
+    const num = Number(savingAmount.replace(/[^0-9]/g, ""));
+    if (!savingDate || !num) {
+      setSavingMsg("Isi tanggal dan nominal Tabungan dulu.");
+      return;
+    }
+    setSavingBusy(true);
+    setSavingMsg("");
+    try {
+      const res = await fetch("/api/admin/savings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, month, date: savingDate, amount: num, note: savingNote }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSavingMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setPayslip(data.payslip);
+      setSavingDate(today());
+      setSavingAmount("");
+      setSavingNote("");
+    } finally {
+      setSavingBusy(false);
+    }
+  }
+
+  async function deleteSaving(id: string) {
+    const res = await fetch(`/api/admin/savings/${id}?month=${month}`, { method: "DELETE" });
     const data = await res.json();
     if (res.ok) setPayslip(data.payslip);
   }
@@ -135,6 +193,25 @@ export default function AdminPayslipPage() {
             <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
               <div className="font-display text-[17px] text-ar-gold2 mb-3.5">Tambah Rincian Manual</div>
               <div className="grid gap-3">
+                {isTera && (
+                  <div>
+                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">
+                      Penambahan Biaya (opsional)
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => pickCategory(e.target.value)}
+                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    >
+                      <option value="">— Isi manual —</option>
+                      {PAYSLIP_COST_CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Tanggal</label>
                   <input
@@ -203,6 +280,49 @@ export default function AdminPayslipPage() {
               </button>
             </div>
           )}
+
+          {employeeId && isTera && (
+            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className="font-display text-[17px] text-ar-gold2 mb-1">Tabungan</div>
+              <div className="text-[10.5px] text-ar-dim mb-3.5">Catatan riwayat menabung — tidak memotong Total Payroll.</div>
+              <div className="grid gap-3">
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Tanggal Menabung</label>
+                  <input
+                    type="date"
+                    value={savingDate}
+                    onChange={(e) => setSavingDate(e.target.value)}
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Nominal</label>
+                  <input
+                    value={savingAmount ? Number(savingAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                    onChange={(e) => setSavingAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="Rp 0"
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Keterangan (opsional)</label>
+                  <input
+                    value={savingNote}
+                    onChange={(e) => setSavingNote(e.target.value)}
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  />
+                </div>
+              </div>
+              {savingMsg && <div className="mt-3 text-[11.5px] text-ar-red">{savingMsg}</div>}
+              <button
+                disabled={savingBusy}
+                onClick={submitSaving}
+                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              >
+                Tambah Tabungan
+              </button>
+            </div>
+          )}
         </div>
 
         <div>
@@ -224,7 +344,7 @@ export default function AdminPayslipPage() {
               >
                 Print / Simpan PDF
               </button>
-              <PayslipDocument payslip={payslip} onDeleteItem={deleteItem} />
+              <PayslipDocument payslip={payslip} onDeleteItem={deleteItem} onDeleteSaving={deleteSaving} />
             </div>
           )}
         </div>

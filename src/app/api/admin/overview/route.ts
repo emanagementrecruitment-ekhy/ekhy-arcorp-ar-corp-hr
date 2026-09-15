@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
+import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM, ATTENDANCE_MIN_DAYS, usesVcr } from "@/lib/constants";
 import { shortRp, dLabel, dayKey, timeLabel, monthLabel } from "@/lib/format";
 import { monthRange, parseMonth } from "@/lib/period";
-
-const MIN_ATTENDANCE_DAYS = 20;
 
 export async function GET() {
   try {
@@ -53,8 +51,10 @@ export async function GET() {
       .map((e) => ({
         name: e.name,
         code: e.code,
+        role: e.role,
+        isTera: usesVcr(e.role),
         daysPresent: daysByEmployee.get(e.id)?.size ?? 0,
-        underMinimum: (daysByEmployee.get(e.id)?.size ?? 0) < MIN_ATTENDANCE_DAYS,
+        underMinimum: (daysByEmployee.get(e.id)?.size ?? 0) < ATTENDANCE_MIN_DAYS,
       }))
       .sort((a, b) => a.daysPresent - b.daysPresent);
 
@@ -125,7 +125,7 @@ export async function GET() {
       platAll: vouchers14.filter((v) => v.category === "PLATINUM").length,
       hqLabel: `${HQ.lat.toFixed(4)}, ${HQ.lng.toFixed(4)} · radius ${ATTENDANCE_RADIUS_KM} km`,
       attendanceMonthLabel: monthLabel(currentMonth),
-      attendanceMinDays: MIN_ATTENDANCE_DAYS,
+      attendanceMinDays: ATTENDANCE_MIN_DAYS,
       attendanceMonthly,
     });
   } catch (e) {

@@ -7,6 +7,8 @@ import Badge from "@/components/Badge";
 interface AttendanceRow {
   name: string;
   code: string;
+  role: string;
+  isTera: boolean;
   daysPresent: number;
   underMinimum: boolean;
 }
@@ -113,30 +115,61 @@ export default function RingkasanPage() {
         <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl mt-4">
           <div className="flex justify-between items-center gap-3 mb-3.5">
             <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
-              Total Absensi Bulan Ini — {data?.attendanceMonthLabel ?? "…"}
+              Absensi Bulan Ini — {data?.attendanceMonthLabel ?? "…"}
             </span>
             <span className="text-[10.5px] text-ar-faint">
               Minimum {data?.attendanceMinDays ?? 20} hari/bulan · reset tiap bulan
             </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {data?.attendanceMonthly.map((a) => (
-              <div
-                key={a.code}
-                className={`flex justify-between items-center gap-2 py-2.5 px-3.5 rounded-xl border ${
-                  a.underMinimum ? "border-[rgba(228,117,107,.35)] bg-[rgba(228,117,107,.06)]" : "border-ar-line bg-ar-surface2"
-                }`}
-              >
-                <span className="text-[12px] truncate">
-                  {a.name} <span className="text-ar-dim">({a.code})</span>
-                </span>
-                <span className={`text-[12.5px] font-display shrink-0 ${a.underMinimum ? "text-ar-red" : "text-ar-gold2"}`}>
-                  {a.daysPresent} hari
-                </span>
-              </div>
-            ))}
-          </div>
+
+          <AttendanceTable title="Tera" rows={data?.attendanceMonthly.filter((a) => a.isTera)} />
+          <div className="h-3.5" />
+          <AttendanceTable title="Karyawan" rows={data?.attendanceMonthly.filter((a) => !a.isTera)} />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AttendanceTable({ title, rows }: { title: string; rows?: AttendanceRow[] }) {
+  return (
+    <div>
+      <div className="text-[10px] tracking-[0.14em] uppercase text-ar-gold mb-1.5">
+        {title} {rows ? `(${rows.length})` : ""}
+      </div>
+      <div className="overflow-x-auto rounded-xl border border-ar-line">
+        <table className="w-full text-[12px] border-collapse">
+          <thead>
+            <tr className="bg-ar-surface2 text-[10px] tracking-[0.1em] uppercase text-ar-dim">
+              <th className="text-left py-2 px-3.5 font-normal">Nama</th>
+              <th className="text-left py-2 px-3.5 font-normal">Kode</th>
+              <th className="text-left py-2 px-3.5 font-normal">Peran</th>
+              <th className="text-right py-2 px-3.5 font-normal">Hari Masuk</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows?.length === 0 && (
+              <tr>
+                <td colSpan={4} className="py-4 px-3.5 text-center text-ar-faint">Belum ada data.</td>
+              </tr>
+            )}
+            {!rows && (
+              <tr>
+                <td colSpan={4} className="py-4 px-3.5 text-center text-ar-faint">Memuat…</td>
+              </tr>
+            )}
+            {rows?.map((a) => (
+              <tr key={a.code} className="border-t border-ar-line">
+                <td className="py-2 px-3.5 truncate max-w-[160px]">{a.name}</td>
+                <td className="py-2 px-3.5 text-ar-dim">{a.code}</td>
+                <td className="py-2 px-3.5 text-ar-dim">{a.role}</td>
+                <td className={`py-2 px-3.5 text-right font-display ${a.underMinimum ? "text-ar-red" : "text-ar-gold2"}`}>
+                  {a.daysPresent} hari
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

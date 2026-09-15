@@ -16,7 +16,15 @@ function fmtRp(n: number): string {
  * a clean one-page slip on whatever printer is set up on that computer —
  * or, on a phone, into the OS share sheet's "Save as PDF".
  */
-export default function PayslipDocument({ payslip, onDeleteItem }: { payslip: Payslip; onDeleteItem?: (id: string) => void }) {
+export default function PayslipDocument({
+  payslip,
+  onDeleteItem,
+  onDeleteSaving,
+}: {
+  payslip: Payslip;
+  onDeleteItem?: (id: string) => void;
+  onDeleteSaving?: (id: string) => void;
+}) {
   return (
     <div id="payslip-print-area" className="bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
       <div className="flex items-center gap-3 mb-5 print:mb-4">
@@ -113,6 +121,45 @@ export default function PayslipDocument({ payslip, onDeleteItem }: { payslip: Pa
         </span>
         <span className="font-display text-2xl text-ar-gold2 print:text-black">{fmtRp(payslip.total)}</span>
       </div>
+
+      {payslip.savings.length > 0 && (
+        <div className="mt-5 pt-4 border-t border-ar-line print:border-black/30">
+          <div className="text-[10px] tracking-[0.16em] uppercase text-ar-gold mb-2 print:text-black print:font-bold">
+            Catatan Tabungan
+          </div>
+          <div className="text-[10px] text-ar-faint mb-2 print:hidden">
+            Riwayat menabung — tidak memotong Total Payroll di atas.
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-[11.5px] border-collapse print:text-black">
+              <thead>
+                <tr className="text-left text-[9.5px] tracking-[0.1em] uppercase text-ar-dim border-b border-ar-line print:text-black print:border-black">
+                  <th className="py-2 pr-2 font-normal">Tanggal</th>
+                  <th className="py-2 pr-2 font-normal text-right">Nominal</th>
+                  <th className="py-2 pr-2 font-normal">Keterangan</th>
+                  {onDeleteSaving && <th className="py-2 font-normal print:hidden" />}
+                </tr>
+              </thead>
+              <tbody>
+                {payslip.savings.map((s) => (
+                  <tr key={s.id} className="border-b border-ar-line/60 print:border-black/30">
+                    <td className="py-2 pr-2">{s.date}</td>
+                    <td className="py-2 pr-2 text-right font-display text-ar-gold2 print:text-black">{fmtRp(s.amount)}</td>
+                    <td className="py-2 pr-2">{s.note ?? "—"}</td>
+                    {onDeleteSaving && (
+                      <td className="py-2 print:hidden">
+                        <button onClick={() => onDeleteSaving(s.id)} className="text-ar-red text-[10.5px] cursor-pointer">
+                          Hapus
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

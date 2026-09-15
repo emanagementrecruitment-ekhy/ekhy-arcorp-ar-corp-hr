@@ -118,6 +118,35 @@ export function usesVcr(role: string): boolean {
   return role === VCR_ROLE;
 }
 
+// A Tera working fewer days than this in a completed month automatically
+// gets a Pinalty Absensi row on their Slip Pay (see ensureAttendancePenalty
+// in src/lib/payslip.ts). Also drives the "under minimum" flag on the
+// Ringkasan Operasional attendance dashboard.
+export const ATTENDANCE_MIN_DAYS = 20;
+export const ATTENDANCE_PENALTY_AMOUNT = 500_000;
+// Distinct from PAYSLIP_COST_CATEGORIES below — this one is only ever
+// applied by ensureAttendancePenalty(), never offered in the manual
+// "Tambah Rincian" dropdown, so there's exactly one way a Pinalty Absensi
+// row can appear (no risk of a duplicate manual + automatic pair).
+export const ATTENDANCE_PENALTY_CATEGORY = "Pinalty Absensi";
+
+// Preset cost/deduction categories for the Tera Slip Pay "Tambah Rincian"
+// dropdown (src/app/admin/payslip/page.tsx). Selecting one still goes
+// through the normal manual PayslipItem flow (Admin/Owner types the
+// nominal) — this only removes free-text guesswork for the categories the
+// business tracks by name. Tabungan is deliberately NOT here: it's a
+// separate running log (SavingEntry) that doesn't touch the payslip total,
+// see src/app/api/admin/savings/route.ts.
+export const PAYSLIP_COST_CATEGORIES = [
+  "Admin",
+  "Mess",
+  "Dokter/Spekulo",
+  "Salon",
+  "Loker",
+  "Test Kehamilan, HIV/AIDS",
+  "Pinalty (SOP)",
+] as const;
+
 // Peran values that come with a real elevated login (see /admin/jabatan —
 // Owner/Consultant appoint one karyawan holding this Peran into the matching
 // AccessRole). Every other Peran (Koordinator, Recruitment, Salon, Staff, Tera)

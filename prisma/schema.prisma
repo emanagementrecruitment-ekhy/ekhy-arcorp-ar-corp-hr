@@ -49,6 +49,8 @@ model Employee {
   chatsAsEmployee ChatMessage[] @relation("ChatEmployee")
   chatsSent    ChatMessage[] @relation("ChatSender")
   payslipItems PayslipItem[]
+  attendancePenaltyChecks AttendancePenaltyCheck[]
+  savingEntries SavingEntry[]
 }
 
 model OtpCode {
@@ -135,6 +137,7 @@ model PayslipItem {
   month       String    // "YYYY-MM"
   date        DateTime?
   description String
+  category    String?   // one of PAYSLIP_COST_CATEGORIES / ATTENDANCE_PENALTY_CATEGORY, or null for free-text rows
   qty         String?   // free text, e.g. "1 Pcs" — display only
   debit       Int       @default(0)
   credit      Int       @default(0)
@@ -142,6 +145,37 @@ model PayslipItem {
   createdAt   DateTime  @default(now())
 
   @@index([employeeId, month])
+}
+
+// Marks that the automatic Pinalty Absensi check has already run for an
+// employee+month, independent of whether the PayslipItem it created (if
+// any) still exists — without this, deleting that row would just make it
+// reappear the next time an admin opens the same month, defeating "Owner
+// can edit or delete it".
+model AttendancePenaltyCheck {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  month      String   // "YYYY-MM"
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, month])
+}
+
+// Tabungan (savings) log — a running per-employee history shown alongside
+// the Slip Pay ledger but deliberately NOT one of its debit/credit rows: it's
+// the employee/Tera's own money, not a company deduction, so it never
+// changes the payslip total.
+model SavingEntry {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date       DateTime
+  amount     Int
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([employeeId, date])
 }
 
 // In-app notifications, broadcast to a role rather than a specific person —
