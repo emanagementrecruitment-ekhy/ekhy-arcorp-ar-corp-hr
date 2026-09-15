@@ -4,6 +4,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, OWNER_ACCOUNT_CODE, HQ } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { SETTING_ID } from "@/lib/settings";
+import { licensingConfigured, validateActivationCode } from "@/lib/license";
 
 export async function GET() {
   try {
@@ -21,6 +22,11 @@ export async function GET() {
       phone: owner?.phone ?? null,
       logoDataUrl: setting?.ownerLogoDataUrl ?? null,
       canEdit: session.accessRole === "CONSULTANT",
+      // Only the very first "generate & patenkan" for a deployment needs an
+      // activation code (see /lib/license.ts) — once ownerGeneratedAt is
+      // set, this instance is already locked to that client, and later
+      // replaces via "Ganti Owner" don't ask for a code again.
+      needsActivationCode: licensingConfigured() && !setting?.ownerGeneratedAt,
     });
   } catch (e) {
     return apiError(e);
@@ -36,6 +42,7 @@ export async function POST(req: Request) {
     const name = typeof body?.name === "string" ? body.name.trim() : "";
     const emailRaw = typeof body?.email === "string" ? body.email.trim() : "";
     const phoneRaw = typeof body?.phone === "string" ? body.phone.trim() : "";
+    const activationCode = typeof body?.activationCode === "string" ? body.activationCode.trim() : "";
 
     if (!name) return NextResponse.json({ error: "Nama Owner wajib diisi." }, { status: 400 });
     const email = normalizeIdentifier(emailRaw);
@@ -47,12 +54,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nomor HP tidak valid." }, { status: 400 });
     }
 
-    const [emailTaken, phoneTaken] = await Promise.all([
+    const [emailTaken, phoneTaken, currentSetting] = await Promise.all([
       prisma.employee.findFirst({ where: { email: email.value, code: { not: OWNER_ACCOUNT_CODE } } }),
       prisma.employee.findFirst({ where: { phone: phone.value, code: { not: OWNER_ACCOUNT_CODE } } }),
+      prisma.appSetting.findUnique({ where: { id: SETTING_ID } }),
     ]);
     if (emailTaken) return NextResponse.json({ error: "Email sudah dipakai akun lain." }, { status: 409 });
     if (phoneTaken) return NextResponse.json({ error: "Nomor HP sudah dipakai akun lain." }, { status: 409 });
+
+    const isFirstGenerate = !currentSetting?.ownerGeneratedAt;
+    if (isFirstGenerate && licensingConfigured()) {
+      if (!activationCode) {
+        return NextResponse.json({ error: "Kode aktivasi dari vendor wajib diisi." }, { status: 400 });
+      }
+      const licenseCheck = await validateActivationCode(activationCode);
+      if (!licenseCheck.ok) {
+        return NextResponse.json({ error: licenseCheck.error ?? "Kode aktivasi tidak valid." }, { status: 403 });
+      }
+    }
 
     await prisma.$transaction([
       prisma.employee.upsert({

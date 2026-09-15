@@ -11,6 +11,7 @@ interface OwnerIdentity {
   phone: string | null;
   logoDataUrl: string | null;
   canEdit: boolean;
+  needsActivationCode: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ export default function OwnerIdentityPanel() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [activationCode, setActivationCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [logoBusy, setLogoBusy] = useState(false);
@@ -51,7 +53,7 @@ export default function OwnerIdentityPanel() {
       const res = await fetch("/api/admin/owner-identity", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone }),
+        body: JSON.stringify({ name, email, phone, activationCode }),
       });
       const d = await res.json();
       if (!res.ok) {
@@ -59,6 +61,7 @@ export default function OwnerIdentityPanel() {
         return;
       }
       setEditing(false);
+      setActivationCode("");
       load();
     } finally {
       setBusy(false);
@@ -165,6 +168,14 @@ export default function OwnerIdentityPanel() {
             placeholder="No. Handphone"
             className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
           />
+          {data.needsActivationCode && (
+            <input
+              value={activationCode}
+              onChange={(e) => setActivationCode(e.target.value)}
+              placeholder="Kode Aktivasi dari Vendor"
+              className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px] font-mono tracking-[0.08em]"
+            />
+          )}
           {msg && <div className="text-[11.5px] text-ar-red">{msg}</div>}
           <div className="flex gap-2.5">
             <button
@@ -182,8 +193,9 @@ export default function OwnerIdentityPanel() {
             </button>
           </div>
           <div className="text-[10px] text-ar-faint leading-[1.6]">
-            Setelah dipatenkan, Nama/Email/HP Owner terkunci untuk semua orang — hanya Consultant yang bisa
-            menggantinya lagi lewat halaman ini.
+            {data.needsActivationCode
+              ? "Kode Aktivasi didapat dari vendor/penyedia sistem ini — hanya dibutuhkan sekali di generate pertama untuk mengaktifkan instalasi ini."
+              : "Setelah dipatenkan, Nama/Email/HP Owner terkunci untuk semua orang — hanya Consultant yang bisa menggantinya lagi lewat halaman ini."}
           </div>
         </div>
       )}

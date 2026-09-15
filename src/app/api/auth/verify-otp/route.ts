@@ -4,6 +4,7 @@ import { verifyOtp } from "@/lib/otp";
 import { createSession } from "@/lib/auth";
 import { usesVcr, type AccessRole } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
+import { reportCheckin } from "@/lib/license";
 
 const REASON_MESSAGE: Record<string, string> = {
   not_found: "Kode belum diminta atau sudah kedaluwarsa. Kirim ulang kode.",
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
   });
 
   if (employee.accessRole !== "KARYAWAN") {
+    reportCheckin();
     await notifyOffice(`${employee.name} (${employee.role}) login ke Office.`);
   } else if (usesVcr(employee.role)) {
     await notifyOffice(`${employee.name} (Tera) login.`);
