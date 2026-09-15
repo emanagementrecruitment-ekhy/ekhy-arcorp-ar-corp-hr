@@ -1,15 +1,17 @@
 import "server-only";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
-import { dLabel, monthLabel, dayKey } from "./format";
+import { dLabel, monthLabel } from "./format";
 import {
   VOUCHER_LABEL,
   usesVcr,
   ATTENDANCE_MIN_DAYS,
   ATTENDANCE_PENALTY_AMOUNT,
   ATTENDANCE_PENALTY_CATEGORY,
+  ATTENDANCE_CHECKIN_START_MONTH,
   type EmployeeLevel,
 } from "./constants";
+import { getAttendanceDaysCount, daysInMonth } from "./attendance";
 
 export interface PayslipRow {
   no: number;
@@ -39,6 +41,7 @@ export interface Payslip {
   rows: PayslipRow[];
   total: number;
   savings: SavingRow[];
+  attendance: { hariHadir: number; totalDays: number; persen: number; trackingStarted: boolean };
 }
 
 /**
@@ -55,11 +58,12 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
   if (!employee || employee.accessRole !== "KARYAWAN") return null;
 
-  const [vouchers, kasbonRows, items, savings] = await Promise.all([
+  const [vouchers, kasbonRows, items, savings, hariHadir] = await Promise.all([
     prisma.voucher.findMany({ where: { employeeId, occurredAt: { gte: start, lt: end } } }),
     prisma.kasbon.findMany({ where: { employeeId, status: "DISETUJUI", createdAt: { gte: start, lt: end } } }),
     prisma.payslipItem.findMany({ where: { employeeId, month }, orderBy: [{ date: "asc" }, { createdAt: "asc" }] }),
     prisma.savingEntry.findMany({ where: { employeeId, date: { gte: start, lt: end } }, orderBy: { date: "asc" } }),
+    getAttendanceDaysCount(employeeId, month),
   ]);
 
   const vcr = usesVcr(employee.role);
@@ -111,6 +115,12 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
     rows,
     total: balance,
     savings: savings.map((s) => ({ id: s.id, date: dLabel(s.date), amount: s.amount, note: s.note })),
+    attendance: {
+      hariHadir,
+      totalDays: daysInMonth(month),
+      persen: Math.round((hariHadir / daysInMonth(month)) * 100),
+      trackingStarted: month >= ATTENDANCE_CHECKIN_START_MONTH,
+    },
   };
 }
 
@@ -125,6 +135,11 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
  */
 export async function ensureAttendancePenalty(employeeId: string, month: string): Promise<void> {
   if (month >= parseMonth(null)) return; // only evaluate months that have fully ended
+  // The self check-in box (source of Hari Hadir below) didn't exist before
+  // this month — an empty Attendance table there means "not tracked", not
+  // "0 hari hadir", so skip evaluating it entirely rather than penalize
+  // everyone retroactively for a feature that didn't exist yet.
+  if (month < ATTENDANCE_CHECKIN_START_MONTH) return;
 
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
   if (!employee || !usesVcr(employee.role)) return;
@@ -136,12 +151,7 @@ export async function ensureAttendancePenalty(employeeId: string, month: string)
   });
   if (already) return;
 
-  const { start, end } = monthRange(month);
-  const logins = await prisma.loginEvent.findMany({
-    where: { employeeId, createdAt: { gte: start, lt: end } },
-    select: { createdAt: true },
-  });
-  const daysPresent = new Set(logins.map((l) => dayKey(l.createdAt))).size;
+  const daysPresent = await getAttendanceDaysCount(employeeId, month);
 
   if (daysPresent < ATTENDANCE_MIN_DAYS) {
     await prisma.payslipItem.create({

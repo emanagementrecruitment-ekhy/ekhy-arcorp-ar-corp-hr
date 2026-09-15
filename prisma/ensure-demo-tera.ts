@@ -29,8 +29,15 @@ const DEMO_TERA = {
   heightCm: 160,
 };
 
+// Example self-check-in marks for the Absensi Harian box feature (September
+// 2026, its launch month) — a static illustration so the dashboard/Slip Pay
+// integration isn't empty on a fresh look, not a real attendance record.
+// Idempotent (upsert on the same unique key as a real check-in), so it's
+// safe to run on every restart without ever duplicating or drifting.
+const DEMO_ATTENDANCE_DAYS = [1, 2, 3, 4, 5, 8, 9, 10, 11, 12];
+
 async function main() {
-  await prisma.employee.upsert({
+  const employee = await prisma.employee.upsert({
     where: { code: DEMO_TERA.code },
     update: {
       name: DEMO_TERA.name,
@@ -56,6 +63,16 @@ async function main() {
       homePlace: "Kantor Pusat Jakarta",
     },
   });
+
+  for (const d of DEMO_ATTENDANCE_DAYS) {
+    const dateKey = `2026-09-${String(d).padStart(2, "0")}`;
+    await prisma.attendance.upsert({
+      where: { employeeId_dateKey: { employeeId: employee.id, dateKey } },
+      update: {},
+      create: { employeeId: employee.id, dateKey, month: "2026-09" },
+    });
+  }
+
   console.log(`[ensure-demo-tera] demo Tera account pinned: ${DEMO_TERA.name} (${DEMO_TERA.code})`);
 }
 

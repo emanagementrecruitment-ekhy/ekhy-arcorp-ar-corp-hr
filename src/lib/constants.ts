@@ -123,6 +123,14 @@ export function usesVcr(role: string): boolean {
 // in src/lib/payslip.ts). Also drives the "under minimum" flag on the
 // Ringkasan Operasional attendance dashboard.
 export const ATTENDANCE_MIN_DAYS = 20;
+
+// The self check-in box (src/lib/attendance.ts) replaced GPS login as the
+// source of "Hari Hadir" starting this month — any month before it has no
+// Attendance rows simply because the feature didn't exist yet, not because
+// nobody showed up. ensureAttendancePenalty() and the Ringkasan Operasional
+// table both skip/zero out months before this instead of reading that
+// absence as "0 hari hadir" and wrongly penalizing everyone retroactively.
+export const ATTENDANCE_CHECKIN_START_MONTH = "2026-09";
 export const ATTENDANCE_PENALTY_AMOUNT = 500_000;
 // Distinct from PAYSLIP_COST_CATEGORIES below — this one is only ever
 // applied by ensureAttendancePenalty(), never offered in the manual

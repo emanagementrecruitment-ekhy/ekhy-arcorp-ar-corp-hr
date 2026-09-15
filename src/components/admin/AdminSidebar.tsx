@@ -9,6 +9,7 @@ import LogoutButton from "@/components/LogoutButton";
 const DESKS = [
   { href: "/admin", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   { href: "/admin/lokasi", label: "Lokasi & Absensi", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
+  { href: "/admin/absensi-harian", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   { href: "/admin/karyawan", label: "Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   { href: "/admin/pendapatan", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   { href: "/admin/kasbon", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },

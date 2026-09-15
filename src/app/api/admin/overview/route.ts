@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM, ATTENDANCE_MIN_DAYS, usesVcr } from "@/lib/constants";
 import { shortRp, dLabel, dayKey, timeLabel, monthLabel } from "@/lib/format";
-import { monthRange, parseMonth } from "@/lib/period";
+import { parseMonth } from "@/lib/period";
 
 export async function GET() {
   try {
@@ -18,9 +18,8 @@ export async function GET() {
     const start30 = new Date(now.getTime() - 29 * 864e5);
 
     const currentMonth = parseMonth(null);
-    const { start: monthStart, end: monthEnd } = monthRange(currentMonth);
 
-    const [employees, vouchers14, todayVouchers, monthVouchers, pendingKasbon, latestLoginPerEmployee, monthLogins] =
+    const [employees, vouchers14, todayVouchers, monthVouchers, pendingKasbon, latestLoginPerEmployee, monthAttendance] =
       await Promise.all([
         prisma.employee.findMany({ where: { accessRole: "KARYAWAN" } }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: start14 } } }),
@@ -32,20 +31,17 @@ export async function GET() {
           orderBy: { createdAt: "desc" },
           take: 30,
         }),
-        // Every login this month, for a per-employee days-present count — not
-        // shown as individual log entries, just an aggregate that naturally
-        // resets each month since it's always scoped to the current month.
-        prisma.loginEvent.findMany({
-          where: { createdAt: { gte: monthStart, lt: monthEnd } },
-          select: { employeeId: true, createdAt: true },
+        // Self check-in box marks (Absensi Harian) for the current month — the
+        // source of Hari Hadir here, replacing the old GPS-login count.
+        prisma.attendance.findMany({
+          where: { month: currentMonth },
+          select: { employeeId: true },
         }),
       ]);
 
-    const daysByEmployee = new Map<string, Set<string>>();
-    for (const l of monthLogins) {
-      const set = daysByEmployee.get(l.employeeId) ?? new Set<string>();
-      set.add(dayKey(l.createdAt));
-      daysByEmployee.set(l.employeeId, set);
+    const daysByEmployee = new Map<string, number>();
+    for (const a of monthAttendance) {
+      daysByEmployee.set(a.employeeId, (daysByEmployee.get(a.employeeId) ?? 0) + 1);
     }
     const attendanceMonthly = employees
       .map((e) => ({
@@ -53,8 +49,8 @@ export async function GET() {
         code: e.code,
         role: e.role,
         isTera: usesVcr(e.role),
-        daysPresent: daysByEmployee.get(e.id)?.size ?? 0,
-        underMinimum: (daysByEmployee.get(e.id)?.size ?? 0) < ATTENDANCE_MIN_DAYS,
+        daysPresent: daysByEmployee.get(e.id) ?? 0,
+        underMinimum: (daysByEmployee.get(e.id) ?? 0) < ATTENDANCE_MIN_DAYS,
       }))
       .sort((a, b) => a.daysPresent - b.daysPresent);
 

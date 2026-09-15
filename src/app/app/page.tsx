@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { getBerandaData } from "@/lib/data/beranda";
 import Badge from "@/components/Badge";
+import AttendanceCheckin from "@/components/employee/AttendanceCheckin";
 import { ATTENDANCE_RADIUS_KM } from "@/lib/constants";
 
 export default async function BerandaPage() {
@@ -42,6 +43,8 @@ export default async function BerandaPage() {
           </div>
         </div>
       </div>
+
+      <AttendanceCheckin />
 
       {data.usesVcr ? (
         <>

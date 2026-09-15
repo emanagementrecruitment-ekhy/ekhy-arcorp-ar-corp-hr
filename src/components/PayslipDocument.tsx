@@ -60,6 +60,12 @@ export default function PayslipDocument({
         <div>
           <span className="text-ar-dim print:text-black/60">Outlet/Lokasi Kerja</span> : {payslip.employee.place}
         </div>
+        <div>
+          <span className="text-ar-dim print:text-black/60">Absensi Bulan Ini</span> :{" "}
+          {payslip.attendance.trackingStarted
+            ? `${payslip.attendance.hariHadir}/${payslip.attendance.totalDays} hari (${payslip.attendance.persen}%)`
+            : "—"}
+        </div>
       </div>
 
       <div className="text-[10px] tracking-[0.16em] uppercase text-ar-gold mb-2 print:text-black print:font-bold">

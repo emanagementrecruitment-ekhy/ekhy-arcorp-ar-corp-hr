@@ -43,6 +43,7 @@ model Employee {
 
   otpCodes     OtpCode[]
   loginEvents  LoginEvent[]
+  attendances  Attendance[]
   vouchers     Voucher[]
   kasbonRequests Kasbon[]     @relation("KasbonRequester")
   kasbonDecisions Kasbon[]    @relation("KasbonDecider")
@@ -79,6 +80,25 @@ model LoginEvent {
   createdAt   DateTime @default(now())
 
   @@index([employeeId, createdAt])
+}
+
+// One row = one calendar day an employee/Tera marked themselves present, via
+// the self check-in box on their own home screen (one tap per day, today
+// only — no backdating). This is the source of truth for "Hari Hadir" and
+// the automatic Pinalty Absensi (see src/lib/attendance.ts) — it replaced
+// the GPS LoginEvent count for that purpose; LoginEvent itself keeps running
+// unchanged for the location-radius check at login.
+model Attendance {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  dateKey    String   // "YYYY-MM-DD"
+  month      String   // "YYYY-MM" — denormalized for fast per-month grouping
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, dateKey])
+  @@index([employeeId, month])
+  @@index([month])
 }
 
 model Voucher {
