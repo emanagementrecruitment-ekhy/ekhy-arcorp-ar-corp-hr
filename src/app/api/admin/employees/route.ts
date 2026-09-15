@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
 
@@ -13,6 +13,9 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") ?? "").trim();
+    // "tera" -> Data Tera list, "staff" -> Data Karyawan list, omitted -> everyone
+    // (used by internal callers like the supervisor picker).
+    const type = searchParams.get("type");
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     // Internal callers (e.g. the supervisor picker) can ask for a bigger page
     // to get the full roster in one call; capped well above realistic org size.
@@ -24,6 +27,7 @@ export async function GET(req: Request) {
     const qDigits = q.replace(/\D/g, "");
     const where = {
       accessRole: "KARYAWAN" as const,
+      ...(type === "tera" ? { role: VCR_ROLE } : type === "staff" ? { role: { not: VCR_ROLE } } : {}),
       ...(q
         ? {
             OR: [

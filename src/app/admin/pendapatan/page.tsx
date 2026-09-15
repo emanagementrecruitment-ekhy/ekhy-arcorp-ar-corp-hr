@@ -51,6 +51,7 @@ export default function PendapatanPage() {
   const [importBusy, setImportBusy] = useState(false);
   const [importMsg, setImportMsg] = useState("");
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
 
   function load() {
@@ -138,10 +139,34 @@ export default function PendapatanPage() {
         subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan — khusus Peran Tera"
       />
 
-      <div className="grid grid-cols-1 lg:[grid-template-columns:1fr_1.2fr] gap-4 pt-5.5">
-        <div className="flex flex-col gap-4">
-          <div className="p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
-            <div className="font-display text-[19px] text-ar-gold2 mb-1.5">Upload VCR Bulanan (Excel)</div>
+      {/* Upload DATA — minimized to a small floating button so it doesn't
+          compete with the everyday Tambah Entri flow; the full upload UI
+          lives in the popover it opens. */}
+      <button
+        onClick={() => setUploadOpen((v) => !v)}
+        title="Upload DATA (Excel)"
+        aria-label="Upload DATA"
+        className="fixed bottom-5 right-5 z-40 w-14 h-14 cursor-pointer"
+      >
+        {/* ar-grad sets position:relative on itself, so its gradient/sheen lives on
+            an inner element — keeping `fixed` on the button unshadowed. */}
+        <span className="ar-grad w-full h-full rounded-2xl shadow-lg grid place-items-center text-ar-ongold">
+          <span className="text-[19px] leading-none">📁</span>
+        </span>
+      </button>
+
+      {uploadOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-end bg-black/50 p-5"
+          onClick={(e) => e.target === e.currentTarget && setUploadOpen(false)}
+        >
+          <div className="w-full max-w-[380px] mb-[76px] p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
+            <div className="flex justify-between items-center mb-1.5">
+              <div className="font-display text-[19px] text-ar-gold2">Upload DATA (Excel)</div>
+              <button onClick={() => setUploadOpen(false)} className="text-ar-dim text-[11px] cursor-pointer">
+                Tutup
+              </button>
+            </div>
             <div className="text-[11px] text-ar-dim mb-3.5 leading-[1.6]">
               Format sama seperti rekap outlet bulanan (kolom NAMA, OUTLET, JUMLAH VCR, TOTAL PENDAPATAN — satu
               sheet per bulan, misal &quot;Juni 2026&quot;). Karyawan baru otomatis dibuat dengan email/HP
@@ -185,7 +210,11 @@ export default function PendapatanPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
 
+      <div className="grid grid-cols-1 lg:[grid-template-columns:1fr_1.2fr] gap-4 pt-5.5">
+        <div className="flex flex-col gap-4">
           <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
             <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Tambah Entri</div>
 

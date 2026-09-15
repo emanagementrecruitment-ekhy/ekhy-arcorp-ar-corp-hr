@@ -182,6 +182,8 @@ export const THEME_COLORS = [
   { id: "sand", label: "Emas Pasir", desc: "Coklat pasir hangat + krem — nuansa natural" },
   { id: "sage", label: "Hijau Zaitun", desc: "Hijau zaitun lembut + krem" },
   { id: "terracotta", label: "Terracotta", desc: "Oranye tanah liat + krem" },
+  { id: "rosegold", label: "Rose Gold", desc: "Merah muda keemasan — lembut dan mewah" },
+  { id: "pearl", label: "Putih Mutiara", desc: "Putih mutiara berkilau — bersih dan elegan" },
 ] as const;
 export type ThemeColorId = (typeof THEME_COLORS)[number]["id"];
 export const THEME_COLOR_IDS = THEME_COLORS.map((t) => t.id) as ThemeColorId[];

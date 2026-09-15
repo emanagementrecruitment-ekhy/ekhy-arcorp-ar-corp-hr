@@ -230,4 +230,6 @@ const THEME_SWATCH: Record<ThemeColorId, string> = {
   sand: "#b5782e",
   sage: "#7a874f",
   terracotta: "#c15a35",
+  rosegold: "#c88282",
+  pearl: "#d6d2c9",
 };

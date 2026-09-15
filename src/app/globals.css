@@ -76,6 +76,18 @@
   --ar-accent-bright: #e8905f;
   --ar-gold: #c15a35;
 }
+[data-theme="rosegold"] {
+  --ar-accent-rgb: 200, 130, 130;
+  --ar-accent-dark: #6b3238;
+  --ar-accent-bright: #f0c9c3;
+  --ar-gold: #c88282;
+}
+[data-theme="pearl"] {
+  --ar-accent-rgb: 214, 210, 201;
+  --ar-accent-dark: #6e6a60;
+  --ar-accent-bright: #f7f5ef;
+  --ar-gold: #d6d2c9;
+}
 
 [data-font="modern"] {
   --font-display: var(--font-display-modern);
