@@ -260,5 +260,20 @@ model AppSetting {
   logoUpdatedAt   DateTime?
   logoUpdatedById String?
   demoCleanupAt   DateTime?
-  updatedAt       DateTime  @updatedAt
+
+  // Owner identity provisioning (see /dev/nav-layout and
+  // src/app/api/admin/owner-identity) — separate from the main brand
+  // logoDataUrl above so changing it never touches the app-wide logo used
+  // on the login screen, sidebar, and Slip Pay. ownerGeneratedAt null means
+  // no Owner has been "patenkan" (generated/sealed) yet — Name/Email/HP
+  // live on the Employee row with the reserved code HQ-OWNER, not here.
+  // ownerWelcomeSeenAt null means the one-time welcome screen still owes a
+  // showing to whoever next logs in as Owner; it's cleared back to null
+  // every time Consultant regenerates the Owner so the new person sees it
+  // again.
+  ownerGeneratedAt   DateTime?
+  ownerWelcomeSeenAt DateTime?
+  ownerLogoDataUrl   String?
+
+  updatedAt DateTime @updatedAt
 }

@@ -5,6 +5,8 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import PayslipDocument from "@/components/PayslipDocument";
 import type { Payslip } from "@/lib/payslip";
 import { PAYSLIP_COST_CATEGORIES, EMPLOYEE_LEVELS, VOUCHER_LABEL, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { downloadFile } from "@/lib/client-download";
+import { describePayslipDelivery } from "@/lib/payslip-delivery-message";
 
 interface EmployeeOption {
   id: string;
@@ -69,6 +71,10 @@ export default function AdminPayslipPage() {
   const [qePlace, setQePlace] = useState("");
   const [qeBusy, setQeBusy] = useState(false);
   const [qeMsg, setQeMsg] = useState("");
+
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [sendBusy, setSendBusy] = useState(false);
+  const [sendMsg, setSendMsg] = useState("");
 
   const selectedEmployee = employees.find((e) => e.id === employeeId);
   const isTera = selectedEmployee ? usesVcr(selectedEmployee.role) : false;
@@ -238,6 +244,31 @@ export default function AdminPayslipPage() {
     const res = await fetch(`/api/admin/savings/${id}?month=${month}`, { method: "DELETE" });
     const data = await res.json();
     if (res.ok) setPayslip(data.payslip);
+  }
+
+  async function saveAsPdf() {
+    setPdfBusy(true);
+    try {
+      await downloadFile(`/api/admin/payslip/pdf?employeeId=${employeeId}&month=${month}`, "Slip Pay.pdf");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
+  async function sendToContacts() {
+    setSendBusy(true);
+    setSendMsg("");
+    try {
+      const res = await fetch("/api/admin/payslip/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, month }),
+      });
+      const data = await res.json();
+      setSendMsg(res.ok ? describePayslipDelivery(data) : data.error ?? "Gagal mengirim.");
+    } finally {
+      setSendBusy(false);
+    }
   }
 
   async function submitRecurringCost() {
@@ -653,12 +684,29 @@ export default function AdminPayslipPage() {
           )}
           {employeeId && payslip && (
             <div className="flex flex-col gap-3">
-              <button
-                onClick={() => window.print()}
-                className="self-end py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer"
-              >
-                Print / Simpan PDF
-              </button>
+              <div className="self-end flex flex-wrap justify-end gap-2.5">
+                <button
+                  onClick={() => window.print()}
+                  className="py-2.5 px-4 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer"
+                >
+                  Print
+                </button>
+                <button
+                  disabled={pdfBusy}
+                  onClick={saveAsPdf}
+                  className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                >
+                  {pdfBusy ? "Menyiapkan…" : "Simpan PDF"}
+                </button>
+                <button
+                  disabled={sendBusy}
+                  onClick={sendToContacts}
+                  className="py-2.5 px-4 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                >
+                  {sendBusy ? "Mengirim…" : "Kirim Email/WA"}
+                </button>
+              </div>
+              {sendMsg && <div className="self-end text-[11px] text-ar-dim text-right max-w-[360px]">{sendMsg}</div>}
               <PayslipDocument payslip={payslip} onDeleteItem={deleteItem} onEditItem={startEdit} onDeleteSaving={deleteSaving} />
             </div>
           )}

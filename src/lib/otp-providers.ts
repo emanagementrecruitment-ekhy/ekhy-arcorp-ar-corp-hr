@@ -148,3 +148,59 @@ export async function sendOtpWhatsapp(toPhoneDigits: string, code: string) {
     throw new Error(`Fonnte send failed: ${res.status} ${JSON.stringify(data)}`);
   }
 }
+
+/** Emails a Slip Pay PDF to the employee's registered address, over whichever of Brevo/SMTP is configured — same channel as sendOtpEmail above. */
+export async function sendPayslipEmail(to: string, subject: string, text: string, pdf: Buffer, filename: string) {
+  if (process.env.BREVO_API_KEY) {
+    const senderRaw = process.env.SMTP_FROM || process.env.SMTP_USER;
+    if (!senderRaw) throw new Error("No sender email configured for Brevo API");
+    const sender = parseSender(senderRaw);
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": process.env.BREVO_API_KEY, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        sender: { email: sender.email, name: sender.name || "AR Corp" },
+        to: [{ email: to }],
+        subject,
+        textContent: text,
+        attachment: [{ content: pdf.toString("base64"), name: filename }],
+      }),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`Brevo API send failed: ${res.status} ${detail}`);
+    }
+    return;
+  }
+  const transport = getMailer();
+  if (!transport) throw new Error("SMTP is not configured");
+  await transport.sendMail({
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    to,
+    subject,
+    text,
+    attachments: [{ filename, content: pdf }],
+  });
+}
+
+/** Sends a Slip Pay PDF as a WhatsApp document via Fonnte — same gateway/token as sendOtpWhatsapp above. */
+export async function sendPayslipWhatsapp(toPhoneDigits: string, message: string, pdf: Buffer, filename: string) {
+  const token = process.env.FONNTE_TOKEN;
+  if (!token) throw new Error("Fonnte is not configured");
+  const target = toPhoneDigits.startsWith("62") ? toPhoneDigits : `62${toPhoneDigits.replace(/^0/, "")}`;
+
+  const form = new FormData();
+  form.set("target", target);
+  form.set("message", message);
+  form.set("file", new Blob([new Uint8Array(pdf)], { type: "application/pdf" }), filename);
+
+  const res = await fetch("https://api.fonnte.com/send", {
+    method: "POST",
+    headers: { Authorization: token },
+    body: form,
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || data?.status === false) {
+    throw new Error(`Fonnte send failed: ${res.status} ${JSON.stringify(data)}`);
+  }
+}

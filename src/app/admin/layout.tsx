@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import OwnerWelcomeOverlay from "@/components/admin/OwnerWelcomeOverlay";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -27,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         supervisorOnly={isSupervisor}
       />
       <div className="arScroll flex-1 min-w-0 overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 pb-16">{children}</div>
+      {session.accessRole === "OWNER" && <OwnerWelcomeOverlay />}
     </div>
   );
 }

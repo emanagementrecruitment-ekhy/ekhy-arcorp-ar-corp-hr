@@ -166,11 +166,20 @@ export const PAYSLIP_COST_CATEGORIES = [
 // narrower: only Consultant (AR Corp's own account) can install or replace
 // the business owner's login, so an Owner can never re-appoint themselves or
 // hand the seat to someone else unilaterally.
+// Owner used to be appointed here too (pick an existing Data Karyawan row).
+// It's been replaced by a dedicated one-time provisioning flow — see
+// OWNER_ACCOUNT_CODE below and /dev/nav-layout — so Jabatan Kantor now only
+// ever lists the two genuinely re-appointable office seats.
 export const APPOINTABLE_ROLES: { peran: string; accessRole: AccessRole; label: string; appointerRoles?: AccessRole[] }[] = [
   { peran: "Admin", accessRole: "ADMIN_PUSAT", label: "Admin" },
   { peran: "Kepala Mess", accessRole: "SUPERVISOR", label: "Kepala Mess" },
-  { peran: "Owner", accessRole: "OWNER", label: "Owner (Pemilik)", appointerRoles: ["CONSULTANT"] },
 ];
+
+// The single Owner account's reserved employee code — mirrors HQ-CONSULT's
+// pattern (see prisma/ensure-office-accounts.ts). Only ever one row with
+// this code; Consultant "generates"/replaces it via
+// /api/admin/owner-identity, see src/app/dev/nav-layout.
+export const OWNER_ACCOUNT_CODE = "HQ-OWNER";
 
 // Dashboard appearance — switchable color palette and font pairing (see
 // /admin/pengaturan). Both lists double as the source of truth for
