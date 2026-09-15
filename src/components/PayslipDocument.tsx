@@ -71,6 +71,7 @@ export default function PayslipDocument({
               <th className="py-2 pr-2 font-normal">No</th>
               <th className="py-2 pr-2 font-normal">Tanggal</th>
               <th className="py-2 pr-2 font-normal">Rincian</th>
+              <th className="py-2 pr-2 font-normal">Penambahan Biaya</th>
               <th className="py-2 pr-2 font-normal">Qty</th>
               <th className="py-2 pr-2 font-normal text-right">Debit</th>
               <th className="py-2 pr-2 font-normal text-right">Kredit</th>
@@ -81,7 +82,7 @@ export default function PayslipDocument({
           <tbody>
             {payslip.rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-4 text-center text-ar-faint print:text-black/50">
+                <td colSpan={9} className="py-4 text-center text-ar-faint print:text-black/50">
                   Belum ada rincian bulan ini.
                 </td>
               </tr>
@@ -91,6 +92,7 @@ export default function PayslipDocument({
                 <td className="py-2 pr-2">{r.no}</td>
                 <td className="py-2 pr-2">{r.date ?? "—"}</td>
                 <td className="py-2 pr-2">{r.description}</td>
+                <td className="py-2 pr-2">{r.category ?? "—"}</td>
                 <td className="py-2 pr-2">{r.qty ?? "—"}</td>
                 <td className="py-2 pr-2 text-right">{r.debit > 0 ? fmtRp(r.debit) : "—"}</td>
                 <td className="py-2 pr-2 text-right">{r.credit > 0 ? fmtRp(r.credit) : "—"}</td>
