@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, PAYSLIP_COST_CATEGORIES } from "@/lib/constants";
+import { OFFICE_ROLES } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
-import { buildPayslip, ensureAttendancePenalty } from "@/lib/payslip";
+import { buildPayslip, ensureAttendancePenalty, ensureRecurringCosts } from "@/lib/payslip";
 
 export async function GET(req: Request) {
   try {
@@ -15,6 +15,7 @@ export async function GET(req: Request) {
     if (!employeeId) return NextResponse.json({ error: "Pilih karyawan dulu." }, { status: 400 });
 
     await ensureAttendancePenalty(employeeId, month);
+    await ensureRecurringCosts(employeeId, month);
     const payslip = await buildPayslip(employeeId, month);
     if (!payslip) return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
 
@@ -33,8 +34,6 @@ export async function POST(req: Request) {
     const month = parseMonth(typeof body?.month === "string" ? body.month : null);
     const dateRaw = typeof body?.date === "string" ? body.date : "";
     const description = typeof body?.description === "string" ? body.description.trim() : "";
-    const categoryRaw = typeof body?.category === "string" ? body.category.trim() : "";
-    const category = (PAYSLIP_COST_CATEGORIES as readonly string[]).includes(categoryRaw) ? categoryRaw : null;
     const qty = typeof body?.qty === "string" ? body.qty.trim() : "";
     const debit = Math.max(0, Math.round(Number(body?.debit) || 0));
     const credit = Math.max(0, Math.round(Number(body?.credit) || 0));
@@ -58,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     await prisma.payslipItem.create({
-      data: { employeeId, month, date, description, category, qty: qty || null, debit, credit, note: note || null },
+      data: { employeeId, month, date, description, qty: qty || null, debit, credit, note: note || null },
     });
 
     const payslip = await buildPayslip(employeeId, month);

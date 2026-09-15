@@ -13,6 +13,15 @@ interface EmployeeOption {
   role: string;
 }
 
+interface RecurringCost {
+  id: string;
+  category: string;
+  amount: number;
+  note: string | null;
+  startMonth: string;
+  startMonthLabel: string;
+}
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -27,7 +36,7 @@ export default function AdminPayslipPage() {
   const [month, setMonth] = useState(currentMonth());
   const [payslip, setPayslip] = useState<Payslip | null>(null);
 
-  const [category, setCategory] = useState<string>("");
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [date, setDate] = useState(today());
   const [description, setDescription] = useState("");
   const [qty, setQty] = useState("");
@@ -42,6 +51,17 @@ export default function AdminPayslipPage() {
   const [savingNote, setSavingNote] = useState("");
   const [savingBusy, setSavingBusy] = useState(false);
   const [savingMsg, setSavingMsg] = useState("");
+
+  const [recurringCosts, setRecurringCosts] = useState<RecurringCost[]>([]);
+  const [rcCategory, setRcCategory] = useState("");
+  const [rcAmount, setRcAmount] = useState("");
+  const [rcNote, setRcNote] = useState("");
+  const [rcStartMonth, setRcStartMonth] = useState(currentMonth());
+  const [rcBusy, setRcBusy] = useState(false);
+  const [rcMsg, setRcMsg] = useState("");
+  const [rcEditingId, setRcEditingId] = useState<string | null>(null);
+  const [rcEditAmount, setRcEditAmount] = useState("");
+  const [rcEditNote, setRcEditNote] = useState("");
 
   const selectedEmployee = employees.find((e) => e.id === employeeId);
   const isTera = selectedEmployee ? usesVcr(selectedEmployee.role) : false;
@@ -63,21 +83,36 @@ export default function AdminPayslipPage() {
 
   useEffect(load, [employeeId, month]);
 
+  function loadRecurringCosts() {
+    if (!employeeId) return;
+    fetch(`/api/admin/recurring-costs?employeeId=${employeeId}`)
+      .then((r) => r.json())
+      .then((d) => setRecurringCosts(d.recurringCosts ?? []));
+  }
+
+  useEffect(loadRecurringCosts, [employeeId]);
+
   function resetForm() {
-    setCategory("");
+    setEditingId(null);
     setDate(today());
     setDescription("");
     setQty("");
     setNote("");
     setAmount("");
+    setKind("credit");
   }
 
-  function pickCategory(v: string) {
-    setCategory(v);
-    if (v) {
-      setDescription(v);
-      setKind("credit");
-    }
+  function startEdit(id: string) {
+    const row = payslip?.rows.find((r) => r.id === id);
+    if (!row) return;
+    setEditingId(id);
+    setDate(row.dateRaw ?? today());
+    setDescription(row.description);
+    setQty(row.qty ?? "");
+    setNote(row.note ?? "");
+    setKind(row.credit > 0 ? "credit" : "debit");
+    setAmount(String(row.credit > 0 ? row.credit : row.debit));
+    setMsg("");
   }
 
   async function submitItem() {
@@ -89,15 +124,14 @@ export default function AdminPayslipPage() {
     setBusy(true);
     setMsg("");
     try {
-      const res = await fetch("/api/admin/payslip", {
-        method: "POST",
+      const res = await fetch(editingId ? `/api/admin/payslip/items/${editingId}` : "/api/admin/payslip", {
+        method: editingId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           employeeId,
           month,
           date,
           description,
-          category: category || undefined,
           qty,
           note,
           debit: kind === "debit" ? num : 0,
@@ -119,7 +153,10 @@ export default function AdminPayslipPage() {
   async function deleteItem(id: string) {
     const res = await fetch(`/api/admin/payslip/items/${id}`, { method: "DELETE" });
     const data = await res.json();
-    if (res.ok) setPayslip(data.payslip);
+    if (res.ok) {
+      setPayslip(data.payslip);
+      if (editingId === id) resetForm();
+    }
   }
 
   async function submitSaving() {
@@ -156,6 +193,67 @@ export default function AdminPayslipPage() {
     if (res.ok) setPayslip(data.payslip);
   }
 
+  async function submitRecurringCost() {
+    const num = Number(rcAmount.replace(/[^0-9]/g, ""));
+    if (!rcCategory || !num) {
+      setRcMsg("Pilih kategori dan isi nominal dulu.");
+      return;
+    }
+    setRcBusy(true);
+    setRcMsg("");
+    try {
+      const res = await fetch("/api/admin/recurring-costs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, category: rcCategory, amount: num, note: rcNote, startMonth: rcStartMonth }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRcMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      if (rcStartMonth === month) setPayslip(data.payslip);
+      setRcCategory("");
+      setRcAmount("");
+      setRcNote("");
+      loadRecurringCosts();
+      load();
+    } finally {
+      setRcBusy(false);
+    }
+  }
+
+  function startEditRecurring(rc: RecurringCost) {
+    setRcEditingId(rc.id);
+    setRcEditAmount(String(rc.amount));
+    setRcEditNote(rc.note ?? "");
+  }
+
+  async function saveEditRecurring(id: string) {
+    const num = Number(rcEditAmount.replace(/[^0-9]/g, ""));
+    if (!num) return;
+    const res = await fetch(`/api/admin/recurring-costs/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: num, note: rcEditNote, month }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setPayslip(data.payslip);
+      setRcEditingId(null);
+      loadRecurringCosts();
+    }
+  }
+
+  async function deleteRecurring(id: string) {
+    const res = await fetch(`/api/admin/recurring-costs/${id}?month=${month}`, { method: "DELETE" });
+    const data = await res.json();
+    if (res.ok) {
+      setPayslip(data.payslip);
+      loadRecurringCosts();
+    }
+  }
+
   return (
     <div>
       <AdminPageHeader
@@ -169,7 +267,10 @@ export default function AdminPayslipPage() {
             <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Karyawan/Tera</label>
             <select
               value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
+              onChange={(e) => {
+                setEmployeeId(e.target.value);
+                resetForm();
+              }}
               className="w-full py-2.5 px-3.5 mb-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
             >
               <option value="">Pilih karyawan…</option>
@@ -189,29 +290,130 @@ export default function AdminPayslipPage() {
             />
           </div>
 
+          {employeeId && isTera && (
+            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className="font-display text-[17px] text-ar-gold2 mb-1">Penambahan Biaya (Berulang)</div>
+              <div className="text-[10.5px] text-ar-dim mb-3.5">
+                Dipilih sekali, otomatis tercatat di Slip Pay bulan ini dan setiap bulan berikutnya sampai diedit/dihapus.
+              </div>
+
+              {recurringCosts.length > 0 && (
+                <div className="flex flex-col gap-2 mb-4">
+                  {recurringCosts.map((rc) => (
+                    <div key={rc.id} className="p-3 bg-ar-surface2 border border-ar-line rounded-[10px]">
+                      {rcEditingId === rc.id ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="text-[11.5px] text-ar-gold2">{rc.category}</div>
+                          <input
+                            value={rcEditAmount ? Number(rcEditAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                            onChange={(e) => setRcEditAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                            placeholder="Rp 0"
+                            className="w-full py-2 px-3 bg-ar-input border border-ar-goldline rounded-[8px] text-ar-text text-[12px]"
+                          />
+                          <input
+                            value={rcEditNote}
+                            onChange={(e) => setRcEditNote(e.target.value)}
+                            placeholder="Keterangan (opsional)"
+                            className="w-full py-2 px-3 bg-ar-input border border-ar-goldline rounded-[8px] text-ar-text text-[12px]"
+                          />
+                          <div className="flex gap-3">
+                            <button onClick={() => saveEditRecurring(rc.id)} className="text-ar-gold text-[10.5px] cursor-pointer">
+                              Simpan
+                            </button>
+                            <button onClick={() => setRcEditingId(null)} className="text-ar-dim text-[10.5px] cursor-pointer">
+                              Batal
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center gap-2">
+                          <div className="min-w-0">
+                            <div className="text-[12px] text-ar-text">{rc.category}</div>
+                            <div className="text-[10.5px] text-ar-dim truncate">
+                              Sejak {rc.startMonthLabel}
+                              {rc.note ? ` · ${rc.note}` : ""}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-[12.5px] font-display text-ar-gold2">
+                              Rp {rc.amount.toLocaleString("id-ID")}
+                            </span>
+                            <button onClick={() => startEditRecurring(rc)} className="text-ar-gold text-[10.5px] cursor-pointer">
+                              Edit
+                            </button>
+                            <button onClick={() => deleteRecurring(rc.id)} className="text-ar-red text-[10.5px] cursor-pointer">
+                              Hapus
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="grid gap-3">
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Kategori</label>
+                  <select
+                    value={rcCategory}
+                    onChange={(e) => setRcCategory(e.target.value)}
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  >
+                    <option value="">Pilih kategori…</option>
+                    {PAYSLIP_COST_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Nominal/bulan</label>
+                    <input
+                      value={rcAmount ? Number(rcAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                      onChange={(e) => setRcAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                      placeholder="Rp 0"
+                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Mulai Bulan</label>
+                    <input
+                      type="month"
+                      value={rcStartMonth}
+                      onChange={(e) => setRcStartMonth(e.target.value)}
+                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Keterangan (opsional)</label>
+                  <input
+                    value={rcNote}
+                    onChange={(e) => setRcNote(e.target.value)}
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  />
+                </div>
+              </div>
+              {rcMsg && <div className="mt-3 text-[11.5px] text-ar-red">{rcMsg}</div>}
+              <button
+                disabled={rcBusy}
+                onClick={submitRecurringCost}
+                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              >
+                Tambah Penambahan Biaya
+              </button>
+            </div>
+          )}
+
           {employeeId && (
             <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
-              <div className="font-display text-[17px] text-ar-gold2 mb-3.5">Tambah Rincian Manual</div>
+              <div className="font-display text-[17px] text-ar-gold2 mb-3.5">
+                {editingId ? "Edit Rincian" : "Tambah Rincian Manual"}
+              </div>
               <div className="grid gap-3">
-                {isTera && (
-                  <div>
-                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">
-                      Penambahan Biaya (opsional)
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => pickCategory(e.target.value)}
-                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-                    >
-                      <option value="">— Isi manual —</option>
-                      {PAYSLIP_COST_CATEGORIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
                 <div>
                   <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Tanggal</label>
                   <input
@@ -226,7 +428,7 @@ export default function AdminPayslipPage() {
                   <input
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="cth. Admin, Mess, Ambil Barang - Seragam"
+                    placeholder="cth. Kasbon Uang, Ambil Barang - Seragam"
                     className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
                   />
                 </div>
@@ -271,13 +473,23 @@ export default function AdminPayslipPage() {
                 </div>
               </div>
               {msg && <div className="mt-3 text-[11.5px] text-ar-red">{msg}</div>}
-              <button
-                disabled={busy}
-                onClick={submitItem}
-                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
-              >
-                Tambah Rincian
-              </button>
+              <div className="flex gap-2.5 mt-3.5">
+                <button
+                  disabled={busy}
+                  onClick={submitItem}
+                  className="flex-1 py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                >
+                  {editingId ? "Simpan Perubahan" : "Tambah Rincian"}
+                </button>
+                {editingId && (
+                  <button
+                    onClick={resetForm}
+                    className="py-2.5 px-4 bg-ar-surface2 border border-ar-line rounded-[10px] text-ar-dim text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -344,7 +556,7 @@ export default function AdminPayslipPage() {
               >
                 Print / Simpan PDF
               </button>
-              <PayslipDocument payslip={payslip} onDeleteItem={deleteItem} onDeleteSaving={deleteSaving} />
+              <PayslipDocument payslip={payslip} onDeleteItem={deleteItem} onEditItem={startEdit} onDeleteSaving={deleteSaving} />
             </div>
           )}
         </div>

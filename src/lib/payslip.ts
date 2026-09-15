@@ -15,11 +15,13 @@ export interface PayslipRow {
   no: number;
   id: string | null; // PayslipItem id — deletable manual row when set, null for the computed VCR/Kasbon rows
   date: string | null;
+  dateRaw: string | null; // "YYYY-MM-DD" — for pre-filling the edit form's <input type="date">
   description: string;
   category: string | null;
   qty: string | null;
   debit: number;
   credit: number;
+  note: string | null;
   balance: number;
 }
 
@@ -66,23 +68,25 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
 
   const draft: Array<Omit<PayslipRow, "no" | "balance">> = [];
   if (vcr && vcrTotal > 0) {
-    draft.push({ id: null, date: null, description: "TOTAL VCR", category: null, qty: `${vouchers.length} vcr`, debit: vcrTotal, credit: 0 });
+    draft.push({ id: null, date: null, dateRaw: null, description: "TOTAL VCR", category: null, qty: `${vouchers.length} vcr`, debit: vcrTotal, credit: 0, note: null });
   }
   if (!vcr && employee.salary && employee.salary > 0) {
-    draft.push({ id: null, date: null, description: "GAJI POKOK", category: null, qty: null, debit: employee.salary, credit: 0 });
+    draft.push({ id: null, date: null, dateRaw: null, description: "GAJI POKOK", category: null, qty: null, debit: employee.salary, credit: 0, note: null });
   }
   if (kasbonTotal > 0) {
-    draft.push({ id: null, date: null, description: "KASBON DISETUJUI", category: null, qty: null, debit: 0, credit: kasbonTotal });
+    draft.push({ id: null, date: null, dateRaw: null, description: "KASBON DISETUJUI", category: null, qty: null, debit: 0, credit: kasbonTotal, note: null });
   }
   for (const it of items) {
     draft.push({
       id: it.id,
       date: it.date ? dLabel(it.date) : null,
+      dateRaw: it.date ? it.date.toISOString().slice(0, 10) : null,
       description: it.description,
       category: it.category,
       qty: it.qty,
       debit: it.debit,
       credit: it.credit,
+      note: it.note,
     });
   }
 
@@ -157,6 +161,44 @@ export async function ensureAttendancePenalty(employeeId: string, month: string)
 
   // Recorded either way, so a month with enough days present is also never re-checked.
   await prisma.attendancePenaltyCheck.create({ data: { employeeId, month } });
+}
+
+/**
+ * Generates this month's PayslipItem for every RecurringCost (Admin, Mess,
+ * Dokter/Spekulo, Salon, Loker, Test Kehamilan/HIV-AIDS, Pinalty SOP) an
+ * employee has running, so a fee entered once keeps billing every month on
+ * its own. Each template can only ever produce one row per month — matched
+ * by recurringCostId, not category, so Owner deleting that one month's row
+ * doesn't stop the next month's from being generated. Deleting the
+ * RecurringCost itself is what actually stops future billing.
+ */
+export async function ensureRecurringCosts(employeeId: string, month: string): Promise<void> {
+  const recurring = await prisma.recurringCost.findMany({ where: { employeeId, startMonth: { lte: month } } });
+  if (recurring.length === 0) return;
+
+  const existing = await prisma.payslipItem.findMany({
+    where: { employeeId, month, recurringCostId: { in: recurring.map((r) => r.id) } },
+    select: { recurringCostId: true },
+  });
+  const already = new Set(existing.map((e) => e.recurringCostId));
+
+  for (const rc of recurring) {
+    if (already.has(rc.id)) continue;
+    await prisma.payslipItem.create({
+      data: {
+        employeeId,
+        month,
+        date: null,
+        description: rc.category,
+        category: rc.category,
+        qty: null,
+        debit: 0,
+        credit: rc.amount,
+        note: rc.note,
+        recurringCostId: rc.id,
+      },
+    });
+  }
 }
 
 const PAYSLIP_MONTH_WINDOW = 5;

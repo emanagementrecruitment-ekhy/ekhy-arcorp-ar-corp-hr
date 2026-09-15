@@ -19,10 +19,12 @@ function fmtRp(n: number): string {
 export default function PayslipDocument({
   payslip,
   onDeleteItem,
+  onEditItem,
   onDeleteSaving,
 }: {
   payslip: Payslip;
   onDeleteItem?: (id: string) => void;
+  onEditItem?: (id: string) => void;
   onDeleteSaving?: (id: string) => void;
 }) {
   return (
@@ -100,14 +102,18 @@ export default function PayslipDocument({
                   {fmtRp(r.balance)}
                 </td>
                 {onDeleteItem && (
-                  <td className="py-2 print:hidden">
+                  <td className="py-2 print:hidden whitespace-nowrap">
                     {r.id && (
-                      <button
-                        onClick={() => onDeleteItem(r.id!)}
-                        className="text-ar-red text-[10.5px] cursor-pointer"
-                      >
-                        Hapus
-                      </button>
+                      <span className="flex gap-2.5">
+                        {onEditItem && (
+                          <button onClick={() => onEditItem(r.id!)} className="text-ar-gold text-[10.5px] cursor-pointer">
+                            Edit
+                          </button>
+                        )}
+                        <button onClick={() => onDeleteItem(r.id!)} className="text-ar-red text-[10.5px] cursor-pointer">
+                          Hapus
+                        </button>
+                      </span>
                     )}
                   </td>
                 )}
