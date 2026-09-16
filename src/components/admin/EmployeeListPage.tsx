@@ -23,6 +23,7 @@ interface EmpRow {
   supervisorId: string;
   channelLink: string;
   supervisorNote: string;
+  photoDataUrl: string | null;
   count: string;
   kasbon: string;
   total: string;
@@ -190,6 +191,7 @@ export default function EmployeeListPage({
                     supervisorId: e.supervisorId,
                     channelLink: e.channelLink,
                     supervisorNote: e.supervisorNote,
+                    photoDataUrl: e.photoDataUrl,
                   }}
                   supervisors={supervisors}
                   onSaved={onSaved}

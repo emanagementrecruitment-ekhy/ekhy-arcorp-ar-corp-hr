@@ -77,6 +77,7 @@ export async function GET(req: Request) {
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
           supervisorNote: e.supervisorNote ?? "",
+          photoDataUrl: e.photoDataUrl,
           count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
           total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp(e.salary ?? 0),

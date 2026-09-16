@@ -44,6 +44,8 @@ model Employee {
   supervisorNote String?   // manual free-text note when the actual supervisor isn't a registered Kepala Mess account
   reports     Employee[]   @relation("Supervision")
   createdAt   DateTime     @default(now())
+  photoDataUrl   String?   // self-service profile photo, replacing the initials-monogram avatar when set
+  photoUpdatedAt DateTime? // 30-day lock (see isLogoLocked/logoUnlockDate in src/lib/settings.ts) — Owner/Consultant can clear it early via the admin photo route
 
   otpCodes     OtpCode[]
   loginEvents  LoginEvent[]

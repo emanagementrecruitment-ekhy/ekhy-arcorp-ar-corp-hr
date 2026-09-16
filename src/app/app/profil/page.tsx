@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Badge from "@/components/Badge";
 import LogoutButton from "@/components/LogoutButton";
+import ProfilePhoto from "@/components/employee/ProfilePhoto";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp, isLink } from "@/lib/format";
 
@@ -42,9 +43,7 @@ export default async function ProfilPage() {
   return (
     <div>
       <div className="flex items-center gap-4 py-3.5 pb-4.5">
-        <span className="w-[62px] h-[62px] shrink-0 rounded-full border border-ar-goldline grid place-items-center font-display text-2xl text-ar-gold">
-          {mono}
-        </span>
+        <ProfilePhoto mono={mono} />
         <span>
           <span className="block font-display text-2xl">{employee.name}</span>
           <span className="block text-[11px] tracking-[0.14em] uppercase text-ar-gold mt-1">
