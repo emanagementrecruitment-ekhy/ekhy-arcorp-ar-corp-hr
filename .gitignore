@@ -46,6 +46,8 @@ next-env.d.ts
 # prisma sqlite database
 /prisma/*.db
 /prisma/*.db-journal
+/prisma/*.db-shm
+/prisma/*.db-wal
 
 # AR Corp Desktop (Electron wrapper) — build.sh output & staging, not source
 /desktop/node_modules

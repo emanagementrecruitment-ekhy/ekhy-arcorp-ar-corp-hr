@@ -26,8 +26,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const amountChanged = hasEditedAmount && finalAmount !== existing.amount;
     const deciderLabel = session.accessRole === "CONSULTANT" ? "Consultant" : "Owner";
 
-    await prisma.kasbon.update({
-      where: { id },
+    // Guard the write with the status it was read under, so a double-tap or
+    // Owner-and-Consultant both deciding at once can only ever apply once —
+    // the loser's update touches zero rows instead of silently overwriting
+    // the winner's decision and sending a second notification.
+    const { count } = await prisma.kasbon.updateMany({
+      where: { id, status: "MENUNGGU_OWNER" },
       data: {
         amount: finalAmount,
         status: approve ? "DISETUJUI" : "DITOLAK",
@@ -40,6 +44,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           : `Ditolak ${deciderLabel}`,
       },
     });
+    if (count === 0) {
+      return NextResponse.json({ error: "Pengajuan ini sudah diputuskan." }, { status: 409 });
+    }
 
     if (approve) {
       await prisma.notification.create({

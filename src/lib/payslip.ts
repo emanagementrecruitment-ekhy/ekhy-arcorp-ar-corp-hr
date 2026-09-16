@@ -1,4 +1,5 @@
 import "server-only";
+import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
 import { dLabel, monthLabel } from "./format";
@@ -146,10 +147,17 @@ export async function ensureAttendancePenalty(employeeId: string, month: string)
   const joinedYm = `${employee.createdAt.getFullYear()}-${String(employee.createdAt.getMonth() + 1).padStart(2, "0")}`;
   if (month < joinedYm) return; // wasn't employed yet that month
 
-  const already = await prisma.attendancePenaltyCheck.findUnique({
-    where: { employeeId_month: { employeeId, month } },
-  });
-  if (already) return;
+  // Claim this employee+month first — the unique constraint is what makes
+  // this idempotent when two requests race (e.g. Owner and Consultant both
+  // opening the same Slip Pay at once). Whoever loses the race bails out
+  // here instead of both passing a "not yet decided" check and each
+  // creating their own Pinalty Absensi row.
+  try {
+    await prisma.attendancePenaltyCheck.create({ data: { employeeId, month } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return;
+    throw e;
+  }
 
   const daysPresent = await getAttendanceDaysCount(employeeId, month);
 
@@ -168,9 +176,6 @@ export async function ensureAttendancePenalty(employeeId: string, month: string)
       },
     });
   }
-
-  // Recorded either way, so a month with enough days present is also never re-checked.
-  await prisma.attendancePenaltyCheck.create({ data: { employeeId, month } });
 }
 
 /**

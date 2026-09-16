@@ -1,4 +1,5 @@
 import "server-only";
+import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
 import { dayKey, monthLabel } from "./format";
@@ -21,15 +22,22 @@ function todayKey(): string {
  */
 export async function markAttendanceToday(employeeId: string): Promise<{ dateKey: string; alreadyMarked: boolean }> {
   const dk = todayKey();
-  const existing = await prisma.attendance.findUnique({
-    where: { employeeId_dateKey: { employeeId, dateKey: dk } },
-  });
-  if (existing) return { dateKey: dk, alreadyMarked: true };
-
-  await prisma.attendance.create({
-    data: { employeeId, dateKey: dk, month: dk.slice(0, 7) },
-  });
-  return { dateKey: dk, alreadyMarked: false };
+  // Create optimistically and let the employeeId+dateKey unique constraint
+  // be the source of truth, rather than check-then-create: a double tap or
+  // an auto-retried request racing with itself would otherwise both pass
+  // the check before either insert lands, and the loser would crash with a
+  // raw constraint-violation 500 instead of the idempotent no-op the UI expects.
+  try {
+    await prisma.attendance.create({
+      data: { employeeId, dateKey: dk, month: dk.slice(0, 7) },
+    });
+    return { dateKey: dk, alreadyMarked: false };
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { dateKey: dk, alreadyMarked: true };
+    }
+    throw e;
+  }
 }
 
 /** This employee's marked dateKeys ("YYYY-MM-DD") for one month. */
