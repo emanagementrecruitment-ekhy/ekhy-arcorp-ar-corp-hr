@@ -5,7 +5,7 @@ import { deliverPayslip } from "@/lib/payslip-delivery";
 
 export async function POST(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const body = await req.json().catch(() => null);
     const month = parseMonth(typeof body?.month === "string" ? body.month : null);
 

@@ -6,7 +6,7 @@ import { VOUCHER_LABEL, VOUCHER_STATUS_LABEL, type EmployeeLevel, type VoucherSt
 
 export async function GET(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const { searchParams } = new URL(req.url);
     const period = parsePeriod(searchParams.get("period"));
     const now = new Date();

@@ -6,7 +6,7 @@ import { notifyOffice } from "@/lib/notify";
 
 export async function GET() {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const [employee, messages] = await Promise.all([
       prisma.employee.findUniqueOrThrow({
         where: { id: session.employeeId },
@@ -36,7 +36,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const body = await req.json().catch(() => null);
     const text = typeof body?.text === "string" ? body.text.trim() : "";
     if (!text) return NextResponse.json({ error: "Pesan tidak boleh kosong." }, { status: 400 });

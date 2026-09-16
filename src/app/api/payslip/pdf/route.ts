@@ -5,7 +5,7 @@ import { generatePayslipPdf, payslipFilename } from "@/lib/payslip-pdf";
 
 export async function GET(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const { searchParams } = new URL(req.url);
     const month = parseMonth(searchParams.get("month"));
 

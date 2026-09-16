@@ -53,7 +53,9 @@ export async function POST(req: Request) {
   return NextResponse.json({
     ok: true,
     accessRole: employee.accessRole,
-    // Field staff still need to complete the GPS attendance step; office accounts go straight in.
-    requiresAttendance: employee.accessRole === "KARYAWAN",
+    // Field staff still need to complete the GPS attendance step; office
+    // accounts go straight in. SUPERVISOR (Kepala Mess) still absen like any
+    // other employee — only OWNER/CONSULTANT/ADMIN_PUSAT skip it.
+    requiresAttendance: employee.accessRole === "KARYAWAN" || employee.accessRole === "SUPERVISOR",
   });
 }

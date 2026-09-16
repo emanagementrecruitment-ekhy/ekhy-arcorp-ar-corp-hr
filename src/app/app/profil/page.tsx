@@ -78,6 +78,16 @@ export default async function ProfilPage() {
         <span className="text-ar-gold text-[11px]">Lihat →</span>
       </Link>
 
+      {session!.accessRole === "SUPERVISOR" && (
+        <Link
+          href="/admin/lapor-lapangan"
+          className="flex items-center justify-between mt-2.5 p-4 bg-ar-surface border border-ar-goldline rounded-2xl"
+        >
+          <span className="text-[13px]">🗂️ Tinjau Laporan Lapangan</span>
+          <span className="text-ar-gold text-[11px]">Buka →</span>
+        </Link>
+      )}
+
       <div className="text-[10px] tracking-[0.18em] uppercase text-ar-dim mt-5 mb-2.5">Riwayat login &amp; lokasi</div>
       <div className="flex flex-col gap-2">
         {logins.length === 0 && <div className="text-[12px] text-ar-faint py-3">Belum ada riwayat login.</div>}

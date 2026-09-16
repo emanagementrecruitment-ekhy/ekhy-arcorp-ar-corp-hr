@@ -6,7 +6,7 @@ import { KASBON_LABEL, type KasbonStatus } from "@/lib/constants";
 
 export async function GET() {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const rows = await prisma.kasbon.findMany({
       where: { employeeId: session.employeeId },
       orderBy: { createdAt: "desc" },
@@ -28,7 +28,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const body = await req.json().catch(() => null);
     const amount = Math.round(Number(body?.amount));
     const reason = typeof body?.reason === "string" ? body.reason.trim() : "";

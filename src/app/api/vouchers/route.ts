@@ -15,7 +15,7 @@ import { notifyOffice } from "@/lib/notify";
 
 export async function GET(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const { searchParams } = new URL(req.url);
     const period = parsePeriod(searchParams.get("period"));
     const now = new Date();
@@ -87,7 +87,7 @@ export async function GET(req: Request) {
  */
 export async function POST(req: Request) {
   try {
-    const session = await requireSession(["KARYAWAN"]);
+    const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const body = await req.json().catch(() => null);
 
     const qty = Math.round(Number(body?.qty));
