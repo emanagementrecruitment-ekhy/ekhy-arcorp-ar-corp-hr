@@ -23,7 +23,20 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        # android-actions/setup-android@v3 started failing outright (within
+        # seconds, no useful log) once GitHub force-migrated this action to
+        # the Node 24 runner — GitHub's own ubuntu-latest image already
+        # ships a full Android SDK, so we point at that instead of relying
+        # on the third-party action at all.
+        run: |
+          : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
+          : "${ANDROID_SDK_ROOT:=$ANDROID_HOME}"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "Resolved ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/cmdline-tools/latest/bin"
 
       - name: Install required SDK packages
         run: |
