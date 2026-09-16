@@ -57,22 +57,24 @@ jobs:
         # for that (GitHub blocks pushes with files over 100MB), and Release
         # assets give a stable, ever-current URL on their own:
         # https://github.com/<owner>/<repo>/releases/latest/download/<slug>-Setup.exe
+        #
+        # Each build gets its OWN tag (desktop-<run number>) instead of
+        # reusing/deleting "desktop-latest" — repos with GitHub's "immutable
+        # releases" repo rule enabled permanently block re-creating a release
+        # under a tag name that was ever published before, even after
+        # deleting it (HTTP 422 "tag_name was used by an immutable release").
+        # --latest still moves the stable /releases/latest/ alias to this
+        # run's release regardless of its tag name, so the download link on
+        # the login page (which points at /releases/latest/download/<file>)
+        # never needs to change.
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -x
-          ls -la desktop/dist/
           installer=$(ls desktop/dist/*.exe)
           exeName="${{ steps.product.outputs.slug }}-Setup.exe"
           cp "$installer" "$exeName"
-          gh release delete desktop-latest --yes 2>&1 || true
-          git push origin :refs/tags/desktop-latest 2>&1 || true
-          if ! gh release create desktop-latest "$exeName" \
+          gh release create "desktop-${{ github.run_number }}" "$exeName" \
             --title "${{ steps.product.outputs.name }} — installer terbaru" \
             --notes "Dibuat otomatis dari commit ${{ github.sha }} (build #${{ github.run_number }}). Unduh dan jalankan langsung di komputer/laptop Windows kantor." \
-            --latest 2> release-error.log; then
-            msg=$(cat release-error.log | tr '\n' ' ' | tr '\r' ' ')
-            echo "::error::gh release create failed: $msg"
-            exit 1
-          fi
+            --latest
