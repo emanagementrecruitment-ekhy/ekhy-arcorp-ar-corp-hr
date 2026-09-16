@@ -29,6 +29,7 @@ function today() {
 interface ImportSummary {
   sheetsProcessed: number;
   employeesCreated: number;
+  employeesSkippedLimit: number;
   vouchersInserted: number;
   totalAmount: number;
   skippedSheets: string[];
@@ -206,6 +207,11 @@ export default function PendapatanPage() {
                 {importSummary.totalAmount.toLocaleString("id-ID")}
                 {importSummary.skippedSheets.length > 0 && (
                   <div className="text-ar-faint mt-1">Sheet dilewati (bukan format bulan): {importSummary.skippedSheets.join(", ")}</div>
+                )}
+                {importSummary.employeesSkippedLimit > 0 && (
+                  <div className="text-ar-red mt-1">
+                    {importSummary.employeesSkippedLimit} karyawan baru dilewati — batas paket sudah tercapai. Hubungi vendor untuk upgrade paket.
+                  </div>
                 )}
               </div>
             )}

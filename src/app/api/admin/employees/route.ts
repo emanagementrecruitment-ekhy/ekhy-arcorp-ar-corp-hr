@@ -4,6 +4,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
+import { getEmployeeLimit } from "@/lib/license";
 
 const PAGE_SIZE = 10;
 
@@ -107,6 +108,18 @@ export async function POST(req: Request) {
   try {
     // Admin can add new field employees; editing/deleting existing ones stays Owner/Consultant only (see [id]/route.ts).
     await requireSession(["OWNER", "CONSULTANT", "ADMIN_PUSAT"]);
+
+    const employeeLimit = await getEmployeeLimit();
+    if (employeeLimit !== null) {
+      const currentCount = await prisma.employee.count({ where: { accessRole: "KARYAWAN" } });
+      if (currentCount >= employeeLimit) {
+        return NextResponse.json(
+          { error: `Batas paket (${employeeLimit} karyawan/Tera) sudah tercapai. Hubungi vendor untuk upgrade paket.` },
+          { status: 403 }
+        );
+      }
+    }
+
     const body = await req.json().catch(() => null);
 
     const name = typeof body?.name === "string" ? body.name.trim() : "";

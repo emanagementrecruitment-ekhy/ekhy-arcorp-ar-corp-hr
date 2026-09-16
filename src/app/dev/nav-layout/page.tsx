@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
 import ResetAppearance from "@/components/admin/ResetAppearance";
 import OwnerIdentityPanel from "@/components/admin/OwnerIdentityPanel";
+import PackagePanel from "@/components/admin/PackagePanel";
 
 const OPTIONS = [
   {
@@ -34,6 +35,7 @@ export default async function NavLayoutDevPage() {
   return (
     <div className="min-h-screen p-8 max-w-3xl mx-auto">
       <OwnerIdentityPanel />
+      <PackagePanel />
 
       <Link href="/admin" className="text-[11px] text-ar-dim">
         ← Kembali ke dashboard

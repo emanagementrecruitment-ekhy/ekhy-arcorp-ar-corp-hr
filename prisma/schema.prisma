@@ -279,5 +279,12 @@ model AppSetting {
   ownerWelcomeSeenAt DateTime?
   ownerLogoDataUrl   String?
 
+  // Package tier cache for white-label deployments (see src/lib/license.ts)
+  // — mirrors the vendor's License Server employeeLimit for this CLIENT_ID
+  // so "Tambah Karyawan" can enforce it without a network round-trip on
+  // every add. Refreshed on every reportCheckin(). null means unlimited OR
+  // licensing not configured for this deployment — either way, no cap.
+  employeeLimit Int?
+
   updatedAt DateTime @updatedAt
 }

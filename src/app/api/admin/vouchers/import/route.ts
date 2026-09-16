@@ -5,6 +5,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { FIELD_CITIES, HQ, type EmployeeLevel } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
 import { fmtRp } from "@/lib/format";
+import { getEmployeeLimit } from "@/lib/license";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
 
@@ -67,6 +68,10 @@ export async function POST(req: Request) {
     const usedEmails = new Set(existingEmails.map((e) => e.email));
     const usedPhones = new Set(existingPhones.map((e) => e.phone));
 
+    const employeeLimit = await getEmployeeLimit();
+    let employeeSlotsLeft = employeeLimit === null ? Infinity : employeeLimit - existingEmployees.length;
+    let employeesSkippedLimit = 0;
+
     const existingPrCodes = await prisma.employee.findMany({
       where: { code: { startsWith: "PR-" } },
       select: { code: true },
@@ -117,6 +122,10 @@ export async function POST(req: Request) {
 
         const key = `${name.toLowerCase()}|${outlet.toLowerCase()}`;
         let employeeId = byNameOutlet.get(key);
+        if (!employeeId && employeeSlotsLeft <= 0) {
+          employeesSkippedLimit++;
+          continue;
+        }
         if (!employeeId) {
           const email = await uniqueEmail(name, outlet, usedEmails);
           const phone = await uniquePhone(usedPhones);
@@ -141,6 +150,7 @@ export async function POST(req: Request) {
           employeeId = created.id;
           byNameOutlet.set(key, employeeId);
           employeesCreated++;
+          employeeSlotsLeft--;
         }
 
         const client = `Rekap ${outlet} · ${monthLabel}`;
@@ -170,6 +180,7 @@ export async function POST(req: Request) {
       ok: true,
       sheetsProcessed,
       employeesCreated,
+      employeesSkippedLimit,
       vouchersInserted,
       totalAmount,
       skippedSheets,
