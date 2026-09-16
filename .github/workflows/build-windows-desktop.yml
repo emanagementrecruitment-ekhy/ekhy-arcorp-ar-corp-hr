@@ -61,12 +61,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -x
+          ls -la desktop/dist/
           installer=$(ls desktop/dist/*.exe)
           exeName="${{ steps.product.outputs.slug }}-Setup.exe"
           cp "$installer" "$exeName"
-          gh release delete desktop-latest --yes || true
-          git push origin :refs/tags/desktop-latest || true
-          gh release create desktop-latest "$exeName" \
+          gh release delete desktop-latest --yes 2>&1 || true
+          git push origin :refs/tags/desktop-latest 2>&1 || true
+          if ! gh release create desktop-latest "$exeName" \
             --title "${{ steps.product.outputs.name }} — installer terbaru" \
             --notes "Dibuat otomatis dari commit ${{ github.sha }} (build #${{ github.run_number }}). Unduh dan jalankan langsung di komputer/laptop Windows kantor." \
-            --latest
+            --latest 2> release-error.log; then
+            msg=$(cat release-error.log | tr '\n' ' ' | tr '\r' ' ')
+            echo "::error::gh release create failed: $msg"
+            exit 1
+          fi
