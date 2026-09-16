@@ -1,4 +1,4 @@
-name: Build AR Corp Desktop (Windows installer)
+name: Build Desktop App (Windows installer)
 
 on:
   workflow_dispatch:
@@ -30,10 +30,23 @@ jobs:
         shell: bash
         run: bash desktop/build-desktop.sh
 
+      - name: Resolve product name from desktop/package.json
+        # Every white-label clone already renames build.productName in
+        # desktop/package.json for its own branding — reading it here means
+        # this workflow never needs a manual edit (and can't be forgotten)
+        # when the app is cloned for a new client.
+        id: product
+        shell: bash
+        run: |
+          name=$(node -p "require('./desktop/package.json').build.productName")
+          slug=$(echo "$name" | tr ' ' '-')
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "slug=$slug" >> "$GITHUB_OUTPUT"
+
       - name: Upload installer as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: arcorp-desktop-installer-${{ github.run_number }}
+          name: desktop-installer-${{ github.run_number }}
           path: desktop/dist/*.exe
           retention-days: 90
 
@@ -43,16 +56,17 @@ jobs:
         # straight into public/downloads/) — this installer is far too big
         # for that (GitHub blocks pushes with files over 100MB), and Release
         # assets give a stable, ever-current URL on their own:
-        # https://github.com/<owner>/<repo>/releases/latest/download/AR-Corp-Desktop-Setup.exe
+        # https://github.com/<owner>/<repo>/releases/latest/download/<slug>-Setup.exe
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           installer=$(ls desktop/dist/*.exe)
-          cp "$installer" "AR-Corp-Desktop-Setup.exe"
+          exeName="${{ steps.product.outputs.slug }}-Setup.exe"
+          cp "$installer" "$exeName"
           gh release delete desktop-latest --yes || true
           git push origin :refs/tags/desktop-latest || true
-          gh release create desktop-latest "AR-Corp-Desktop-Setup.exe" \
-            --title "AR Corp Desktop — installer terbaru" \
+          gh release create desktop-latest "$exeName" \
+            --title "${{ steps.product.outputs.name }} — installer terbaru" \
             --notes "Dibuat otomatis dari commit ${{ github.sha }} (build #${{ github.run_number }}). Unduh dan jalankan langsung di komputer/laptop Windows kantor." \
             --latest
