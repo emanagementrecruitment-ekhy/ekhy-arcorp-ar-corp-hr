@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { SETTING_ID } from "@/lib/settings";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 // Resets theme/font/logo back to AR Corp defaults. Gated by a passcode
 // (RESET_PASSCODE, set only in Railway's environment variables — never
@@ -13,7 +14,14 @@ import { SETTING_ID } from "@/lib/settings";
 // falling back to some default anyone could read in the source.
 export async function POST(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
+
+    // Any office-tier account can reach this button, so the passcode is the
+    // only thing standing between "logged in" and "reset branding" — cap
+    // guesses per account on top of requiring the Consultant's code at all.
+    if (!rateLimit(`settings-reset:${session.employeeId}`, 5, 10 * 60_000) || !rateLimit(`settings-reset:ip:${clientIp(req)}`, 10, 10 * 60_000)) {
+      throw new ApiAuthError(429, "Terlalu banyak percobaan. Coba lagi beberapa menit lagi.");
+    }
 
     const configured = process.env.RESET_PASSCODE;
     if (!configured) {
