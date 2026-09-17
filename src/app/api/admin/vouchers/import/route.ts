@@ -8,6 +8,11 @@ import { fmtRp } from "@/lib/format";
 import { getEmployeeLimit } from "@/lib/license";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
+// The xlsx parser has known ReDoS/resource-exhaustion issues on maliciously
+// crafted files (GHSA-5pgg-2g8v-p4x9) with no upstream npm fix — this cap
+// bounds how much a single import can make the parser chew on, on top of
+// the route already being restricted to trusted office-tier accounts.
+const MAX_IMPORT_BYTES = 5_000_000;
 
 const MONTHS: Record<string, number> = {
   januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5,
@@ -52,6 +57,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File Excel tidak ditemukan." }, { status: 400 });
     }
 
+    if ((file as File).size > MAX_IMPORT_BYTES) {
+      return NextResponse.json({ error: "File Excel terlalu besar — maksimal 5 MB." }, { status: 400 });
+    }
     const buf = Buffer.from(await (file as File).arrayBuffer());
     const workbook = XLSX.read(buf, { type: "buffer" });
 

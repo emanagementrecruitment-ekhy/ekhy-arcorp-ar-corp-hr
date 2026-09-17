@@ -5,6 +5,7 @@ import { createSession } from "@/lib/auth";
 import { usesVcr, type AccessRole } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
 import { reportCheckin } from "@/lib/license";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 const REASON_MESSAGE: Record<string, string> = {
   not_found: "Kode belum diminta atau sudah kedaluwarsa. Kirim ulang kode.",
@@ -24,6 +25,13 @@ export async function POST(req: Request) {
       { error: "Mode offline kantor hanya untuk akun Admin/Owner/Consultant/Kepala Mess." },
       { status: 403 }
     );
+  }
+
+  // bcrypt.compare is deliberately slow — without this, hammering this
+  // endpoint is a cheap way to burn CPU regardless of the per-code attempt
+  // cap below (which only kicks in once an employee is resolved).
+  if (!rateLimit(`otp-verify:ip:${clientIp(req)}`, 30, 10 * 60_000)) {
+    return NextResponse.json({ error: "Terlalu banyak percobaan. Coba lagi beberapa menit lagi." }, { status: 429 });
   }
 
   const employee = await findEmployeeForPortal(identifier, portal);
