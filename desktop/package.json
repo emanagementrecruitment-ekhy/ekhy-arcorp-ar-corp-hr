@@ -1,6 +1,6 @@
 {
   "name": "arcorp-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "AR Corp Desktop — pembungkus aplikasi AR Corp untuk komputer/laptop kantor (online ke Railway, otomatis cadangan lokal saat internet mati).",
   "author": "AR Corp",
