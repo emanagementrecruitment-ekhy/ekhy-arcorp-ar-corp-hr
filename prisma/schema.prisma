@@ -59,6 +59,8 @@ model Employee {
   attendancePenaltyChecks AttendancePenaltyCheck[]
   savingEntries SavingEntry[]
   recurringCosts RecurringCost[]
+  reminderRecipients ReminderRecipient[]
+  pushSubscriptions  PushSubscription[]
 }
 
 model OtpCode {
@@ -247,6 +249,50 @@ model Notification {
   createdAt     DateTime  @default(now())
 
   @@index([recipientRole, createdAt])
+}
+
+// Kalender pengingat (Admin/Owner) — satu Reminder dikirim ke satu atau lebih
+// karyawan/Tera lewat push notification. Daftar penerima dibekukan saat dibuat
+// (lihat ReminderRecipient) — memilih "Semua" hanya menyalin roster saat itu,
+// bukan langganan dinamis, supaya riwayat tetap akurat walau roster berubah.
+model Reminder {
+  id            String    @id @default(cuid())
+  title         String
+  message       String
+  scheduledAt   DateTime
+  createdById   String
+  createdByName String
+  createdAt     DateTime  @default(now())
+  sentAt        DateTime? // diisi scheduler (lihat src/instrumentation.ts) setelah push dikirim
+  recipients    ReminderRecipient[]
+
+  @@index([scheduledAt, sentAt])
+}
+
+model ReminderRecipient {
+  id          String    @id @default(cuid())
+  reminderId  String
+  reminder    Reminder  @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  deliveredAt DateTime?
+
+  @@unique([reminderId, employeeId])
+  @@index([employeeId])
+}
+
+// Web Push subscription per perangkat karyawan (satu karyawan bisa login di
+// beberapa HP/browser sekaligus, masing-masing punya endpoint sendiri).
+model PushSubscription {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  createdAt  DateTime @default(now())
+
+  @@index([employeeId])
 }
 
 // Single-row app-wide config (always id "singleton" — see src/lib/settings.ts).

@@ -14,6 +14,7 @@ const DESKS: readonly Desk[] = [
   { href: "/admin", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   { href: "/admin/lokasi", label: "Lokasi & Absensi", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
   { href: "/admin/absensi-harian", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/kalender", label: "Kalender Pengingat", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
   {
     group: "Data Karyawan",
     items: [
