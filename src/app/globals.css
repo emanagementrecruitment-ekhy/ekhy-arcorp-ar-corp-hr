@@ -89,6 +89,26 @@
   --ar-gold: #d6d2c9;
 }
 
+/* Mode Siang (Terang) — see LIGHT_MODES in src/lib/constants.ts and the
+   [data-mode] attribute set in layout.tsx (server default + the
+   beforeInteractive script that corrects it from the viewer's own local
+   clock). Only the neutral surface/text tokens flip here; the accent family
+   above ([data-theme]) is orthogonal and keeps working the same in either
+   mode. Mode Malam (Gelap) needs no block — it's the :root default above. */
+[data-mode="light"] {
+  --ar-bg: #f6f4f0;
+  --ar-bg-deep: #ffffff;
+  --ar-bezel: #eae7e0;
+  --ar-surface: #ffffff;
+  --ar-surface2: rgba(0, 0, 0, 0.035);
+  --ar-line: rgba(0, 0, 0, 0.1);
+  --ar-text: #201f1c;
+  --ar-dim: rgba(32, 31, 28, 0.58);
+  --ar-faint: rgba(32, 31, 28, 0.38);
+  --ar-input: rgba(0, 0, 0, 0.045);
+  --ar-moonlight: rgba(0, 0, 0, 0.035);
+}
+
 [data-font="modern"] {
   --font-display: var(--font-display-modern);
   --font-sans: var(--font-sans-modern);

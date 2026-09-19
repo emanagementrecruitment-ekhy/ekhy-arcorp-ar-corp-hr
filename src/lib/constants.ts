@@ -209,6 +209,20 @@ export const THEME_FONT_IDS = THEME_FONTS.map((t) => t.id) as ThemeFontId[];
 // /api/admin/settings/logo) before it can be replaced again.
 export const LOGO_LOCK_DAYS = 30;
 
+// Siang/Malam (light/dark) mode — see /admin/pengaturan and [data-mode] in
+// globals.css. "auto" is computed client-side from the VIEWER's own local
+// clock (see LightModeSync.tsx) since the server has no reliable way to know
+// a visitor's timezone; "light"/"dark" pin it regardless of the time.
+export const LIGHT_MODES = [
+  { id: "auto", label: "Otomatis (ikuti jam)", desc: "Terang jam 06.00–18.00, gelap di luar jam itu — mengikuti jam HP masing-masing." },
+  { id: "light", label: "Selalu Terang (Siang)", desc: "Tampilan terang sepanjang waktu." },
+  { id: "dark", label: "Selalu Gelap (Malam)", desc: "Tampilan gelap sepanjang waktu (tampilan asli)." },
+] as const;
+export type LightModeId = (typeof LIGHT_MODES)[number]["id"];
+export const LIGHT_MODE_IDS = LIGHT_MODES.map((m) => m.id) as LightModeId[];
+export const LIGHT_MODE_DAY_START_HOUR = 6;
+export const LIGHT_MODE_DAY_END_HOUR = 18;
+
 // The standing demo Tera account (see prisma/ensure-demo-tera.ts) — its
 // email/phone aren't real, so nobody can ever receive its OTP by email or
 // WhatsApp. issueOtp() (src/lib/otp.ts) checks this code to always surface

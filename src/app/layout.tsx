@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Cormorant_Garamond, Manrope, Playfair_Display, Inter, Montserrat, Work_Sans } from "next/font/google";
 import "./globals.css";
 import { getAppearanceSetting } from "@/lib/settings";
+import { LIGHT_MODE_DAY_START_HOUR, LIGHT_MODE_DAY_END_HOUR } from "@/lib/constants";
+import LightModeSync from "@/components/LightModeSync";
 
 const displayClassic = Cormorant_Garamond({
   variable: "--font-display-classic",
@@ -69,11 +72,24 @@ export const viewport: Viewport = {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { themeColor, themeFont } = await getAppearanceSetting();
+  const { themeColor, themeFont, lightMode } = await getAppearanceSetting();
+  // Server has no reliable read on the visitor's own timezone, so "auto"
+  // renders as "dark" here (today's fixed look) — the beforeInteractive
+  // script below corrects it from the browser's real local clock before
+  // the very first paint, so there's no visible flash either way.
+  const initialMode = lightMode === "auto" ? "dark" : lightMode;
 
   return (
-    <html lang="id" data-theme={themeColor} data-font={themeFont} className={fontVariables}>
-      <body className="min-h-screen bg-ar-bg text-ar-text font-sans antialiased">{children}</body>
+    <html lang="id" data-theme={themeColor} data-font={themeFont} data-mode={initialMode} data-mode-pref={lightMode} className={fontVariables}>
+      <head>
+        <Script id="light-mode-init" strategy="beforeInteractive">
+          {`(function(){try{var pref=document.documentElement.getAttribute('data-mode-pref');if(pref==='auto'){var h=new Date().getHours();var mode=(h>=${LIGHT_MODE_DAY_START_HOUR}&&h<${LIGHT_MODE_DAY_END_HOUR})?'light':'dark';document.documentElement.setAttribute('data-mode',mode);}}catch(e){}})();`}
+        </Script>
+      </head>
+      <body className="min-h-screen bg-ar-bg text-ar-text font-sans antialiased">
+        <LightModeSync lightMode={lightMode} />
+        {children}
+      </body>
     </html>
   );
 }

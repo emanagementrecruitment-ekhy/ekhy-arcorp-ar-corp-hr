@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import { THEME_COLORS, THEME_FONTS, type ThemeColorId, type ThemeFontId } from "@/lib/constants";
+import { THEME_COLORS, THEME_FONTS, LIGHT_MODES, type ThemeColorId, type ThemeFontId, type LightModeId } from "@/lib/constants";
 
 interface LogoInfo {
   hasCustom: boolean;
@@ -16,6 +16,7 @@ interface LogoInfo {
 export default function PengaturanPage() {
   const [themeColor, setThemeColor] = useState<ThemeColorId>("classic");
   const [themeFont, setThemeFont] = useState<ThemeFontId>("classic");
+  const [lightMode, setLightMode] = useState<LightModeId>("auto");
   const [logo, setLogo] = useState<LogoInfo | null>(null);
   const [busy, setBusy] = useState(false);
   const [logoBusy, setLogoBusy] = useState(false);
@@ -30,6 +31,7 @@ export default function PengaturanPage() {
       .then((d) => {
         setThemeColor(d.themeColor);
         setThemeFont(d.themeFont);
+        setLightMode(d.lightMode);
         setLogo(d.logo);
       });
   }
@@ -44,7 +46,7 @@ export default function PengaturanPage() {
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ themeColor, themeFont }),
+        body: JSON.stringify({ themeColor, themeFont, lightMode }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -125,6 +127,30 @@ export default function PengaturanPage() {
         </div>
 
         <div>
+          <div className="font-display text-[19px] text-ar-gold2 mb-1">Mode Siang/Malam</div>
+          <div className="text-[11.5px] text-ar-dim mb-3">
+            Atur tampilan terang/gelap dashboard — bisa otomatis mengikuti jam HP masing-masing pengguna, atau dikunci manual.
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {LIGHT_MODES.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setLightMode(m.id)}
+                className={`text-left p-3.5 rounded-2xl border cursor-pointer transition ${
+                  lightMode === m.id ? "bg-ar-goldfill border-ar-goldline" : "bg-ar-surface border-ar-line"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[12.5px] font-semibold text-ar-text">{m.label}</span>
+                  {lightMode === m.id && <span className="ml-auto text-[9.5px] uppercase tracking-[0.1em] text-ar-gold">Aktif</span>}
+                </div>
+                <div className="text-[10.5px] text-ar-dim leading-[1.5]">{m.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
           <div className="font-display text-[19px] text-ar-gold2 mb-1">Font Dashboard</div>
           <div className="text-[11.5px] text-ar-dim mb-3">Pilih pasangan font judul + teks untuk seluruh aplikasi.</div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -154,7 +180,7 @@ export default function PengaturanPage() {
             onClick={save}
             className="py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
           >
-            Simpan Warna &amp; Font
+            Simpan Warna, Font &amp; Mode
           </button>
         </div>
 

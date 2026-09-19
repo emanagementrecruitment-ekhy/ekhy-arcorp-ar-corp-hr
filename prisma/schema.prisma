@@ -308,6 +308,7 @@ model AppSetting {
   id              String    @id
   themeColor      String    @default("classic")
   themeFont       String    @default("classic")
+  lightMode       String    @default("auto") // "auto" | "light" | "dark" — see LIGHT_MODES in src/lib/constants.ts
   logoDataUrl     String?
   logoUpdatedAt   DateTime?
   logoUpdatedById String?
