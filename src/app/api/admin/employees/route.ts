@@ -26,8 +26,12 @@ export async function GET(req: Request) {
     // a short digit run (e.g. the "05" left over from stripping "AR-05") would
     // otherwise false-match unrelated phone numbers that merely contain it.
     const qDigits = q.replace(/\D/g, "");
+    // Defaults to the active roster; ?status=RESIGN switches to the resigned
+    // list (see EMPLOYEE_STATUSES) so an admin can review or reactivate them.
+    const status = searchParams.get("status") === "RESIGN" ? "RESIGN" : "AKTIF";
     const where = {
       accessRole: "KARYAWAN" as const,
+      status,
       ...(type === "tera" ? { role: VCR_ROLE } : type === "staff" ? { role: { not: VCR_ROLE } } : {}),
       ...(q
         ? {
@@ -65,6 +69,7 @@ export async function GET(req: Request) {
           name: e.name,
           code: e.code,
           role: e.role,
+          status: e.status,
           level: e.level,
           customRate: e.customRate,
           salary: e.salary,
@@ -112,7 +117,7 @@ export async function POST(req: Request) {
 
     const employeeLimit = await getEmployeeLimit();
     if (employeeLimit !== null) {
-      const currentCount = await prisma.employee.count({ where: { accessRole: "KARYAWAN" } });
+      const currentCount = await prisma.employee.count({ where: { accessRole: "KARYAWAN", status: "AKTIF" } });
       if (currentCount >= employeeLimit) {
         return NextResponse.json(
           { error: `Batas paket (${employeeLimit} karyawan/Tera) sudah tercapai. Hubungi vendor untuk upgrade paket.` },

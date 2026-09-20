@@ -11,6 +11,7 @@ interface EmpRow {
   name: string;
   code: string;
   role: string;
+  status: "AKTIF" | "RESIGN";
   level: EmployeeLevel | null;
   customRate: number | null;
   salary: number | null;
@@ -50,6 +51,7 @@ export default function EmployeeListPage({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [query, setQuery] = useState("");
+  const [statusTab, setStatusTab] = useState<"AKTIF" | "RESIGN">("AKTIF");
   const [canEdit, setCanEdit] = useState(false);
   const [supervisors, setSupervisors] = useState<SupervisorOption[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -79,8 +81,8 @@ export default function EmployeeListPage({
       );
   }
 
-  function loadPage(p: number, q: string) {
-    const params = new URLSearchParams({ page: String(p), type });
+  function loadPage(p: number, q: string, status: "AKTIF" | "RESIGN" = statusTab) {
+    const params = new URLSearchParams({ page: String(p), type, status });
     if (q) params.set("q", q);
     fetch(`/api/admin/employees?${params}`)
       .then((r) => r.json())
@@ -93,13 +95,13 @@ export default function EmployeeListPage({
   }
 
   useEffect(() => {
-    loadPage(1, "");
+    loadPage(1, "", statusTab);
     loadSupervisors();
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then((d) => setCanEdit(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type]);
+  }, [type, statusTab]);
 
   useEffect(() => {
     const t = setTimeout(() => loadPage(1, query), 300);
@@ -129,6 +131,28 @@ export default function EmployeeListPage({
     loadSupervisors();
   }
 
+  async function toggleStatus(row: EmpRow, status: "AKTIF" | "RESIGN") {
+    setDeleteMsg("");
+    const res = await fetch(`/api/admin/employees/${row.id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setDeleteMsg(data.error ?? "Gagal mengubah status.");
+      return;
+    }
+    showNotice(
+      status === "RESIGN"
+        ? `✓ ${row.name} (${row.code}) ditandai resign — tidak bisa login lagi, tapi riwayatnya tetap tersimpan.`
+        : `✓ ${row.name} (${row.code}) diaktifkan kembali.`,
+      4000
+    );
+    loadPage(page, query);
+    loadSupervisors();
+  }
+
   const cols = canEdit ? "1.4fr .9fr 1.4fr .8fr .8fr 1fr auto" : "1.6fr 1fr 1.5fr .9fr .9fr 1.1fr";
 
   return (
@@ -136,6 +160,22 @@ export default function EmployeeListPage({
       <AdminPageHeader title={title} subtitle={`${total} terdaftar · login dengan email atau nomor HP`} />
 
       <div className="pt-5.5">
+        <div className="flex gap-2 mb-3.5">
+          {(["AKTIF", "RESIGN"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusTab(s)}
+              className={`py-1.5 px-3.5 rounded-full text-[11px] font-medium cursor-pointer border ${
+                statusTab === s
+                  ? "bg-ar-gold text-black border-ar-gold"
+                  : "bg-transparent text-ar-dim border-ar-line"
+              }`}
+            >
+              {s === "AKTIF" ? "Aktif" : "Resign"}
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-wrap gap-3 justify-between items-center mb-3.5">
           <input
             value={query}
@@ -167,7 +207,11 @@ export default function EmployeeListPage({
           </div>
           {rows.length === 0 && (
             <div className="py-8 px-4.5 text-center text-[12.5px] text-ar-faint">
-              {query ? `Tidak ada yang cocok dengan "${query}".` : emptyLabel}
+              {query
+                ? `Tidak ada yang cocok dengan "${query}".`
+                : statusTab === "RESIGN"
+                  ? "Belum ada yang ditandai resign."
+                  : emptyLabel}
             </div>
           )}
           {rows.map((e) =>
@@ -277,6 +321,21 @@ export default function EmployeeListPage({
                       >
                         Edit
                       </button>
+                      {statusTab === "AKTIF" ? (
+                        <button
+                          onClick={() => toggleStatus(e, "RESIGN")}
+                          className="text-[11px] text-ar-dim cursor-pointer"
+                        >
+                          Resign
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => toggleStatus(e, "AKTIF")}
+                          className="text-[11px] text-ar-green cursor-pointer"
+                        >
+                          Aktifkan
+                        </button>
+                      )}
                       <button
                         onClick={() => setConfirmDeleteId(e.id)}
                         className="text-[11px] text-ar-red cursor-pointer"

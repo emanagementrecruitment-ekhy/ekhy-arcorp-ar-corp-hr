@@ -22,6 +22,7 @@ const DESKS: readonly Desk[] = [
       { href: "/admin/karyawan/tera", label: "Data Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
       { href: "/admin/karyawan", label: "Data Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
       { href: "/admin/jabatan", label: "Jabatan", roles: ["OWNER", "CONSULTANT"] },
+      { href: "/admin/karyawan/arsip-resign", label: "Arsip Slip Resign", roles: ["OWNER", "CONSULTANT"] },
     ],
   },
   {

@@ -20,6 +20,7 @@ export async function findEmployeeForPortal(identifier: string, portal: Portal) 
       : await prisma.employee.findUnique({ where: { phone: norm.value } });
 
   if (!employee) return null;
+  if (employee.status === "RESIGN") return null;
 
   // "Office" here just means "not a field employee" — it decides which login
   // tab (STAFF & PR vs. OFFICE) an account uses, not what it's allowed to see

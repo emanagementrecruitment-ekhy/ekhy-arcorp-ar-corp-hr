@@ -35,6 +35,7 @@ model Employee {
   heightCm    Int?
   role        String       // display role, e.g. "Konsultan Lapangan", "Supervisor Lapangan", "Owner AR Corp"
   accessRole  String       @default("KARYAWAN")
+  status      String       @default("AKTIF") // "AKTIF" | "RESIGN" (see EMPLOYEE_STATUSES in src/lib/constants.ts) — a resigned employee can no longer log in (see findEmployeeForPortal) and drops out of the active Data Karyawan/Data Tera list, but their history (voucher/absensi/slip pay) stays intact for reports, unlike a hard delete
   homeLat     Float
   homeLng     Float
   homePlace   String
@@ -61,6 +62,7 @@ model Employee {
   recurringCosts RecurringCost[]
   reminderRecipients ReminderRecipient[]
   pushSubscriptions  PushSubscription[]
+  resignPayslips     ResignPayslip[]
 }
 
 model OtpCode {
@@ -336,4 +338,25 @@ model AppSetting {
   employeeLimit Int?
 
   updatedAt DateTime @updatedAt
+}
+
+// A frozen Slip Pay snapshot for the calendar month an employee/Tera was
+// marked RESIGN in (see PATCH /api/admin/employees/[id]/status) — captured
+// as an actual PDF at that moment rather than left to buildPayslip()'s live
+// computation, since Voucher/Kasbon/PayslipItem data a resigned employee
+// leaves behind can still be edited or cleaned up later and the last slip
+// they were owed must not silently change or disappear with it. Deliberately
+// gated tighter than every other payslip route (OWNER/CONSULTANT only, not
+// ADMIN_PUSAT) — see src/app/api/admin/resign-payslip/*.
+model ResignPayslip {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  month      String   // "YYYY-MM" — the month captured, normally the one Resign was clicked in
+  filename   String
+  pdfData    Bytes
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, month])
+  @@index([employeeId])
 }

@@ -3,6 +3,13 @@
 export const ACCESS_ROLES = ["KARYAWAN", "OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] as const;
 export type AccessRole = (typeof ACCESS_ROLES)[number];
 
+// A resigned employee/Tera can't log in and drops out of the active Data
+// Karyawan/Data Tera list, but keeps their voucher/absensi/slip pay history
+// intact for reports — the non-destructive alternative to deleting them
+// outright (see DELETE /api/admin/employees/[id]).
+export const EMPLOYEE_STATUSES = ["AKTIF", "RESIGN"] as const;
+export type EmployeeStatus = (typeof EMPLOYEE_STATUSES)[number];
+
 // Full admin data access (Karyawan, Kasbon, Laporan, Lokasi & Absensi, ...).
 // SUPERVISOR (Kepala Mess) is deliberately excluded — it's a narrower,
 // view-only role scoped to Laporan Lapangan only (see requireSession calls
