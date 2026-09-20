@@ -316,9 +316,9 @@ export default function EmployeeListPage({
         )}
 
         <div className="mt-3.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
-          Hak akses: <span className="text-ar-gold">Owner</span>, <span className="text-ar-gold">Consultant</span>, dan{" "}
+          Hak akses: <span className="text-ar-gold">Owner</span> dan{" "}
           <span className="text-ar-gold">Admin</span> dapat menambahkan karyawan baru lewat menu Tambah Karyawan. Hanya
-          Owner dan Consultant yang dapat mengedit/menghapus data karyawan, mengubah nilai voucher, dan menyetujui
+          Owner yang dapat mengedit/menghapus data karyawan, mengubah nilai voucher, dan menyetujui
           kasbon.
         </div>
       </div>

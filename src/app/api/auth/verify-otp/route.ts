@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
   if (process.env.ARCORP_LOCAL_MODE === "1" && portal !== "pusat") {
     return NextResponse.json(
-      { error: "Mode offline kantor hanya untuk akun Admin/Owner/Consultant/Kepala Mess." },
+      { error: "Mode offline kantor hanya untuk akun Admin/Owner/Kepala Mess." },
       { status: 403 }
     );
   }

@@ -165,7 +165,7 @@ export default function EditEmployeeForm({
         <div className="min-w-0 flex-1">
           <div className="text-[9.5px] tracking-[0.16em] uppercase text-ar-dim">Foto Profil</div>
           <div className="text-[10.5px] text-ar-faint mt-0.5 leading-[1.5]">
-            Diganti sendiri oleh karyawan (terkunci 30 hari). Owner/Consultant bisa mengganti atau menghapusnya kapan saja.
+            Diganti sendiri oleh karyawan (terkunci 30 hari). Owner bisa mengganti atau menghapusnya kapan saja.
           </div>
         </div>
         <div className="flex flex-col gap-1.5 items-end shrink-0">

@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Penyimpanan &amp; Keamanan</div>
             <p>
               Data disimpan pada server milik AR Corp dan dilindungi dengan otentikasi berbasis kode OTP.
-              Akses ke data karyawan dibatasi hanya untuk peran Owner, Admin Pusat, Konsultan, dan Kepala Mess sesuai
+              Akses ke data karyawan dibatasi hanya untuk peran Owner, Admin Pusat, dan Kepala Mess sesuai
               kebutuhan operasional masing-masing.
             </p>
           </section>

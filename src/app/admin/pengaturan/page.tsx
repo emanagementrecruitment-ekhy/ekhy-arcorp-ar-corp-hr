@@ -189,7 +189,7 @@ export default function PengaturanPage() {
           {logo?.canManage ? (
             <>
               <div className="text-[11.5px] text-ar-dim mb-3 leading-[1.6]">
-                Hanya Owner &amp; Consultant yang bisa mengganti logo. Setelah diganti, logo terkunci minimal 30 hari
+                Hanya Owner yang bisa mengganti logo. Setelah diganti, logo terkunci minimal 30 hari
                 sebelum bisa diganti lagi.
               </div>
               <div className="flex items-center gap-3.5 p-4 bg-ar-surface border border-ar-line rounded-2xl">
@@ -225,7 +225,7 @@ export default function PengaturanPage() {
             </>
           ) : (
             <div className="text-[11.5px] text-ar-dim leading-[1.6]">
-              Hanya Owner &amp; Consultant yang bisa mengganti logo aplikasi.
+              Hanya Owner yang bisa mengganti logo aplikasi.
             </div>
           )}
         </div>

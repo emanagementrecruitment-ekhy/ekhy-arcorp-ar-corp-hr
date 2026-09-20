@@ -10,7 +10,7 @@ export function describePayslipDelivery(result: { email: DeliveryStatus; whatsap
   if (result.whatsapp === "failed") failed.push("WhatsApp");
 
   if (sent.length === 0 && failed.length === 0) {
-    return "Belum ada kanal pengiriman (email/WhatsApp) yang aktif di server — hubungi Consultant untuk mengaktifkannya.";
+    return "Belum ada kanal pengiriman (email/WhatsApp) yang aktif di server — hubungi vendor/penyedia aplikasi untuk mengaktifkannya.";
   }
   const parts: string[] = [];
   if (sent.length > 0) parts.push(`Terkirim ke ${sent.join(" & ")} terdaftar.`);

@@ -14,10 +14,14 @@ const prisma = new PrismaClient();
 // rather than a placeholder email, so it's upserted by `code` and kept in
 // sync on every start — even if an older row from a previous deploy still
 // exists under that same code.
+// Displayed name/role are deliberately generic ("Admin", not "Consultant")
+// even though accessRole stays CONSULTANT internally — not every client
+// engagement has a Consultant, so nothing in the UI should ever name this
+// seat as one (see the client-facing text sweep across the app).
 const CONSULTANT_ACCOUNT = {
   code: "HQ-CONSULT",
-  name: "Consultant",
-  role: "Consultant AR Corp",
+  name: "Admin",
+  role: "Admin AR Corp",
   accessRole: "CONSULTANT",
   email: "aldhilarizky@gmail.com",
   phone: "087843860999",

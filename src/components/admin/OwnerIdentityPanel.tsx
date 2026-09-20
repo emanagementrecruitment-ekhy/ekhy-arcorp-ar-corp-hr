@@ -195,7 +195,7 @@ export default function OwnerIdentityPanel() {
           <div className="text-[10px] text-ar-faint leading-[1.6]">
             {data.needsActivationCode
               ? "Kode Aktivasi didapat dari vendor/penyedia sistem ini — hanya dibutuhkan sekali di generate pertama untuk mengaktifkan instalasi ini."
-              : "Setelah dipatenkan, Nama/Email/HP Owner terkunci untuk semua orang — hanya Consultant yang bisa menggantinya lagi lewat halaman ini."}
+              : "Setelah dipatenkan, Nama/Email/HP Owner terkunci untuk semua orang — hanya vendor/penyedia sistem ini yang bisa menggantinya lagi lewat halaman ini."}
           </div>
         </div>
       )}

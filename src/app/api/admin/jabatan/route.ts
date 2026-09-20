@@ -27,7 +27,14 @@ export async function GET() {
           holder: holder ? { id: holder.id, name: holder.name, code: holder.code, email: holder.email } : null,
           candidates,
           canAppoint: appointerRoles.includes(session.accessRole),
-          appointerLabel: appointerRoles.join(" / "),
+          // CONSULTANT is the vendor's own reserved support tier — never named
+          // in client-facing text (see MANAGERS above), so it's dropped here
+          // even though it's still functionally included in appointerRoles.
+          appointerLabel:
+            appointerRoles
+              .filter((r) => r !== "CONSULTANT")
+              .map((r) => (r === "OWNER" ? "Owner" : r === "SUPERVISOR" ? "Kepala Mess" : r))
+              .join(" / ") || "Owner",
         };
       })
     );

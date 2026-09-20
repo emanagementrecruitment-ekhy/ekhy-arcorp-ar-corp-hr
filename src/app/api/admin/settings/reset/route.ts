@@ -25,13 +25,13 @@ export async function POST(req: Request) {
 
     const configured = process.env.RESET_PASSCODE;
     if (!configured) {
-      throw new ApiAuthError(500, "RESET_PASSCODE belum diatur di server — hubungi Consultant untuk mengonfigurasinya.");
+      throw new ApiAuthError(500, "RESET_PASSCODE belum diatur di server — hubungi vendor/penyedia aplikasi untuk mengonfigurasinya.");
     }
 
     const body = await req.json().catch(() => null);
     const code = typeof body?.code === "string" ? body.code : "";
     if (code !== configured) {
-      throw new ApiAuthError(403, "Kode salah — minta kode reset ke Consultant.");
+      throw new ApiAuthError(403, "Kode salah — minta kode reset ke vendor/penyedia aplikasi.");
     }
 
     await prisma.appSetting.upsert({

@@ -199,7 +199,7 @@ export default function LoginPage() {
           </div>
           {desktopOffline && (
             <div className="text-[10px] text-ar-faint mb-[14px] leading-[1.5]">
-              Mode offline kantor: hanya login Admin/Owner/Consultant/Kepala Mess. Karyawan tetap pakai aplikasi HP.
+              Mode offline kantor: hanya login Admin/Owner/Kepala Mess. Karyawan tetap pakai aplikasi HP.
             </div>
           )}
 
@@ -356,7 +356,7 @@ export default function LoginPage() {
           </a>
         </div>
         <div className="mt-2.5 text-center text-[9px] text-ar-faint opacity-70">
-          AR Corp Desktop untuk Admin/Owner/Consultant/Kepala Mess — bisa dipakai offline saat internet kantor mati.
+          AR Corp Desktop untuk Admin/Owner/Kepala Mess — bisa dipakai offline saat internet kantor mati.
         </div>
 
         <div className="mt-5 text-center text-[9px] tracking-[0.15em] text-ar-faint opacity-50">

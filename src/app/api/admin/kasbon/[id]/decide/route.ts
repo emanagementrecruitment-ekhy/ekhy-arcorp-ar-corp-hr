@@ -24,7 +24,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const finalAmount = hasEditedAmount ? Math.round(editedAmountRaw) : existing.amount;
     const amountChanged = hasEditedAmount && finalAmount !== existing.amount;
-    const deciderLabel = session.accessRole === "CONSULTANT" ? "Consultant" : "Owner";
+    // CONSULTANT is the vendor's own reserved support tier — its decisions
+    // are recorded and shown identically to Owner's so the label never
+    // surfaces a role a client didn't ask for and wouldn't recognize.
+    const deciderLabel = "Owner";
 
     // Guard the write with the status it was read under, so a double-tap or
     // Owner-and-Consultant both deciding at once can only ever apply once —

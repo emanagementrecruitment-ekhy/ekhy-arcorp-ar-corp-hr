@@ -172,7 +172,7 @@ export async function ensureAttendancePenalty(employeeId: string, month: string)
         qty: null,
         debit: 0,
         credit: ATTENDANCE_PENALTY_AMOUNT,
-        note: "Otomatis oleh sistem — bisa diedit atau dihapus Owner/Consultant.",
+        note: "Otomatis oleh sistem — bisa diedit atau dihapus Owner.",
       },
     });
   }

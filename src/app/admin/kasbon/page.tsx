@@ -56,7 +56,7 @@ export default function AdminKasbonPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Persetujuan Kasbon" subtitle="Hanya Owner & Consultant yang dapat menyetujui atau menolak" />
+      <AdminPageHeader title="Persetujuan Kasbon" subtitle="Hanya Owner yang dapat menyetujui atau menolak" />
 
       <div className="pt-5.5 flex flex-col gap-2.5">
         {rows.length === 0 && <div className="text-[12px] text-ar-faint py-3">Belum ada pengajuan kasbon.</div>}
@@ -116,7 +116,7 @@ export default function AdminKasbonPage() {
           </div>
         ))}
         <div className="mt-1.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
-          Setiap keputusan tercatat dengan nama pemberi persetujuan dan waktunya. Owner &amp; Consultant bisa mengubah
+          Setiap keputusan tercatat dengan nama pemberi persetujuan dan waktunya. Owner bisa mengubah
           nominal sebelum menyetujui. Nominal yang disetujui otomatis dipotong dari pencairan voucher berikutnya.
         </div>
       </div>

@@ -61,7 +61,7 @@ export default function JabatanPage() {
     <div>
       <AdminPageHeader
         title="Jabatan Kantor"
-        subtitle="Tentukan siapa yang menjabat Admin dan Kepala Mess — hanya Owner & Consultant yang bisa mengubah ini"
+        subtitle="Tentukan siapa yang menjabat Admin dan Kepala Mess — hanya Owner yang bisa mengubah ini"
       />
 
       <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "1fr 1fr" }}>

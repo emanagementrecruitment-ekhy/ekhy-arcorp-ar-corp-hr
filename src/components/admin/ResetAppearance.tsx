@@ -42,8 +42,8 @@ export default function ResetAppearance() {
     <div className="mt-8 pt-6 border-t border-ar-line">
       <div className="font-display text-[19px] text-ar-gold2 mb-1">Reset Tampilan ke Bawaan</div>
       <div className="text-[11.5px] text-ar-dim leading-[1.6] mb-3 max-w-xl">
-        Mengembalikan warna, font, dan logo dashboard ke bawaan AR Corp. Perlu kode dari Consultant — tanyakan
-        langsung ke Consultant sebelum memakai tombol ini.
+        Mengembalikan warna, font, dan logo dashboard ke bawaan AR Corp. Perlu kode khusus — hubungi vendor/penyedia
+        aplikasi sebelum memakai tombol ini.
       </div>
       <div className="flex flex-wrap gap-2 max-w-md">
         <input
@@ -51,7 +51,7 @@ export default function ResetAppearance() {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && reset()}
-          placeholder="Kode dari Consultant"
+          placeholder="Kode reset"
           className="flex-1 min-w-[180px] py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
         />
         <button
