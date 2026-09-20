@@ -67,6 +67,12 @@ export default function AdminPayslipPage() {
   const [rcEditAmount, setRcEditAmount] = useState("");
   const [rcEditNote, setRcEditNote] = useState("");
 
+  const [bonusAmount, setBonusAmount] = useState("");
+  const [bonusMultiplier, setBonusMultiplier] = useState("1");
+  const [bonusNote, setBonusNote] = useState("");
+  const [bonusBusy, setBonusBusy] = useState(false);
+  const [bonusMsg, setBonusMsg] = useState("");
+
   const [qeLevel, setQeLevel] = useState<EmployeeLevel | "">("");
   const [qePlace, setQePlace] = useState("");
   const [qeBusy, setQeBusy] = useState(false);
@@ -209,6 +215,43 @@ export default function AdminPayslipPage() {
     if (res.ok) {
       setPayslip(data.payslip);
       if (editingId === id) resetForm();
+    }
+  }
+
+  async function submitBonus() {
+    const nominal = Number(bonusAmount.replace(/[^0-9]/g, ""));
+    const kali = Math.max(1, Math.round(Number(bonusMultiplier)) || 1);
+    if (!nominal) {
+      setBonusMsg("Isi nominal Bonus dulu.");
+      return;
+    }
+    setBonusBusy(true);
+    setBonusMsg("");
+    try {
+      const res = await fetch("/api/admin/payslip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          employeeId,
+          month,
+          date: today(),
+          description: "Bonus",
+          qty: `${kali}x`,
+          note: bonusNote,
+          debit: nominal * kali,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setBonusMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setPayslip(data.payslip);
+      setBonusAmount("");
+      setBonusMultiplier("1");
+      setBonusNote("");
+    } finally {
+      setBonusBusy(false);
     }
   }
 
@@ -420,6 +463,60 @@ export default function AdminPayslipPage() {
                 className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
               >
                 Simpan Grade & Outlet
+              </button>
+            </div>
+          )}
+
+          {employeeId && (
+            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className="font-display text-[17px] text-ar-gold2 mb-1">Bonus</div>
+              <div className="text-[10.5px] text-ar-dim mb-3.5">
+                Nominal × Kali dihitung otomatis dan langsung masuk ke Slip Pay bulan ini sebagai tambahan.
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Nominal Bonus</label>
+                  <input
+                    value={bonusAmount ? Number(bonusAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                    onChange={(e) => setBonusAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="Rp 0"
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Kali</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={bonusMultiplier}
+                    onChange={(e) => setBonusMultiplier(e.target.value)}
+                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  />
+                </div>
+              </div>
+              <div className="mt-3">
+                <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Keterangan (opsional)</label>
+                <input
+                  value={bonusNote}
+                  onChange={(e) => setBonusNote(e.target.value)}
+                  placeholder="cth. Bonus target bulan ini"
+                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                />
+              </div>
+              {bonusAmount && (
+                <div className="mt-3 text-[11.5px] text-ar-dim">
+                  Total: <span className="text-ar-gold2 font-display">
+                    Rp {(Number(bonusAmount.replace(/[^0-9]/g, "")) * Math.max(1, Math.round(Number(bonusMultiplier)) || 1)).toLocaleString("id-ID")}
+                  </span>
+                </div>
+              )}
+              {bonusMsg && <div className="mt-3 text-[11.5px] text-ar-red">{bonusMsg}</div>}
+              <button
+                disabled={bonusBusy}
+                onClick={submitBonus}
+                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              >
+                {bonusBusy ? "Menyimpan…" : "Tambah Bonus"}
               </button>
             </div>
           )}

@@ -8,8 +8,8 @@ export default function AppHeader({ name, code }: { name: string; code: string }
         <Image
           src="/api/brand-logo"
           alt="AR Corp"
-          width={42}
-          height={42}
+          width={64}
+          height={64}
           unoptimized
           className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
         />
