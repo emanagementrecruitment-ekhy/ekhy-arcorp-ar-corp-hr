@@ -33,7 +33,7 @@ export default function AdminKasbonPage() {
     load();
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setCanApprove(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
+      .then((d) => setCanApprove(["OWNER", "CONSULTANT", "MANAGER"].includes(d.session?.accessRole)));
   }, []);
 
   async function decide(k: KasbonRow, approve: boolean) {

@@ -6,7 +6,7 @@ import { normalizeIdentifier } from "@/lib/lookup";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT"]);
+    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
     const body = await req.json().catch(() => null);
 
@@ -115,7 +115,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT"]);
+    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
 
     const existing = await prisma.employee.findUnique({ where: { id } });

@@ -57,7 +57,7 @@ export default function LokasiPage() {
       .then((r) => r.json())
       .then((d) => {
         const role = d.session?.accessRole;
-        setCanEdit(["OWNER", "CONSULTANT"].includes(role));
+        setCanEdit(["OWNER", "CONSULTANT", "MANAGER"].includes(role));
         if (role !== "SUPERVISOR") {
           fetch("/api/admin/employees?pageSize=500")
             .then((r) => r.json())

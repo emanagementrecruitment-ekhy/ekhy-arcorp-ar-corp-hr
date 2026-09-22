@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { fmtRp } from "@/lib/format";
 
-const APPROVERS = ["OWNER", "CONSULTANT"] as const;
+const APPROVERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

@@ -112,8 +112,8 @@ async function nextEmployeeCode() {
 
 export async function POST(req: Request) {
   try {
-    // Admin can add new field employees; editing/deleting existing ones stays Owner/Consultant only (see [id]/route.ts).
-    await requireSession(["OWNER", "CONSULTANT", "ADMIN_PUSAT"]);
+    // Admin can add new field employees; editing/deleting existing ones stays Owner/Consultant/Manager only (see [id]/route.ts).
+    await requireSession(["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"]);
 
     const employeeLimit = await getEmployeeLimit();
     if (employeeLimit !== null) {

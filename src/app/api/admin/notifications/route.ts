@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { timeLabel, dLabel } from "@/lib/format";
 
-const NOTIFIABLE_ROLES = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] as const;
+const NOTIFIABLE_ROLES = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] as const;
 
 export async function GET() {
   try {

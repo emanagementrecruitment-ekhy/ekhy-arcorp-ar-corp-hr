@@ -99,7 +99,7 @@ export default function EmployeeListPage({
     loadSupervisors();
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setCanEdit(["OWNER", "CONSULTANT"].includes(d.session?.accessRole)));
+      .then((d) => setCanEdit(["OWNER", "CONSULTANT", "MANAGER"].includes(d.session?.accessRole)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, statusTab]);
 

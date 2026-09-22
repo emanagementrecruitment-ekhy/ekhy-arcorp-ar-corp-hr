@@ -41,7 +41,7 @@ export default function LaporLapanganPage() {
     loadThreads();
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setCanReply(["OWNER", "CONSULTANT", "SUPERVISOR"].includes(d.session?.accessRole)));
+      .then((d) => setCanReply(["OWNER", "CONSULTANT", "SUPERVISOR", "MANAGER"].includes(d.session?.accessRole)));
     // Poll the thread list — new incoming reports should show up without a
     // manual refresh, same as any normal chat inbox.
     const id = setInterval(loadThreads, 4000);

@@ -17,15 +17,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const roleLabel =
     session.accessRole === "OWNER" || session.accessRole === "CONSULTANT"
       ? "Owner AR Corp"
-      : isSupervisor
-        ? "Kepala Mess AR Corp"
-        : "Admin Pusat AR Corp";
+      : session.accessRole === "MANAGER"
+        ? "Manager AR Corp"
+        : isSupervisor
+          ? "Kepala Mess AR Corp"
+          : "Admin Pusat AR Corp";
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <AdminSidebar
         roleLabel={roleLabel}
-        canApprove={session.accessRole === "OWNER" || session.accessRole === "CONSULTANT"}
+        canApprove={session.accessRole === "OWNER" || session.accessRole === "CONSULTANT" || session.accessRole === "MANAGER"}
         accessRole={session.accessRole}
         supervisorOnly={isSupervisor}
       />

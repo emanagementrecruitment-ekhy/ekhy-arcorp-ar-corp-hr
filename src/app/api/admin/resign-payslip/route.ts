@@ -6,13 +6,14 @@ import { monthLabel } from "@/lib/format";
 /**
  * Lists archived resign Slip Pay snapshots (see ResignPayslip in
  * schema.prisma and src/lib/payslip-archive.ts). Deliberately gated tighter
- * than every other payslip route — OWNER/CONSULTANT only, not ADMIN_PUSAT —
- * per the "folder terkunci" requirement: a resigned employee's last payroll
- * is sensitive enough that even the office Admin Pusat tier shouldn't see it.
+ * than every other payslip route — OWNER/CONSULTANT/MANAGER only, not
+ * ADMIN_PUSAT — per the "folder terkunci" requirement: a resigned employee's
+ * last payroll is sensitive enough that even the office Admin Pusat tier
+ * shouldn't see it.
  */
 export async function GET() {
   try {
-    await requireSession(["OWNER", "CONSULTANT"]);
+    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
 
     const rows = await prisma.resignPayslip.findMany({
       include: { employee: { select: { name: true, code: true, role: true, homePlace: true, status: true } } },

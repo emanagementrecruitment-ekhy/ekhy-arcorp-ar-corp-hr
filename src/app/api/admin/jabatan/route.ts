@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { APPOINTABLE_ROLES } from "@/lib/constants";
 
-const MANAGERS = ["OWNER", "CONSULTANT"] as const;
+const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 
 export async function GET() {
   try {
@@ -33,7 +33,7 @@ export async function GET() {
           appointerLabel:
             appointerRoles
               .filter((r) => r !== "CONSULTANT")
-              .map((r) => (r === "OWNER" ? "Owner" : r === "SUPERVISOR" ? "Kepala Mess" : r))
+              .map((r) => (r === "OWNER" ? "Owner" : r === "SUPERVISOR" ? "Kepala Mess" : r === "MANAGER" ? "Manager" : r))
               .join(" / ") || "Owner",
         };
       })

@@ -6,7 +6,7 @@ import { timeLabel, dLabel } from "@/lib/format";
 
 // Admin Pusat can only view (per its scoped duties); replying is Kepala
 // Mess's job, and Owner/Consultant retain full control as usual.
-const REPLIERS = ["OWNER", "CONSULTANT", "SUPERVISOR"] as const;
+const REPLIERS = ["OWNER", "CONSULTANT", "SUPERVISOR", "MANAGER"] as const;
 
 export async function GET(req: Request) {
   try {

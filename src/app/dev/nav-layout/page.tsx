@@ -34,7 +34,8 @@ export default async function NavLayoutDevPage() {
 
   return (
     <div className="min-h-screen p-8 max-w-3xl mx-auto">
-      <OwnerIdentityPanel />
+      {/* Manager is equal to Owner everywhere except this — see IDENTITY_VIEWERS in /api/admin/owner-identity. */}
+      {session.accessRole !== "MANAGER" && <OwnerIdentityPanel />}
       <PackagePanel />
 
       <Link href="/admin" className="text-[11px] text-ar-dim">

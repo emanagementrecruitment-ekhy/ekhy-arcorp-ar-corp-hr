@@ -11,31 +11,31 @@ type Group = { group: string; items: readonly Link_[] };
 type Desk = Link_ | Group;
 
 const DESKS: readonly Desk[] = [
-  { href: "/admin", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-  { href: "/admin/lokasi", label: "Lokasi & Absensi", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
-  { href: "/admin/absensi-harian", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-  { href: "/admin/kalender", label: "Kalender Pengingat", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+  { href: "/admin/lokasi", label: "Lokasi & Absensi", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
+  { href: "/admin/absensi-harian", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+  { href: "/admin/kalender", label: "Kalender Pengingat", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   {
     group: "Data Karyawan",
     items: [
-      { href: "/admin/karyawan/tambah", label: "Tambah Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-      { href: "/admin/karyawan/tera", label: "Data Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-      { href: "/admin/karyawan", label: "Data Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-      { href: "/admin/jabatan", label: "Jabatan", roles: ["OWNER", "CONSULTANT"] },
-      { href: "/admin/karyawan/arsip-resign", label: "Arsip Slip Resign", roles: ["OWNER", "CONSULTANT"] },
+      { href: "/admin/karyawan/tambah", label: "Tambah Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/karyawan/tera", label: "Data Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/karyawan", label: "Data Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/jabatan", label: "Jabatan", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
+      { href: "/admin/karyawan/arsip-resign", label: "Arsip Slip Resign", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
     ],
   },
   {
     group: "Gabungan Totalan",
     items: [
-      { href: "/admin/laporan", label: "Laporan Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-      { href: "/admin/pendapatan", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-      { href: "/admin/kasbon", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
-      { href: "/admin/payslip", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+      { href: "/admin/laporan", label: "Laporan Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/pendapatan", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/kasbon", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/payslip", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
     ],
   },
-  { href: "/admin/lapor-lapangan", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR"] },
-  { href: "/admin/pengaturan", label: "Pengaturan Tampilan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] },
+  { href: "/admin/lapor-lapangan", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
+  { href: "/admin/pengaturan", label: "Pengaturan Tampilan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
 ];
 
 export default function AdminSidebar({

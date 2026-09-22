@@ -4,11 +4,11 @@ import { prisma } from "@/lib/prisma";
 /**
  * Downloads one archived resign Slip Pay PDF, frozen at the moment the
  * employee/Tera was marked RESIGN (see src/lib/payslip-archive.ts).
- * OWNER/CONSULTANT only — same lock as the listing route.
+ * OWNER/CONSULTANT/MANAGER only — same lock as the listing route.
  */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT"]);
+    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
 
     const row = await prisma.resignPayslip.findUnique({ where: { id } });

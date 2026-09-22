@@ -43,7 +43,11 @@ export default function AbsensiHarianPage() {
   useEffect(() => {
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d) => setCanDelete(d.session?.accessRole === "OWNER" || d.session?.accessRole === "CONSULTANT"));
+      .then((d) =>
+        setCanDelete(
+          d.session?.accessRole === "OWNER" || d.session?.accessRole === "CONSULTANT" || d.session?.accessRole === "MANAGER"
+        )
+      );
   }, []);
 
   function load() {

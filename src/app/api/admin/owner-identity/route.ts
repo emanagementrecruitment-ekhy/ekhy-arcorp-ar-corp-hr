@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, OWNER_ACCOUNT_CODE, HQ } from "@/lib/constants";
+import { OWNER_ACCOUNT_CODE, HQ } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { SETTING_ID } from "@/lib/settings";
 import { licensingConfigured, validateActivationCode } from "@/lib/license";
 
+// Deliberately narrower than OFFICE_ROLES: MANAGER is equal to OWNER
+// everywhere else in the app, but must never see (let alone edit) the real
+// Owner's Name/Email/HP — the one carve-out to "kesetaraan owner".
+const IDENTITY_VIEWERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
+
 export async function GET() {
   try {
-    const session = await requireSession(OFFICE_ROLES);
+    const session = await requireSession([...IDENTITY_VIEWERS]);
     const [owner, setting] = await Promise.all([
       prisma.employee.findUnique({ where: { code: OWNER_ACCOUNT_CODE } }),
       prisma.appSetting.findUnique({ where: { id: SETTING_ID } }),
