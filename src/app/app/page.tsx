@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { getBerandaData } from "@/lib/data/beranda";
 import Badge from "@/components/Badge";
@@ -6,7 +7,12 @@ import { ATTENDANCE_RADIUS_KM } from "@/lib/constants";
 
 export default async function BerandaPage() {
   const session = await getSession();
-  const data = await getBerandaData(session!.employeeId);
+  // EmployeeLayout already redirects on a missing session, but its check
+  // doesn't re-run on every client-side navigation within /app — if the
+  // session expires while the tab stays open, this page's own getSession()
+  // call is what actually catches it.
+  if (!session) redirect("/login");
+  const data = await getBerandaData(session.employeeId);
 
   return (
     <div>
