@@ -42,7 +42,10 @@ model Employee {
   channelLink String?      // manual free-text channel/link (e.g. WA/booking link), independent of Peran/supervisor
   supervisorId String?
   supervisor  Employee?    @relation("Supervision", fields: [supervisorId], references: [id])
-  supervisorNote String?   // manual free-text note when the actual supervisor isn't a registered Kepala Mess account
+  supervisorNote String?   // legacy free-text note — no longer editable from Data Karyawan/Tera (replaced by birthPlace/birthDate below), kept only so old values already saved keep displaying
+  birthPlace  String?      // tempat lahir sesuai KTP
+  birthDate   DateTime?    // tanggal lahir sesuai KTP — age is always computed live from this (see computeAge in src/lib/birthday.ts), never stored
+  lastBirthdayNotifiedYear Int? // guards the once-a-year office notification (see src/lib/birthday-scheduler.ts) so a restart mid-birthday never double-fires it
   reports     Employee[]   @relation("Supervision")
   createdAt   DateTime     @default(now())
   photoDataUrl   String?   // self-service profile photo, replacing the initials-monogram avatar when set
@@ -105,6 +108,10 @@ model Attendance {
   dateKey    String   // "YYYY-MM-DD"
   month      String   // "YYYY-MM" — denormalized for fast per-month grouping
   createdAt  DateTime @default(now())
+  // Set once ensureLateCheckinPenalty() has evaluated (and, if warranted,
+  // booked) this day's late-checkin deduction — see LATE_CHECKIN_* in
+  // src/lib/constants.ts. Prevents re-charging the same day twice.
+  latePenaltyApplied Boolean @default(false)
 
   @@unique([employeeId, dateKey])
   @@index([employeeId, month])
@@ -336,6 +343,19 @@ model AppSetting {
   // every add. Refreshed on every reportCheckin(). null means unlimited OR
   // licensing not configured for this deployment — either way, no cap.
   employeeLimit Int?
+
+  // Single running-text announcement shown to karyawan/Tera below the logo
+  // on every /app/* page (see AppHeader.tsx and /api/announcement) — set
+  // from the Kalender Pengingat admin page by
+  // Owner/Consultant/Admin Pusat/Manager, see /api/admin/announcement.
+  // null/empty text means no banner is shown regardless of the schedule
+  // below. announcementStartAt null = show as soon as text is set (no
+  // lower bound); announcementEndAt null = never expires ("selamanya").
+  announcementText        String?
+  announcementStartAt     DateTime?
+  announcementEndAt       DateTime?
+  announcementUpdatedAt   DateTime?
+  announcementUpdatedById String?
 
   updatedAt DateTime @updatedAt
 }
