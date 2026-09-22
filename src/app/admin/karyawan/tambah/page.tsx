@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
+import BulkImportEmployees from "@/components/admin/BulkImportEmployees";
 
 interface SupervisorOption {
   id: string;
@@ -34,6 +35,8 @@ export default function TambahKaryawanPage() {
       <AdminPageHeader title="Tambah Karyawan" subtitle="Karyawan baru otomatis masuk ke Data Karyawan, Tera baru otomatis masuk ke Data Tera" />
 
       <div className="pt-5.5 max-w-xl">
+        <BulkImportEmployees onImported={loadSupervisors} />
+
         <AddEmployeeForm
           supervisors={supervisors}
           onCreated={(code) => {

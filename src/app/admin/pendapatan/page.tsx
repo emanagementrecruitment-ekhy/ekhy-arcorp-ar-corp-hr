@@ -145,7 +145,7 @@ export default function PendapatanPage() {
           lives in the popover it opens. */}
       <button
         onClick={() => setUploadOpen((v) => !v)}
-        title="Upload DATA (Excel)"
+        title="Upload DATA (Excel/CSV/Text)"
         aria-label="Upload DATA"
         className="fixed bottom-5 right-5 z-40 w-14 h-14 cursor-pointer"
       >
@@ -163,32 +163,37 @@ export default function PendapatanPage() {
         >
           <div className="w-full max-w-[380px] mb-[76px] p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
             <div className="flex justify-between items-center mb-1.5">
-              <div className="font-display text-[19px] text-ar-gold2">Upload DATA (Excel)</div>
+              <div className="font-display text-[19px] text-ar-gold2">Upload DATA (Excel/CSV/Text)</div>
               <button onClick={() => setUploadOpen(false)} className="text-ar-dim text-[11px] cursor-pointer">
                 Tutup
               </button>
             </div>
             <div className="text-[11px] text-ar-dim mb-3.5 leading-[1.6]">
-              Format sama seperti rekap outlet bulanan (kolom NAMA, OUTLET, JUMLAH VCR, TOTAL PENDAPATAN — satu
-              sheet per bulan, misal &quot;Juni 2026&quot;). Karyawan baru otomatis dibuat dengan email/HP
-              placeholder — update lewat Data Karyawan setelah upload.
+              <strong>Excel (.xlsx/.xls):</strong> format sama seperti rekap outlet bulanan (kolom NAMA, OUTLET,
+              JUMLAH VCR, TOTAL PENDAPATAN — satu sheet per bulan, misal &quot;Juni 2026&quot;).
+              <br />
+              <strong>CSV/Text (.csv/.txt):</strong> satu tabel datar dengan kolom Nama, Outlet, Jumlah VCR, Total,
+              dan Bulan (isi per baris, misal &quot;Juni 2026&quot;) — karena file teks tidak punya sheet.
+              <br />
+              Karyawan baru otomatis dibuat dengan email/HP placeholder — update lewat Data Karyawan setelah
+              upload.
             </div>
             <label
               htmlFor="vcr-import-file"
               className="flex flex-col items-center justify-center gap-1.5 w-full py-6 px-4 mb-3 bg-ar-input border-2 border-dashed border-ar-goldline rounded-[14px] text-center cursor-pointer hover:bg-ar-surface2 transition"
             >
               <span className="text-[13px] text-ar-gold2 font-semibold">
-                {importFile ? "📄 " + importFile.name : "📁 Ketuk untuk pilih file Excel"}
+                {importFile ? "📄 " + importFile.name : "📁 Ketuk untuk pilih file"}
               </span>
               <span className="text-[10.5px] text-ar-dim">
-                {importFile ? "Ketuk lagi untuk ganti file" : "Dari galeri/file di HP, atau folder di komputer · .xlsx / .xls"}
+                {importFile ? "Ketuk lagi untuk ganti file" : "Dari galeri/file di HP, atau folder di komputer · .xlsx / .xls / .csv / .txt"}
               </span>
             </label>
             <input
               ref={importInputRef}
               id="vcr-import-file"
               type="file"
-              accept=".xlsx,.xls"
+              accept=".xlsx,.xls,.csv,.txt"
               onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
               className="hidden"
             />
@@ -206,7 +211,7 @@ export default function PendapatanPage() {
                 dibuat · {importSummary.vouchersInserted} voucher dicatat · total Rp{" "}
                 {importSummary.totalAmount.toLocaleString("id-ID")}
                 {importSummary.skippedSheets.length > 0 && (
-                  <div className="text-ar-faint mt-1">Sheet dilewati (bukan format bulan): {importSummary.skippedSheets.join(", ")}</div>
+                  <div className="text-ar-faint mt-1">Bagian dilewati (bulan tidak dikenali): {importSummary.skippedSheets.join(", ")}</div>
                 )}
                 {importSummary.employeesSkippedLimit > 0 && (
                   <div className="text-ar-red mt-1">
