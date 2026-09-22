@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import BulkImportAbsensi from "@/components/admin/BulkImportAbsensi";
 
 interface EmployeeRow {
   id: string;
@@ -25,6 +26,8 @@ interface Dashboard {
   monthLabel: string;
   daysInMonth: number;
   trackingStarted: boolean;
+  todayDay: number | null;
+  isFutureMonth: boolean;
   totalRegistered: number;
   totalVcrThisMonthLabel: string;
   avgPercentHadir: number;
@@ -35,10 +38,21 @@ function currentMonth() {
   return new Date().toISOString().slice(0, 7);
 }
 
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function AbsensiHarianPage() {
   const [month, setMonth] = useState(currentMonth());
   const [data, setData] = useState<Dashboard | null>(null);
   const [canDelete, setCanDelete] = useState(false);
+
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualEmployeeId, setManualEmployeeId] = useState("");
+  const [manualDate, setManualDate] = useState(today());
+  const [manualBusy, setManualBusy] = useState(false);
+  const [manualMsg, setManualMsg] = useState("");
+  const [manualIsError, setManualIsError] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -64,20 +78,105 @@ export default function AbsensiHarianPage() {
     if (res.ok) load();
   }
 
+  const allEmployees = (data?.outlets ?? []).flatMap((o) => o.employees);
+
+  async function submitManual() {
+    if (!manualEmployeeId) {
+      setManualIsError(true);
+      setManualMsg("Pilih karyawan/Tera dulu.");
+      return;
+    }
+    setManualBusy(true);
+    setManualMsg("");
+    try {
+      const res = await fetch("/api/admin/absensi/manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: manualEmployeeId, dateKey: manualDate }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setManualIsError(true);
+        setManualMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setManualIsError(false);
+      setManualMsg(data.alreadyMarked ? "Sudah tercatat sebelumnya." : "✓ Absen tersimpan.");
+      load();
+    } finally {
+      setManualBusy(false);
+    }
+  }
+
   return (
     <div>
       <AdminPageHeader title="Absensi Harian" subtitle="Self check-in karyawan/Tera per outlet, ditotal tiap bulan" />
 
       <div className="pt-5.5">
-        <div className="flex items-center gap-3 mb-4">
-          <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim">Bulan</label>
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className="py-2 px-3 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-          />
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim">Bulan</label>
+            <input
+              type="month"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              className="py-2 px-3 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+            />
+          </div>
+          {canDelete && (
+            <button
+              onClick={() => setManualOpen((v) => !v)}
+              className="py-2 px-3.5 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-bold tracking-[0.1em] uppercase cursor-pointer"
+            >
+              + Tambah Absen Manual
+            </button>
+          )}
         </div>
+
+        {canDelete && manualOpen && (
+          <div className="mb-4 p-4.5 bg-ar-surface border border-ar-goldline rounded-2xl">
+            <div className="font-display text-[16px] text-ar-gold2 mb-3">Tambah Absen Manual</div>
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
+              <div>
+                <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Karyawan/Tera</label>
+                <select
+                  value={manualEmployeeId}
+                  onChange={(e) => setManualEmployeeId(e.target.value)}
+                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                >
+                  <option value="">Pilih karyawan/Tera…</option>
+                  {allEmployees.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.name} ({e.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Tanggal</label>
+                <input
+                  type="date"
+                  value={manualDate}
+                  max={today()}
+                  onChange={(e) => setManualDate(e.target.value)}
+                  className="py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                />
+              </div>
+              <button
+                disabled={manualBusy}
+                onClick={submitManual}
+                className="py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60 whitespace-nowrap"
+              >
+                {manualBusy ? "Menyimpan…" : "Tandai Hadir"}
+              </button>
+            </div>
+            {manualMsg && (
+              <div className={`mt-3 text-[11.5px] ${manualIsError ? "text-ar-red" : "text-ar-green"}`}>{manualMsg}</div>
+            )}
+          </div>
+        )}
+
+        {canDelete && <BulkImportAbsensi onImported={load} />}
 
         {!data && <div className="text-[12px] text-ar-faint py-6 text-center">Memuat…</div>}
 
@@ -141,11 +240,22 @@ export default function AbsensiHarianPage() {
                             </td>
                             {e.days.map((present, i) => {
                               const id = e.dayIds[i];
+                              const dayNum = i + 1;
+                              // A day only counts as "genuinely absent" once it's actually
+                              // over — today and any day after it just haven't happened yet.
+                              const isDecided =
+                                !data.isFutureMonth && (data.todayDay === null || dayNum < data.todayDay);
+                              const isAbsent = isDecided && !present;
                               const box = (
                                 <span
                                   className={`inline-block w-3.5 h-3.5 rounded-[3px] border ${
-                                    present ? "bg-ar-gold2 border-ar-gold2" : "border-ar-line"
+                                    present
+                                      ? "bg-ar-gold2 border-ar-gold2"
+                                      : isAbsent
+                                        ? "bg-ar-red/25 border-ar-red"
+                                        : "border-ar-line"
                                   }`}
+                                  title={isAbsent ? "Tidak absen" : undefined}
                                 />
                               );
                               return (
