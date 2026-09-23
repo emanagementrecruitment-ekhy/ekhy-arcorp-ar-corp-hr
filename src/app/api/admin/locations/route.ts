@@ -41,6 +41,16 @@ export async function GET() {
         place: last?.place ?? e.homePlace,
         km: `${km} km`,
         time: last ? timeLabel(last.createdAt) : "—",
+        // Raw timestamp so the client can show "X menit/jam lalu" — position
+        // only updates on login/absen (a one-shot GPS read), never
+        // continuously, so without this a pin from days ago looks identical
+        // to a fresh one.
+        lastSeenAt: last?.createdAt ?? null,
+        // LoginEvent.place is only set when the check-in fell back to the
+        // employee's registered outlet (GPS denied/unavailable) — so this
+        // pin is that fixed address, not a real GPS reading, whenever
+        // there's no login yet at all OR the last one used that fallback.
+        isFallbackLocation: !last || last.place !== null,
         coord: restricted ? "" : `${lat.toFixed(3)}, ${lng.toFixed(3)}`,
         status: inRadius ? "Dalam radius" : "Luar radius",
         lat: restricted ? 0 : lat,

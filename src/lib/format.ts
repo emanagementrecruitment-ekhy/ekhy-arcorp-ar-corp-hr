@@ -44,6 +44,25 @@ export function timeLabel(d: Date): string {
   return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 }
 
+/**
+ * "5 menit lalu" / "2 jam lalu" / "3 hari lalu" — used wherever a GPS pin's
+ * age needs to be obvious (Lokasi & Absensi position updates once per
+ * login/absen, not continuously, so without this a stale pin from days ago
+ * looks identical to a fresh one).
+ */
+export function relativeTimeLabel(iso: string | Date | null): string {
+  if (!iso) return "belum pernah absen";
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  const diffMs = Date.now() - d.getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "baru saja";
+  if (mins < 60) return `${mins} menit lalu`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  return `${days} hari lalu`;
+}
+
 export function isLink(value: string): boolean {
   return /^(https?:\/\/|wa\.me\/|www\.)/i.test(value.trim());
 }

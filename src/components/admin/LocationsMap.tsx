@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { relativeTimeLabel } from "@/lib/format";
 
 export interface MapPresence {
   id: string;
@@ -12,6 +13,8 @@ export interface MapPresence {
   status: string;
   lat: number;
   lng: number;
+  lastSeenAt: string | null;
+  isFallbackLocation: boolean;
 }
 
 function dotIcon(color: string, size: number) {
@@ -77,10 +80,17 @@ export default function LocationsMap({
 
     for (const p of presence) {
       const ok = p.status === "Dalam radius";
-      const marker = L.marker([p.lat, p.lng], { icon: dotIcon(ok ? "#7FD1A8" : "#E2716B", 13) }).addTo(layer);
-      const popupHtml = `<strong>${p.name}</strong><br/>${p.place} · ${p.km}<br/>${p.status}${
-        canEdit ? `<br/><button data-edit-id="${p.id}" style="margin-top:6px;cursor:pointer">Edit karyawan</button>` : ""
-      }`;
+      // Grey means "not a live GPS reading" — either no check-in yet, or the
+      // last one had GPS denied/unavailable and fell back to the employee's
+      // registered outlet address (see isFallbackLocation in the API route).
+      const color = p.isFallbackLocation ? "#8A8A8A" : ok ? "#7FD1A8" : "#E2716B";
+      const marker = L.marker([p.lat, p.lng], { icon: dotIcon(color, 13) }).addTo(layer);
+      const freshness = relativeTimeLabel(p.lastSeenAt);
+      const popupHtml = `<strong>${p.name}</strong><br/>${p.place} · ${p.km}<br/>${p.status} · ${freshness}${
+        p.isFallbackLocation
+          ? `<br/><span style="color:#b45309">⚠ Lokasi terdaftar — belum ada GPS langsung</span>`
+          : ""
+      }${canEdit ? `<br/><button data-edit-id="${p.id}" style="margin-top:6px;cursor:pointer">Edit karyawan</button>` : ""}`;
       marker.bindPopup(popupHtml);
       if (canEdit) {
         marker.on("popupopen", () => {

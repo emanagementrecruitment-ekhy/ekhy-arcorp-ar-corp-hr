@@ -6,7 +6,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
 import { ATTENDANCE_RADIUS_KM, usesVcr, type EmployeeLevel } from "@/lib/constants";
-import { fmtRp } from "@/lib/format";
+import { fmtRp, relativeTimeLabel } from "@/lib/format";
 import type { MapPresence } from "@/components/admin/LocationsMap";
 
 const LocationsMap = dynamic(() => import("@/components/admin/LocationsMap"), { ssr: false });
@@ -54,6 +54,13 @@ export default function LokasiPage() {
 
   useEffect(() => {
     load();
+    // Keeps pins/status current without a manual refresh — matches the
+    // header's own online-count/clock ticker cadence elsewhere in admin.
+    const id = setInterval(load, 20_000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then((d) => {
@@ -92,11 +99,16 @@ export default function LokasiPage() {
       >
         {!restricted && (
           <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
-            <div className="flex justify-between gap-3 items-center mb-3.5">
+            <div className="flex justify-between gap-3 items-center mb-1.5">
               <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
                 Sebaran lokasi absensi · radius {ATTENDANCE_RADIUS_KM} km
               </span>
               {canEdit && <span className="text-[10.5px] text-ar-faint">Klik pin karyawan untuk mengubah datanya</span>}
+            </div>
+            <div className="text-[10.5px] text-ar-faint mb-3.5 leading-[1.6]">
+              Posisi diperbarui setiap karyawan/Tera login/absen — bukan pelacakan GPS langsung sepanjang hari, jadi
+              pin bisa berumur beberapa jam. Titik <span className="text-ar-dim">●</span> abu-abu = belum ada bacaan
+              GPS (lokasi terdaftar sementara).
             </div>
 
             {data && (
@@ -121,8 +133,14 @@ export default function LokasiPage() {
               <div className="text-[11px] text-ar-dim mt-1.5 leading-[1.6]">
                 {p.place} · {p.km}
                 <br />
-                Login {p.time}
+                Login {p.time} · {relativeTimeLabel(p.lastSeenAt)}
                 {!restricted && ` · ${p.coord}`}
+                {p.isFallbackLocation && (
+                  <>
+                    <br />
+                    <span className="text-amber-500">⚠ Lokasi terdaftar — belum ada GPS langsung</span>
+                  </>
+                )}
                 {!usesVcr(p.role) && (
                   <>
                     <br />
