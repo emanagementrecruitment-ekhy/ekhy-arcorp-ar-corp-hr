@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import NotificationBell from "./NotificationBell";
 
-export default function AdminPageHeader({ title, subtitle }: { title: string; subtitle: string }) {
+export default function AdminPageHeader({
+  title,
+  subtitle,
+  actions,
+}: {
+  title: string;
+  subtitle: string;
+  actions?: ReactNode;
+}) {
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [clock, setClock] = useState("");
 
@@ -32,6 +41,7 @@ export default function AdminPageHeader({ title, subtitle }: { title: string; su
           </span>
         </div>
         <NotificationBell />
+        {actions}
       </div>
     </div>
   );

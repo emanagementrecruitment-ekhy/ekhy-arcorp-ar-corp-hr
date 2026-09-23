@@ -1,8 +1,10 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import OwnerWelcomeOverlay from "@/components/admin/OwnerWelcomeOverlay";
+import ScreenshotButton from "@/components/admin/ScreenshotButton";
 import DesktopStatusBar from "@/components/DesktopStatusBar";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +27,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
+      <div className="fixed inset-0 -z-10 flex items-center justify-center pointer-events-none select-none">
+        <Image src="/api/brand-logo" alt="" width={520} height={520} unoptimized className="object-contain opacity-[0.04]" />
+      </div>
       <AdminSidebar
         roleLabel={roleLabel}
         canApprove={session.accessRole === "OWNER" || session.accessRole === "CONSULTANT" || session.accessRole === "MANAGER"}
@@ -33,6 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       />
       <div className="arScroll flex-1 min-w-0 overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 pb-16">{children}</div>
       {session.accessRole === "OWNER" && <OwnerWelcomeOverlay />}
+      <ScreenshotButton />
       <DesktopStatusBar />
     </div>
   );

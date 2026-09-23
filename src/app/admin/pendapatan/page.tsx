@@ -138,30 +138,23 @@ export default function PendapatanPage() {
       <AdminPageHeader
         title="Input Pendapatan"
         subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan — khusus Peran Tera"
+        actions={
+          <button
+            onClick={() => setUploadOpen((v) => !v)}
+            title="Upload DATA (Excel/CSV/Text)"
+            className="py-2.5 px-4 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-bold tracking-[0.1em] uppercase cursor-pointer whitespace-nowrap"
+          >
+            📁 Upload DATA
+          </button>
+        }
       />
-
-      {/* Upload DATA — minimized to a small floating button so it doesn't
-          compete with the everyday Tambah Entri flow; the full upload UI
-          lives in the popover it opens. */}
-      <button
-        onClick={() => setUploadOpen((v) => !v)}
-        title="Upload DATA (Excel/CSV/Text)"
-        aria-label="Upload DATA"
-        className="fixed bottom-5 right-5 z-40 w-14 h-14 cursor-pointer"
-      >
-        {/* ar-grad sets position:relative on itself, so its gradient/sheen lives on
-            an inner element — keeping `fixed` on the button unshadowed. */}
-        <span className="ar-grad w-full h-full rounded-2xl shadow-lg grid place-items-center text-ar-ongold">
-          <span className="text-[19px] leading-none">📁</span>
-        </span>
-      </button>
 
       {uploadOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-end bg-black/50 p-5"
+          className="fixed inset-0 z-50 flex items-start justify-end bg-black/50 p-5"
           onClick={(e) => e.target === e.currentTarget && setUploadOpen(false)}
         >
-          <div className="w-full max-w-[380px] mb-[76px] p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
+          <div className="w-full max-w-[380px] mt-[70px] p-5 bg-ar-surface border border-ar-goldline rounded-2xl">
             <div className="flex justify-between items-center mb-1.5">
               <div className="font-display text-[19px] text-ar-gold2">Upload DATA (Excel/CSV/Text)</div>
               <button onClick={() => setUploadOpen(false)} className="text-ar-dim text-[11px] cursor-pointer">
