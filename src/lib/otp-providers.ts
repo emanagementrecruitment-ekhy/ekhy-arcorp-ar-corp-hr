@@ -74,9 +74,19 @@ export function emailProviderConfigured() {
 }
 
 export async function sendOtpEmail(to: string, code: string) {
+  // TEMPORARY diagnostic for the 2026-09-23 "Connection timeout" incident —
+  // logs presence/length only, never the actual key, to confirm whether
+  // BREVO_API_KEY is really reaching the running container. Remove once
+  // resolved.
+  console.log(`[otp] BREVO_API_KEY present=${Boolean(process.env.BREVO_API_KEY)} length=${process.env.BREVO_API_KEY?.length ?? 0}`);
   if (process.env.BREVO_API_KEY) {
-    await sendOtpEmailViaBrevoApi(to, code);
-    return;
+    try {
+      await sendOtpEmailViaBrevoApi(to, code);
+      console.log(`[otp] Brevo API send succeeded for ${to}`);
+      return;
+    } catch (err) {
+      console.error(`[otp] Brevo API send failed for ${to}, falling back to SMTP:`, err);
+    }
   }
   const transport = getMailer();
   if (!transport) throw new Error("SMTP is not configured");
