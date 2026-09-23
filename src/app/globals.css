@@ -398,6 +398,24 @@ textarea:focus {
   animation: arPulse 1.6s infinite;
 }
 
+/* Running-text announcement banner below the header logo — see AppHeader.tsx */
+@keyframes arMarquee {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.ar-marquee-track {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ar-marquee-track span {
+  display: inline-block;
+  animation: arMarquee 18s linear infinite;
+}
+
 @keyframes arIn {
   from {
     opacity: 0;

@@ -1,7 +1,15 @@
 import Image from "next/image";
 import LogoutButton from "@/components/LogoutButton";
 
-export default function AppHeader({ name, code }: { name: string; code: string }) {
+export default function AppHeader({
+  name,
+  code,
+  announcementText,
+}: {
+  name: string;
+  code: string;
+  announcementText?: string | null;
+}) {
   return (
     <div className="max-w-[720px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 px-4 sm:px-5 pt-6 pb-5 border-b border-ar-line">
       <div className="flex items-center gap-3">
@@ -21,6 +29,11 @@ export default function AppHeader({ name, code }: { name: string; code: string }
         </div>
       </div>
       <LogoutButton className="py-[9px] px-[15px] bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[11px] cursor-pointer" />
+      {announcementText && (
+        <div className="ar-marquee-track w-full py-1.5 px-3 bg-ar-goldfill border border-ar-goldline/50 rounded-[9px]">
+          <span className="text-[11px] text-ar-gold2">📢 {announcementText}</span>
+        </div>
+      )}
     </div>
   );
 }
