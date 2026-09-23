@@ -4,7 +4,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, THEME_COLOR_IDS, THEME_FONT_IDS, THEME_COLORS, THEME_FONTS, LIGHT_MODE_IDS, LIGHT_MODES } from "@/lib/constants";
 import { SETTING_ID, getAppearanceSetting, logoUnlockDate, isLogoLocked } from "@/lib/settings";
 
-const LOGO_MANAGERS = ["OWNER", "CONSULTANT"] as const;
+const LOGO_MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 
 export async function GET() {
   try {

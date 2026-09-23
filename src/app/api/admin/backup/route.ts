@@ -3,7 +3,7 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 import { requireSession, apiError } from "@/lib/api-auth";
 
-const MANAGERS = ["OWNER", "CONSULTANT"] as const;
+const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 
 // Lets Owner/Consultant download the raw SQLite database file — every
 // employee, voucher, kasbon, payslip item, and app setting lives in this

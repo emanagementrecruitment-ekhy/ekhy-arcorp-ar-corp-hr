@@ -5,7 +5,7 @@ import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/li
 import { fmtRp, dLabel, timeLabel, dayKey } from "@/lib/format";
 import { notifyOffice } from "@/lib/notify";
 
-const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT"] as const;
+const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] as const;
 
 export async function GET() {
   try {

@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { fmtRp, dLabel, timeLabel } from "@/lib/format";
+import { fmtRp, shortRp, dLabel, timeLabel } from "@/lib/format";
 import { VOUCHER_LABEL, employeeRate, usesVcr, type EmployeeLevel } from "@/lib/constants";
 
 function greetingFor(now: Date) {
@@ -58,7 +58,7 @@ export async function getBerandaData(employeeId: string) {
     feed: feed.map((v) => ({
       title: v.client,
       meta: `${VOUCHER_LABEL[v.category as EmployeeLevel]} · ${dLabel(v.occurredAt)} ${timeLabel(v.occurredAt)}`,
-      amount: v.category === "PLATINUM" ? "+400rb" : "+150rb",
+      amount: `+${shortRp(v.amount).replace("Rp ", "")}`,
     })),
   };
 }

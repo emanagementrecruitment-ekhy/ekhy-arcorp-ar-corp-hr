@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
-import { fmtRp, dayLabel, timeLabel, dLabel } from "@/lib/format";
+import { fmtRp, shortRp, dayLabel, timeLabel, dLabel } from "@/lib/format";
 import {
   VOUCHER_LABEL,
   VOUCHER_STATUS_LABEL,
@@ -69,7 +69,7 @@ export async function GET(req: Request) {
         .map((v) => ({
           title: v.client,
           meta: `${VOUCHER_LABEL[v.category as EmployeeLevel]} · ${dLabel(v.occurredAt)} ${timeLabel(v.occurredAt)}`,
-          amount: v.category === "PLATINUM" ? "+400rb" : "+150rb",
+          amount: `+${shortRp(v.amount).replace("Rp ", "")}`,
         })),
     });
   } catch (e) {

@@ -55,6 +55,10 @@ export default function AttendanceCheckin() {
           const isToday = day === data.todayDay;
           const isPresent = marked.has(day);
           const isFuture = data.todayDay !== null && day > data.todayDay;
+          // A day that's already over, wasn't today, and has no check-in is
+          // a genuine absence — flagged red instead of the same neutral
+          // border a future day gets.
+          const isAbsent = !isPresent && !isToday && !isFuture;
           return (
             <span
               key={day}
@@ -65,7 +69,9 @@ export default function AttendanceCheckin() {
                     ? "border-ar-gold text-ar-gold"
                     : isFuture
                       ? "border-ar-line/50 text-ar-faint"
-                      : "border-ar-line text-ar-dim"
+                      : isAbsent
+                        ? "bg-ar-red/15 border-ar-red text-ar-red"
+                        : "border-ar-line text-ar-dim"
               }`}
             >
               {day}

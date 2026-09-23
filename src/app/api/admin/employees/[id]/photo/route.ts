@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 
-const MANAGERS = ["OWNER", "CONSULTANT"] as const;
+const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 const ALLOWED_TYPES = ["image/png", "image/webp", "image/jpeg"];
 const MAX_BYTES = 1_500_000;
 

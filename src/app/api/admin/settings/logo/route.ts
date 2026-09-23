@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { SETTING_ID, getAppearanceSetting, isLogoLocked, logoUnlockDate } from "@/lib/settings";
 
-const MANAGERS = ["OWNER", "CONSULTANT"] as const;
+const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 const ALLOWED_TYPES = ["image/png", "image/svg+xml", "image/webp", "image/jpeg"];
 const MAX_BYTES = 1_500_000; // raw image bytes, well under what fits comfortably in a DB row
 
