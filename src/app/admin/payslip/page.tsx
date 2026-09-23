@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import PayslipDocument from "@/components/PayslipDocument";
 import type { Payslip } from "@/lib/payslip";
-import { PAYSLIP_COST_CATEGORIES, EMPLOYEE_LEVELS, VOUCHER_LABEL, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
 import { downloadFile } from "@/lib/client-download";
 import { describePayslipDelivery } from "@/lib/payslip-delivery-message";
 
@@ -13,8 +13,6 @@ interface EmployeeOption {
   name: string;
   code: string;
   role: string;
-  level: EmployeeLevel | null;
-  place: string;
 }
 
 interface RecurringCost {
@@ -73,18 +71,12 @@ export default function AdminPayslipPage() {
   const [bonusBusy, setBonusBusy] = useState(false);
   const [bonusMsg, setBonusMsg] = useState("");
 
-  const [qeLevel, setQeLevel] = useState<EmployeeLevel | "">("");
-  const [qePlace, setQePlace] = useState("");
-  const [qeBusy, setQeBusy] = useState(false);
-  const [qeMsg, setQeMsg] = useState("");
-
   const [pdfBusy, setPdfBusy] = useState(false);
   const [sendBusy, setSendBusy] = useState(false);
   const [sendMsg, setSendMsg] = useState("");
 
   const selectedEmployee = employees.find((e) => e.id === employeeId);
   const isTera = selectedEmployee ? usesVcr(selectedEmployee.role) : false;
-  const gradeLocked = selectedEmployee?.level === "MANUAL"; // needs customRate — edit that in Data Karyawan instead
 
   useEffect(() => {
     fetch("/api/admin/employees?pageSize=500")
@@ -96,42 +88,10 @@ export default function AdminPayslipPage() {
             name: e.name,
             code: e.code,
             role: e.role,
-            level: e.level,
-            place: e.place,
           }))
         )
       );
   }, []);
-
-  async function submitQuickEdit() {
-    if (!qePlace) {
-      setQeMsg("Pilih Outlet/Lokasi Kerja dulu.");
-      return;
-    }
-    setQeBusy(true);
-    setQeMsg("");
-    try {
-      const res = await fetch(`/api/admin/employees/${employeeId}/quick`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          place: qePlace,
-          ...(isTera && !gradeLocked ? { level: qeLevel } : {}),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setQeMsg(data.error ?? "Gagal menyimpan.");
-        return;
-      }
-      setEmployees((list) =>
-        list.map((e) => (e.id === employeeId ? { ...e, place: qePlace, level: isTera && !gradeLocked ? (qeLevel as EmployeeLevel) : e.level } : e))
-      );
-      load();
-    } finally {
-      setQeBusy(false);
-    }
-  }
 
   function load() {
     if (!employeeId) return;
@@ -389,12 +349,8 @@ export default function AdminPayslipPage() {
             <select
               value={employeeId}
               onChange={(e) => {
-                const next = employees.find((emp) => emp.id === e.target.value);
                 setEmployeeId(e.target.value);
                 resetForm();
-                setQeLevel(next?.level ?? "");
-                setQePlace(next?.place ?? "");
-                setQeMsg("");
               }}
               className="w-full py-2.5 px-3.5 mb-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
             >
@@ -414,58 +370,6 @@ export default function AdminPayslipPage() {
               className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
             />
           </div>
-
-          {employeeId && (
-            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
-              <div className="font-display text-[17px] text-ar-gold2 mb-3.5">Grade & Outlet/Lokasi Kerja</div>
-              <div className="grid gap-3">
-                {isTera && (
-                  <div>
-                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Grade</label>
-                    {gradeLocked ? (
-                      <div className="text-[11.5px] text-ar-dim py-2.5">
-                        MANUAL INPUT — ubah di Data Karyawan (perlu nominal manual).
-                      </div>
-                    ) : (
-                      <select
-                        value={qeLevel}
-                        onChange={(e) => setQeLevel(e.target.value as EmployeeLevel)}
-                        className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-                      >
-                        {EMPLOYEE_LEVELS.filter((l) => l !== "MANUAL").map((l) => (
-                          <option key={l} value={l}>
-                            {VOUCHER_LABEL[l]}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                )}
-                <div>
-                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Outlet/Lokasi Kerja</label>
-                  <select
-                    value={qePlace}
-                    onChange={(e) => setQePlace(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-                  >
-                    {FIELD_CITIES.map((c) => (
-                      <option key={c.place} value={c.place}>
-                        {c.place}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              {qeMsg && <div className="mt-3 text-[11.5px] text-ar-red">{qeMsg}</div>}
-              <button
-                disabled={qeBusy}
-                onClick={submitQuickEdit}
-                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
-              >
-                Simpan Grade & Outlet
-              </button>
-            </div>
-          )}
 
           {employeeId && (
             <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
