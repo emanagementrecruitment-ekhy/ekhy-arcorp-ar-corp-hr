@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Badge from "@/components/Badge";
 import LogoutButton from "@/components/LogoutButton";
 import ProfilePhoto from "@/components/employee/ProfilePhoto";
+import RefreshAppButton from "@/components/employee/RefreshAppButton";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp, isLink } from "@/lib/format";
 
@@ -109,9 +110,11 @@ export default async function ProfilPage() {
         ))}
       </div>
 
+      <RefreshAppButton className="w-full mt-4.5 py-3.5 bg-ar-surface border border-ar-line rounded-xl text-ar-dim text-[11px] font-semibold tracking-[0.16em] uppercase cursor-pointer disabled:opacity-60" />
+
       <LogoutButton
         label="Keluar & Absen Pulang"
-        className="w-full mt-4.5 mb-1.5 py-3.5 bg-transparent border border-[rgba(228,117,107,.35)] rounded-xl text-ar-red text-[11px] font-semibold tracking-[0.16em] uppercase cursor-pointer"
+        className="w-full mt-2.5 mb-1.5 py-3.5 bg-transparent border border-[rgba(228,117,107,.35)] rounded-xl text-ar-red text-[11px] font-semibold tracking-[0.16em] uppercase cursor-pointer"
       />
     </div>
   );

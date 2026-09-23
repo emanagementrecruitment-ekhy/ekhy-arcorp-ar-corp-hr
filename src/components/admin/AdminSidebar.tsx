@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoutButton from "@/components/LogoutButton";
+import RefreshAppButton from "@/components/employee/RefreshAppButton";
 
 type Link_ = { href: string; label: string; roles: readonly string[] };
 type Group = { group: string; items: readonly Link_[] };
@@ -117,7 +118,8 @@ export default function AdminSidebar({
             ? "Akses penuh · dapat approve"
             : "Akses lihat & unduh laporan"}
       </div>
-      <LogoutButton className="w-full mt-2.5 py-2 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer" />
+      <RefreshAppButton className="w-full mt-2.5 py-2 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer disabled:opacity-60" />
+      <LogoutButton className="w-full mt-1.5 py-2 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer" />
     </div>
   );
 
@@ -169,7 +171,10 @@ export default function AdminSidebar({
             {navLinks(() => setMobileOpen(false), true)}
             <div className="mt-auto pt-3 border-t border-ar-line text-[11px] text-ar-dim flex items-center justify-between">
               <span>{roleLabel}</span>
-              <LogoutButton className="text-ar-faint cursor-pointer" />
+              <div className="flex items-center gap-3">
+                <RefreshAppButton label="🔄 Segarkan" className="text-ar-faint cursor-pointer disabled:opacity-60" />
+                <LogoutButton className="text-ar-faint cursor-pointer" />
+              </div>
             </div>
           </div>
         </div>
