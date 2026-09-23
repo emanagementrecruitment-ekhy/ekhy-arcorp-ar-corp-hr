@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { computeAge, monthDayKey } from "@/lib/birthday";
 
 interface Reminder {
   id: string;
@@ -18,6 +19,7 @@ interface EmployeeOption {
   name: string;
   code: string;
   role: string;
+  birthDate: string | null;
 }
 
 const DAY_LABELS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
@@ -116,7 +118,11 @@ export default function AdminKalenderPage() {
   useEffect(() => {
     fetch("/api/admin/employees?pageSize=500")
       .then((r) => r.json())
-      .then((d) => setEmployees((d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, role: e.role }))));
+      .then((d) =>
+        setEmployees(
+          (d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, role: e.role, birthDate: e.birthDate }))
+        )
+      );
   }, []);
 
   const remindersByDay = useMemo(() => {
@@ -128,6 +134,20 @@ export default function AdminKalenderPage() {
     }
     return map;
   }, [reminders]);
+
+  // Keyed by "MM-DD" (not a full date) since a birthday recurs every year —
+  // this flows in automatically from each employee's Tanggal Lahir, no
+  // manual reminder needs to be added for it (see Data Karyawan/Tera edit form).
+  const birthdaysByMonthDay = useMemo(() => {
+    const map = new Map<string, EmployeeOption[]>();
+    for (const e of employees) {
+      if (!e.birthDate) continue;
+      const key = monthDayKey(e.birthDate);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(e);
+    }
+    return map;
+  }, [employees]);
 
   const gridDays = useMemo(() => {
     const firstWeekday = monthStart.getDay();
@@ -188,6 +208,7 @@ export default function AdminKalenderPage() {
   );
 
   const selectedDayReminders = selectedDate ? remindersByDay.get(selectedDate) ?? [] : [];
+  const selectedDayBirthdays = selectedDate ? birthdaysByMonthDay.get(selectedDate.slice(5)) ?? [] : [];
   const todayKey = ymd(new Date());
 
   return (
@@ -233,6 +254,7 @@ export default function AdminKalenderPage() {
             const key = ymd(d);
             const inMonth = d.getMonth() === cursor.getMonth();
             const dayReminders = remindersByDay.get(key) ?? [];
+            const dayBirthdays = birthdaysByMonthDay.get(monthDayKey(d)) ?? [];
             return (
               <button
                 key={key}
@@ -243,6 +265,12 @@ export default function AdminKalenderPage() {
               >
                 <div className="text-[11px] text-ar-dim">{d.getDate()}</div>
                 <div className="flex flex-col gap-1 mt-1">
+                  {dayBirthdays.slice(0, 1).map((e) => (
+                    <div key={e.id} title={e.name} className="truncate text-[9.5px] px-1.5 py-0.5 rounded bg-pink-500/15 text-pink-300">
+                      🎂 {e.name}
+                    </div>
+                  ))}
+                  {dayBirthdays.length > 1 && <div className="text-[9px] text-ar-faint">+{dayBirthdays.length - 1} ulang tahun lagi</div>}
                   {dayReminders.slice(0, 2).map((r) => (
                     <div
                       key={r.id}
@@ -323,6 +351,16 @@ export default function AdminKalenderPage() {
         >
           <div className="w-full max-w-[480px] max-h-[85vh] overflow-y-auto bg-ar-surface border border-ar-line rounded-2xl p-5 flex flex-col gap-3.5">
             <div className="font-display text-[17px]">Pengingat — {selectedDate}</div>
+
+            {selectedDayBirthdays.length > 0 && (
+              <div className="flex flex-col gap-1.5 pb-2 border-b border-ar-line">
+                {selectedDayBirthdays.map((e) => (
+                  <div key={e.id} className="text-[11px] py-1.5 px-2 bg-pink-500/10 rounded-lg text-pink-300">
+                    🎂 {e.name} ({e.code}) — genap {computeAge(e.birthDate!, new Date(`${selectedDate}T00:00:00`))} tahun
+                  </div>
+                ))}
+              </div>
+            )}
 
             {selectedDayReminders.length > 0 && (
               <div className="flex flex-col gap-1.5 pb-2 border-b border-ar-line">

@@ -16,7 +16,8 @@ export interface EditableEmployee {
   place: string;
   supervisorId: string;
   channelLink: string;
-  supervisorNote: string;
+  birthPlace: string | null;
+  birthDate: string | null; // ISO datetime string, or null
   customRate: number | null;
   salary: number | null;
   // Optional: pages that don't otherwise load an employee's physical stats
@@ -50,7 +51,8 @@ export default function EditEmployeeForm({
     place: employee.place,
     supervisorId: employee.supervisorId,
     channelLink: employee.channelLink,
-    supervisorNote: employee.supervisorNote,
+    birthPlace: employee.birthPlace ?? "",
+    birthDate: employee.birthDate ? employee.birthDate.slice(0, 10) : "",
     customRate: employee.customRate != null ? String(employee.customRate) : "",
     salary: employee.salary != null ? String(employee.salary) : "",
     ageYears: employee.ageYears != null ? String(employee.ageYears) : "",

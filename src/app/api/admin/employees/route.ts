@@ -5,6 +5,7 @@ import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type Em
 import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { getEmployeeLimit } from "@/lib/license";
+import { parseBirthDate } from "@/lib/birthday";
 
 const PAGE_SIZE = 10;
 
@@ -82,6 +83,8 @@ export async function GET(req: Request) {
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
           supervisorNote: e.supervisorNote ?? "",
+          birthPlace: e.birthPlace,
+          birthDate: e.birthDate,
           photoDataUrl: e.photoDataUrl,
           count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
@@ -137,6 +140,9 @@ export async function POST(req: Request) {
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
+    const birthPlace = typeof body?.birthPlace === "string" ? body.birthPlace.trim() : "";
+    const birthDateResult = parseBirthDate(body?.birthDate);
+    if (!birthDateResult.ok) return NextResponse.json({ error: birthDateResult.error }, { status: 400 });
     const customRateRaw = Number(body?.customRate);
     const salaryRaw = Number(body?.salary);
     const ageYearsRaw = Number(body?.ageYears);
@@ -204,6 +210,8 @@ export async function POST(req: Request) {
         supervisorId,
         channelLink: channelLink || null,
         supervisorNote: supervisorNote || null,
+        birthPlace: birthPlace || null,
+        birthDate: birthDateResult.value,
       },
     });
 

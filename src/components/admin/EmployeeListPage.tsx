@@ -5,6 +5,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink } from "@/lib/format";
+import { computeAge } from "@/lib/birthday";
 
 interface EmpRow {
   id: string;
@@ -24,6 +25,8 @@ interface EmpRow {
   supervisorId: string;
   channelLink: string;
   supervisorNote: string;
+  birthPlace: string | null;
+  birthDate: string | null;
   photoDataUrl: string | null;
   count: string;
   kasbon: string;
@@ -234,7 +237,8 @@ export default function EmployeeListPage({
                     place: e.place,
                     supervisorId: e.supervisorId,
                     channelLink: e.channelLink,
-                    supervisorNote: e.supervisorNote,
+                    birthPlace: e.birthPlace,
+                    birthDate: e.birthDate,
                     photoDataUrl: e.photoDataUrl,
                   }}
                   supervisors={supervisors}
@@ -291,6 +295,13 @@ export default function EmployeeListPage({
                     <>
                       <br />
                       Sup: {e.supervisorNote}
+                    </>
+                  )}
+                  {e.birthDate && (
+                    <>
+                      <br />
+                      🎂 {new Date(e.birthDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                      {e.birthPlace ? `, ${e.birthPlace}` : ""} ({computeAge(e.birthDate)} thn)
                     </>
                   )}
                 </span>

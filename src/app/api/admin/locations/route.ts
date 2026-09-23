@@ -36,6 +36,8 @@ export async function GET() {
         supervisorId: e.supervisorId ?? "",
         channelLink: e.channelLink ?? "",
         supervisorNote: e.supervisorNote ?? "",
+        birthPlace: e.birthPlace,
+        birthDate: e.birthDate,
         place: last?.place ?? e.homePlace,
         km: `${km} km`,
         time: last ? timeLabel(last.createdAt) : "—",

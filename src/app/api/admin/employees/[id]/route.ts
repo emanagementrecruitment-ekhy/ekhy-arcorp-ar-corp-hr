@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
+import { parseBirthDate } from "@/lib/birthday";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -23,7 +24,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const place = typeof body?.place === "string" ? body.place : "";
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
-    const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
+    // Data Karyawan/Tera's edit form no longer has a Catatan Supervisor input
+    // (replaced by birthPlace/birthDate below) — an omitted key here means
+    // "leave the existing value alone", not "clear it". Only an explicit
+    // string (including "") from some other caller actually changes it.
+    const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() || null : existing.supervisorNote;
+    const birthPlace = typeof body?.birthPlace === "string" ? body.birthPlace.trim() : "";
+    const birthDateResult = parseBirthDate(body?.birthDate);
+    if (!birthDateResult.ok) return NextResponse.json({ error: birthDateResult.error }, { status: 400 });
     const customRateRaw = Number(body?.customRate);
     const salaryRaw = Number(body?.salary);
     const ageYearsRaw = Number(body?.ageYears);
@@ -102,7 +110,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           homePlace: city ? city.place : existing.homePlace,
           supervisorId,
           channelLink: channelLink || null,
-          supervisorNote: supervisorNote || null,
+          supervisorNote,
+          birthPlace: birthPlace || null,
+          birthDate: birthDateResult.value,
+          // A corrected birthdate must not stay silenced by a notification
+          // guard set under the old (wrong) date.
+          lastBirthdayNotifiedYear: birthDateResult.value?.getTime() === existing.birthDate?.getTime() ? undefined : null,
         },
       });
     });

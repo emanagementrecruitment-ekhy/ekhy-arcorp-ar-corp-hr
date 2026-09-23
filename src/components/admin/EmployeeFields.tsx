@@ -1,6 +1,7 @@
 "use client";
 
 import { FIELD_CITIES, FIELD_ROLES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { computeAge } from "@/lib/birthday";
 
 export interface SupervisorOption {
   id: string;
@@ -17,7 +18,8 @@ export interface EmployeeFieldsValue {
   place: string;
   supervisorId: string;
   channelLink: string;
-  supervisorNote: string;
+  birthPlace: string;
+  birthDate: string; // "" or "YYYY-MM-DD" (native <input type="date"> value)
   customRate: string;
   salary: string;
   ageYears: string;
@@ -38,7 +40,8 @@ export function emptyEmployeeFields(): EmployeeFieldsValue {
     place: FIELD_CITIES[0].place,
     supervisorId: "",
     channelLink: "",
-    supervisorNote: "",
+    birthPlace: "",
+    birthDate: "",
     customRate: "",
     salary: "",
     ageYears: "",
@@ -211,11 +214,23 @@ export default function EmployeeFields({
         </select>
       </div>
       <div>
-        <label className={labelCls}>Catatan Supervisor (manual)</label>
+        <label className={labelCls}>Tempat Lahir (sesuai KTP)</label>
         <input
-          value={value.supervisorNote}
-          onChange={(e) => onChange({ supervisorNote: e.target.value })}
-          placeholder="cth. nama supervisor lain yang belum terdaftar sebagai karyawan"
+          value={value.birthPlace}
+          onChange={(e) => onChange({ birthPlace: e.target.value })}
+          placeholder="cth. Jakarta"
+          className={inputCls}
+        />
+      </div>
+      <div>
+        <label className={labelCls}>
+          Tanggal Lahir (sesuai KTP){value.birthDate ? ` — ${computeAge(value.birthDate)} tahun` : ""}
+        </label>
+        <input
+          type="date"
+          value={value.birthDate}
+          max={new Date().toISOString().slice(0, 10)}
+          onChange={(e) => onChange({ birthDate: e.target.value })}
           className={inputCls}
         />
       </div>
