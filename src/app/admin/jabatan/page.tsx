@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
 
 interface Candidate {
   id: string;
@@ -66,7 +67,7 @@ export default function JabatanPage() {
 
       <div className="grid gap-4 pt-5.5" style={{ gridTemplateColumns: "1fr 1fr" }}>
         {seats.map((seat) => (
-          <div key={seat.peran} className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+          <div key={seat.peran} className={cardClass}>
             <div className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim mb-2">{seat.label}</div>
             {seat.holder ? (
               <div className="mb-3.5">
@@ -84,7 +85,7 @@ export default function JabatanPage() {
                 <select
                   value={picked}
                   onChange={(e) => setPicked(e.target.value)}
-                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px] mb-2.5"
+                  className={`${inputClass} mb-2.5`}
                 >
                   <option value="">Pilih karyawan…</option>
                   {seat.candidates.map((c) => (
@@ -102,7 +103,7 @@ export default function JabatanPage() {
                   <button
                     disabled={busy || !picked}
                     onClick={() => appoint(seat.peran)}
-                    className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                    className={`${btnPrimaryClass} py-2.5 px-4`}
                   >
                     Angkat
                   </button>

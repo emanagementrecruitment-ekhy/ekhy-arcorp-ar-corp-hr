@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { btnPrimaryClass, inputClass } from "@/components/ui/styles";
 
 interface OwnerIdentity {
   generated: boolean;
@@ -154,26 +155,26 @@ export default function OwnerIdentityPanel() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nama Owner"
-            className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+            className={inputClass}
           />
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email terdaftar"
-            className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+            className={inputClass}
           />
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="No. Handphone"
-            className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+            className={inputClass}
           />
           {data.needsActivationCode && (
             <input
               value={activationCode}
               onChange={(e) => setActivationCode(e.target.value)}
               placeholder="Kode Aktivasi dari Vendor"
-              className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px] font-mono tracking-[0.08em]"
+              className={`${inputClass} font-mono tracking-[0.08em]`}
             />
           )}
           {msg && <div className="text-[11.5px] text-ar-red">{msg}</div>}
@@ -181,7 +182,7 @@ export default function OwnerIdentityPanel() {
             <button
               disabled={busy}
               onClick={submit}
-              className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              className={`${btnPrimaryClass} py-2.5 px-4`}
             >
               {data.generated ? "Patenkan Perubahan" : "Generate & Patenkan"}
             </button>

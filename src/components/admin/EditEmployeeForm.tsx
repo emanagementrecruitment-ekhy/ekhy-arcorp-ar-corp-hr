@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import type { EmployeeLevel } from "@/lib/constants";
 import EmployeeFields, { type EmployeeFieldsValue, type SupervisorOption } from "./EmployeeFields";
+import { btnPrimaryClass } from "@/components/ui/styles";
 
 export interface EditableEmployee {
   id: string;
@@ -215,7 +216,7 @@ export default function EditEmployeeForm({
       <button
         disabled={busy}
         onClick={submit}
-        className="mt-1 py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+        className={`${btnPrimaryClass} mt-1 py-2.5 px-5`}
       >
         Simpan Perubahan
       </button>

@@ -7,6 +7,7 @@ import type { Payslip } from "@/lib/payslip";
 import { PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
 import { downloadFile } from "@/lib/client-download";
 import { describePayslipDelivery } from "@/lib/payslip-delivery-message";
+import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
 
 interface EmployeeOption {
   id: string;
@@ -344,7 +345,7 @@ export default function AdminPayslipPage() {
 
       <div className="pt-5.5 grid grid-cols-1 lg:[grid-template-columns:1fr_1.4fr] gap-4">
         <div className="flex flex-col gap-4">
-          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+          <div className={cardClass}>
             <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Karyawan/Tera</label>
             <select
               value={employeeId}
@@ -367,12 +368,12 @@ export default function AdminPayslipPage() {
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+              className={inputClass}
             />
           </div>
 
           {employeeId && (
-            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+            <div className={cardClass}>
               <div className="font-display text-[17px] text-ar-gold2 mb-1">Bonus</div>
               <div className="text-[10.5px] text-ar-dim mb-3.5">
                 Nominal × Kali dihitung otomatis dan langsung masuk ke Slip Pay bulan ini sebagai tambahan.
@@ -384,7 +385,7 @@ export default function AdminPayslipPage() {
                     value={bonusAmount ? Number(bonusAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
                     onChange={(e) => setBonusAmount(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="Rp 0"
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
@@ -394,7 +395,7 @@ export default function AdminPayslipPage() {
                     min={1}
                     value={bonusMultiplier}
                     onChange={(e) => setBonusMultiplier(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -404,7 +405,7 @@ export default function AdminPayslipPage() {
                   value={bonusNote}
                   onChange={(e) => setBonusNote(e.target.value)}
                   placeholder="cth. Bonus target bulan ini"
-                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  className={inputClass}
                 />
               </div>
               {bonusAmount && (
@@ -418,7 +419,7 @@ export default function AdminPayslipPage() {
               <button
                 disabled={bonusBusy}
                 onClick={submitBonus}
-                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}
               >
                 {bonusBusy ? "Menyimpan…" : "Tambah Bonus"}
               </button>
@@ -426,7 +427,7 @@ export default function AdminPayslipPage() {
           )}
 
           {employeeId && isTera && (
-            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+            <div className={cardClass}>
               <div className="font-display text-[17px] text-ar-gold2 mb-1">Penambahan Biaya (Berulang)</div>
               <div className="text-[10.5px] text-ar-dim mb-3.5">
                 Dipilih sekali, otomatis tercatat di Slip Pay bulan ini dan setiap bulan berikutnya sampai diedit/dihapus.
@@ -493,7 +494,7 @@ export default function AdminPayslipPage() {
                   <select
                     value={rcCategory}
                     onChange={(e) => setRcCategory(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   >
                     <option value="">Pilih kategori…</option>
                     {PAYSLIP_COST_CATEGORIES.map((c) => (
@@ -510,7 +511,7 @@ export default function AdminPayslipPage() {
                       value={rcAmount ? Number(rcAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
                       onChange={(e) => setRcAmount(e.target.value.replace(/[^0-9]/g, ""))}
                       placeholder="Rp 0"
-                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                      className={inputClass}
                     />
                   </div>
                   <div>
@@ -519,7 +520,7 @@ export default function AdminPayslipPage() {
                       type="month"
                       value={rcStartMonth}
                       onChange={(e) => setRcStartMonth(e.target.value)}
-                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -528,7 +529,7 @@ export default function AdminPayslipPage() {
                   <input
                     value={rcNote}
                     onChange={(e) => setRcNote(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -536,7 +537,7 @@ export default function AdminPayslipPage() {
               <button
                 disabled={rcBusy}
                 onClick={submitRecurringCost}
-                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}
               >
                 Tambah Penambahan Biaya
               </button>
@@ -544,7 +545,7 @@ export default function AdminPayslipPage() {
           )}
 
           {employeeId && (
-            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+            <div className={cardClass}>
               <div className="font-display text-[17px] text-ar-gold2 mb-3.5">
                 {editingId ? "Edit Rincian" : "Tambah Rincian Manual"}
               </div>
@@ -555,7 +556,7 @@ export default function AdminPayslipPage() {
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
@@ -564,7 +565,7 @@ export default function AdminPayslipPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="cth. Kasbon Uang, Ambil Barang - Seragam"
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -574,7 +575,7 @@ export default function AdminPayslipPage() {
                       value={qty}
                       onChange={(e) => setQty(e.target.value)}
                       placeholder="cth. 1 Pcs"
-                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                      className={inputClass}
                     />
                   </div>
                   <div>
@@ -582,7 +583,7 @@ export default function AdminPayslipPage() {
                     <select
                       value={kind}
                       onChange={(e) => setKind(e.target.value as "debit" | "credit")}
-                      className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                      className={inputClass}
                     >
                       <option value="credit">Kredit (potongan)</option>
                       <option value="debit">Debit (tambahan)</option>
@@ -595,7 +596,7 @@ export default function AdminPayslipPage() {
                     value={amount ? Number(amount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
                     onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="Rp 0"
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
@@ -603,7 +604,7 @@ export default function AdminPayslipPage() {
                   <input
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -612,7 +613,7 @@ export default function AdminPayslipPage() {
                 <button
                   disabled={busy}
                   onClick={submitItem}
-                  className="flex-1 py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                  className={`${btnPrimaryClass} flex-1 py-2.5`}
                 >
                   {editingId ? "Simpan Perubahan" : "Tambah Rincian"}
                 </button>
@@ -629,7 +630,7 @@ export default function AdminPayslipPage() {
           )}
 
           {employeeId && isTera && (
-            <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+            <div className={cardClass}>
               <div className="font-display text-[17px] text-ar-gold2 mb-1">Tabungan</div>
               <div className="text-[10.5px] text-ar-dim mb-3.5">Catatan riwayat menabung — tidak memotong Total Payroll.</div>
               <div className="grid gap-3">
@@ -639,7 +640,7 @@ export default function AdminPayslipPage() {
                     type="date"
                     value={savingDate}
                     onChange={(e) => setSavingDate(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
@@ -648,7 +649,7 @@ export default function AdminPayslipPage() {
                     value={savingAmount ? Number(savingAmount.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
                     onChange={(e) => setSavingAmount(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="Rp 0"
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
@@ -656,7 +657,7 @@ export default function AdminPayslipPage() {
                   <input
                     value={savingNote}
                     onChange={(e) => setSavingNote(e.target.value)}
-                    className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -664,7 +665,7 @@ export default function AdminPayslipPage() {
               <button
                 disabled={savingBusy}
                 onClick={submitSaving}
-                className="mt-3.5 w-full py-2.5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}
               >
                 Tambah Tabungan
               </button>
@@ -695,7 +696,7 @@ export default function AdminPayslipPage() {
                 <button
                   disabled={pdfBusy}
                   onClick={saveAsPdf}
-                  className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+                  className={`${btnPrimaryClass} py-2.5 px-4`}
                 >
                   {pdfBusy ? "Menyiapkan…" : "Simpan PDF"}
                 </button>

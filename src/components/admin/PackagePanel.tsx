@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { btnPrimaryClass, inputClass } from "@/components/ui/styles";
 
 interface PackageStatus {
   licensingConfigured: boolean;
@@ -94,14 +95,14 @@ export default function PackagePanel() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Kode Upgrade dari Vendor"
-            className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px] font-mono tracking-[0.08em]"
+            className={`${inputClass} font-mono tracking-[0.08em]`}
           />
           {msg && <div className="text-[11.5px] text-ar-red">{msg}</div>}
           <div className="flex gap-2.5">
             <button
               disabled={busy}
               onClick={submit}
-              className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              className={`${btnPrimaryClass} py-2.5 px-4`}
             >
               Terapkan Kode
             </button>

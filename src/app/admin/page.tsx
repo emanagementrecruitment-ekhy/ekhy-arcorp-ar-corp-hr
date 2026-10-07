@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
+import { cardClass, cardCompactClass } from "@/components/ui/styles";
 
 interface AttendanceRow {
   name: string;
@@ -42,7 +43,7 @@ export default function RingkasanPage() {
       <div className="pt-5.5">
         <div className="grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
           {(data?.kpis ?? Array.from({ length: 4 })).map((k, i) => (
-            <div key={i} className="p-4.5 bg-ar-surface border border-ar-line rounded-2xl min-h-[92px]">
+            <div key={i} className={`${cardCompactClass} min-h-[92px]`}>
               {k ? (
                 <>
                   <div className="text-[10px] tracking-[0.16em] uppercase text-ar-dim">{k.label}</div>
@@ -55,7 +56,7 @@ export default function RingkasanPage() {
         </div>
 
         <div className="grid gap-4 mt-4" style={{ gridTemplateColumns: "minmax(0,1.2fr) minmax(0,1fr)" }}>
-          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+          <div className={cardClass}>
             <div className="flex justify-between items-center gap-3 mb-3.5">
               <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">Notifikasi login karyawan</span>
               <span className="text-[10.5px] text-ar-gold">real-time</span>
@@ -77,7 +78,7 @@ export default function RingkasanPage() {
             </div>
           </div>
 
-          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl flex flex-col">
+          <div className={`${cardClass} flex flex-col`}>
             <div className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim mb-3.5">Voucher 14 hari terakhir</div>
             <div className="flex items-end gap-1.5 h-[150px] pb-0.5">
               {data?.bars.map((b, i) => (
@@ -112,7 +113,7 @@ export default function RingkasanPage() {
           </div>
         </div>
 
-        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl mt-4">
+        <div className={`${cardClass} mt-4`}>
           <div className="flex justify-between items-center gap-3 mb-3.5">
             <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
               Absensi Bulan Ini — {data?.attendanceMonthLabel ?? "…"}

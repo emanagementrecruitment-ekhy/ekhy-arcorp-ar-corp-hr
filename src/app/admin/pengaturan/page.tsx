@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { THEME_COLORS, THEME_FONTS, LIGHT_MODES, type ThemeColorId, type ThemeFontId, type LightModeId } from "@/lib/constants";
+import { btnPrimaryClass } from "@/components/ui/styles";
 
 interface LogoInfo {
   hasCustom: boolean;
@@ -178,7 +179,7 @@ export default function PengaturanPage() {
           <button
             disabled={busy}
             onClick={save}
-            className="py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+            className={`${btnPrimaryClass} py-2.5 px-5`}
           >
             Simpan Warna, Font &amp; Mode
           </button>

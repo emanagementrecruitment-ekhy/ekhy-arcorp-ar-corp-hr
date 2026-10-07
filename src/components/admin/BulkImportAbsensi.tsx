@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { btnPrimaryClass } from "@/components/ui/styles";
 
 interface ImportResult {
   created: number;
@@ -83,7 +84,7 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
           <button
             disabled={busy || !file}
             onClick={upload}
-            className="w-full py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+            className={`${btnPrimaryClass} w-full py-2.5 px-4`}
           >
             {busy ? "Memproses…" : "Upload & Impor"}
           </button>

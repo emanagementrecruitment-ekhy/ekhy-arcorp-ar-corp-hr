@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import BulkImportAbsensi from "@/components/admin/BulkImportAbsensi";
+import { btnPrimaryClass, cardClass, cardCompactClass, inputClass } from "@/components/ui/styles";
 
 interface EmployeeRow {
   id: string;
@@ -142,7 +143,7 @@ export default function AbsensiHarianPage() {
                 <select
                   value={manualEmployeeId}
                   onChange={(e) => setManualEmployeeId(e.target.value)}
-                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  className={inputClass}
                 >
                   <option value="">Pilih karyawan/Tera…</option>
                   {allEmployees.map((e) => (
@@ -165,7 +166,7 @@ export default function AbsensiHarianPage() {
               <button
                 disabled={manualBusy}
                 onClick={submitManual}
-                className="py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60 whitespace-nowrap"
+                className={`${btnPrimaryClass} py-2.5 px-5 whitespace-nowrap`}
               >
                 {manualBusy ? "Menyimpan…" : "Tandai Hadir"}
               </button>
@@ -189,19 +190,19 @@ export default function AbsensiHarianPage() {
         {data && (
           <>
             <div className="grid gap-3.5 mb-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-              <div className="p-4.5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className={cardCompactClass}>
                 <div className="text-[10px] tracking-[0.16em] uppercase text-ar-dim">Total Terdaftar</div>
                 <div className="font-display text-[28px] text-ar-gold2 mt-1.5">{data.totalRegistered}</div>
               </div>
-              <div className="p-4.5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className={cardCompactClass}>
                 <div className="text-[10px] tracking-[0.16em] uppercase text-ar-dim">Total VCR Bulan Ini</div>
                 <div className="font-display text-[28px] text-ar-gold2 mt-1.5">{data.totalVcrThisMonthLabel}</div>
               </div>
-              <div className="p-4.5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className={cardCompactClass}>
                 <div className="text-[10px] tracking-[0.16em] uppercase text-ar-dim">Rata-rata % Hadir</div>
                 <div className="font-display text-[28px] text-ar-gold2 mt-1.5">{data.avgPercentHadir}%</div>
               </div>
-              <div className="p-4.5 bg-ar-surface border border-ar-line rounded-2xl">
+              <div className={cardCompactClass}>
                 <div className="text-[10px] tracking-[0.16em] uppercase text-ar-dim">Jumlah Hari Kalender</div>
                 <div className="font-display text-[28px] text-ar-gold2 mt-1.5">{data.daysInMonth}</div>
               </div>
@@ -214,7 +215,7 @@ export default function AbsensiHarianPage() {
                 </div>
               )}
               {data.outlets.map((o) => (
-                <div key={o.place} className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+                <div key={o.place} className={cardClass}>
                   <div className="text-[13px] font-display text-ar-gold2 mb-3">
                     {o.place} <span className="text-ar-dim text-[11px]">({o.employees.length} orang)</span>
                   </div>
