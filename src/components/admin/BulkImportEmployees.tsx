@@ -57,6 +57,8 @@ export default function BulkImportEmployees({ onImported }: { onImported: () => 
           <div className="text-[11px] text-ar-dim mb-3 leading-[1.6]">
             Isi satu file dengan satu baris per Karyawan/Tera, lalu upload sekali untuk semuanya — tidak perlu
             tambah satu-satu.{" "}
+            {/* File download from a route handler, not a page: next/link would client-navigate to it. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/admin/employees/import" className="text-ar-gold underline">
               Unduh template kolomnya di sini
             </a>

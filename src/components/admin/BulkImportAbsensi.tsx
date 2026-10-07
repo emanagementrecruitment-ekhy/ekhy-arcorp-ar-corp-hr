@@ -56,6 +56,8 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
           <div className="text-[11px] text-ar-dim mb-3 leading-[1.6]">
             Untuk backfill absen yang lupa di-tap, atau catatan kehadiran dari kertas — satu baris per karyawan/Tera
             per tanggal.{" "}
+            {/* File download from a route handler, not a page: next/link would client-navigate to it. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/admin/absensi/import" className="text-ar-gold underline">
               Unduh template kolomnya di sini
             </a>
