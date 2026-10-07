@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { cardClass } from "@/components/ui/styles";
 
 interface Thread {
   id: string;
@@ -110,7 +111,7 @@ export default function LaporLapanganPage() {
           ))}
         </div>
 
-        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl min-h-[300px]">
+        <div className={`${cardClass} min-h-[300px]`}>
           {!detail && <div className="text-[12.5px] text-ar-faint">Pilih karyawan di sebelah kiri untuk lihat laporannya.</div>}
           {detail && (
             <>

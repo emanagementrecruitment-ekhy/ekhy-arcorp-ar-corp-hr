@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp } from "@/lib/format";
+import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
 
 interface EmployeeOption {
   id: string;
@@ -193,7 +194,7 @@ export default function PendapatanPage() {
             <button
               disabled={importBusy || !importFile}
               onClick={uploadImport}
-              className="w-full py-3 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              className={`${btnPrimaryClass} w-full py-3 px-4`}
             >
               {importBusy ? "Memproses…" : "Upload & Impor"}
             </button>
@@ -219,7 +220,7 @@ export default function PendapatanPage() {
 
       <div className="grid grid-cols-1 lg:[grid-template-columns:1fr_1.2fr] gap-4 pt-5.5">
         <div className="flex flex-col gap-4">
-          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
+          <div className={`${cardClass} h-fit`}>
             <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Tambah Entri</div>
 
           <div className="grid gap-3.5">
@@ -228,7 +229,7 @@ export default function PendapatanPage() {
               <select
                 value={employeeId}
                 onChange={(e) => onEmployeeChange(e.target.value)}
-                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                className={inputClass}
               >
                 <option value="">Pilih karyawan…</option>
                 {employees.map((e) => (
@@ -244,7 +245,7 @@ export default function PendapatanPage() {
                 type="date"
                 value={occurredAt}
                 onChange={(e) => setOccurredAt(e.target.value)}
-                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                className={inputClass}
               />
             </div>
             <div>
@@ -252,7 +253,7 @@ export default function PendapatanPage() {
               <select
                 value={category}
                 onChange={(e) => onCategoryChange(e.target.value as EmployeeLevel)}
-                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                className={inputClass}
               >
                 {EMPLOYEE_LEVELS.map((lvl) => (
                   <option key={lvl} value={lvl}>
@@ -266,7 +267,7 @@ export default function PendapatanPage() {
               <select
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                className={inputClass}
               >
                 <option value="">Pilih lokasi…</option>
                 {location && !FIELD_CITIES.some((c) => c.place === location) && (
@@ -291,7 +292,7 @@ export default function PendapatanPage() {
                     setAmount(e.target.value);
                     setAmountTouched(true);
                   }}
-                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  className={inputClass}
                 />
               </div>
               <div>
@@ -301,7 +302,7 @@ export default function PendapatanPage() {
                   min={1}
                   value={qty}
                   onChange={(e) => setQty(e.target.value)}
-                  className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
+                  className={inputClass}
                 />
               </div>
             </div>
@@ -316,14 +317,14 @@ export default function PendapatanPage() {
           <button
             disabled={busy || !employeeId || !location || !qty || Number(qty) <= 0}
             onClick={submit}
-            className="mt-3.5 py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+            className={`${btnPrimaryClass} mt-3.5 py-2.5 px-5`}
           >
             Simpan Pendapatan
           </button>
           </div>
         </div>
 
-        <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl h-fit">
+        <div className={`${cardClass} h-fit`}>
           <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Entri Terbaru (per tanggal)</div>
           <div className="flex flex-col gap-2">
             {entries.length === 0 && <div className="text-[12.5px] text-ar-faint">Belum ada entri.</div>}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { computeAge, monthDayKey } from "@/lib/birthday";
+import { btnPrimaryClass, inputClass } from "@/components/ui/styles";
 
 interface Reminder {
   id: string;
@@ -306,7 +307,7 @@ export default function AdminKalenderPage() {
               onChange={(e) => setAnnouncementText(e.target.value)}
               placeholder="Contoh: Libur bersama tanggal 25 Desember, kantor pusat tutup."
               rows={3}
-              className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px] mb-2.5"
+              className={`${inputClass} mb-2.5`}
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-2.5">
               <div>
@@ -336,7 +337,7 @@ export default function AdminKalenderPage() {
             <button
               disabled={announcementBusy}
               onClick={saveAnnouncement}
-              className="py-2.5 px-5 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+              className={`${btnPrimaryClass} py-2.5 px-5`}
             >
               {announcementBusy ? "Menyimpan…" : "Simpan Pengumuman"}
             </button>

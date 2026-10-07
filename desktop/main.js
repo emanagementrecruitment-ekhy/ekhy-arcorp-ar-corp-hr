@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session, ipcMain, shell, dialog } = require("electron");
+const { app, BrowserWindow, session, ipcMain, shell, dialog, nativeTheme } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -142,15 +142,31 @@ async function goOffline() {
 }
 
 async function createWindow() {
+  // Match the app's dark-luxury look: dark native title bar (Windows follows
+  // nativeTheme), no white menu bar (Alt still reveals it), and a black
+  // window background so there is no white flash before the page paints.
+  nativeTheme.themeSource = "dark";
   mainWindow = new BrowserWindow({
     width: 1320,
     height: 880,
-    title: "AR Corp Desktop",
+    minWidth: 960,
+    minHeight: 640,
+    title: "AR Corp · E-Management",
+    backgroundColor: "#08080a",
+    autoHideMenuBar: true,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
     },
   });
+  mainWindow.once("ready-to-show", () => mainWindow.show());
+  // Never leave the window hidden if the first page fails to paint.
+  setTimeout(() => {
+    if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) mainWindow.show();
+  }, 5000);
+  // The page <title> would otherwise replace the window title on every load.
+  mainWindow.on("page-title-updated", (event) => event.preventDefault());
 
   const online = await checkOnline();
   if (online) await goOnline();

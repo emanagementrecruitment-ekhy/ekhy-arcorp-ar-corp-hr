@@ -6,15 +6,15 @@
      black). Variable names keep the historic "ar-gold*" prefix directly
      matching the brand this time (no more red/silver indirection). ar-red
      stays a separate, desaturated coral reserved for error/danger states. */
-  --ar-bg: #08080a;
-  --ar-bg-deep: #000000;
-  --ar-bezel: #191920;
-  --ar-surface: #131317;
-  --ar-surface2: rgba(255, 255, 255, 0.03);
-  --ar-line: rgba(255, 255, 255, 0.08);
+  --ar-bg: #07080b;
+  --ar-bg-deep: #020306;
+  --ar-bezel: #151821;
+  --ar-surface: #0f1117;
+  --ar-surface2: rgba(200, 215, 255, 0.035);
+  --ar-line: rgba(190, 205, 235, 0.1);
   --ar-text: #ede9e2;
-  --ar-dim: rgba(237, 233, 226, 0.5);
-  --ar-faint: rgba(237, 233, 226, 0.32);
+  --ar-dim: rgba(237, 233, 226, 0.62);
+  --ar-faint: rgba(237, 233, 226, 0.4);
   --ar-input: rgba(0, 0, 0, 0.4);
 
   /* The brand accent, split into three pieces (rgb triplet for opacity-varied
@@ -23,26 +23,26 @@
      src/lib/constants.ts) can swap the whole accent family by redefining
      just these three variables — everything downstream (ar-gold, goldfill,
      glows, sparkle, pulse) is derived from them. */
-  --ar-accent-rgb: 201, 162, 74;
-  --ar-accent-dark: #6b4f1a;
-  --ar-accent-bright: #fdf0ce;
+  --ar-accent-rgb: 214, 174, 95;
+  --ar-accent-dark: #7a5427;
+  --ar-accent-bright: #fbe6ae;
 
-  --ar-gold: #c9a24a;
-  --ar-gold2: #f2dc9b;
-  --ar-gold3: #f2dc9b;
-  --ar-ongold: #1a1408;
-  --ar-goldline: rgba(229, 196, 102, 0.3);
-  --ar-goldfill: rgba(229, 196, 102, 0.08);
-  --ar-moonlight: rgba(255, 255, 255, 0.04);
+  --ar-gold: #d6ae5f;
+  --ar-gold2: #f1d18a;
+  --ar-gold3: #f1d18a;
+  --ar-ongold: #17110a;
+  --ar-goldline: rgba(224, 184, 104, 0.32);
+  --ar-goldfill: rgba(224, 184, 104, 0.09);
+  --ar-moonlight: rgba(200, 215, 255, 0.035);
   --ar-red: #e4756b;
   --ar-green: #7fd1a8;
 
   /* True gold accent — distinct from the brand-red-holding ar-gold* tokens
      above. Used for the login screen's decorative ring frame, wordmark and
      tagline where an actual gold tone (not the red/silver theme) is wanted. */
-  --ar-truegold: #cda438;
-  --ar-truegold2: #f3dfa0;
-  --ar-truegold-line: rgba(205, 164, 56, 0.45);
+  --ar-truegold: #dcb45f;
+  --ar-truegold2: #f5dfa5;
+  --ar-truegold-line: rgba(220, 180, 95, 0.45);
 
   /* Font pack indirection: a page's font-display/font-sans utilities always
      read --font-display/--font-sans; [data-font] below just repoints those
@@ -96,15 +96,15 @@
    above ([data-theme]) is orthogonal and keeps working the same in either
    mode. Mode Malam (Gelap) needs no block — it's the :root default above. */
 [data-mode="light"] {
-  --ar-bg: #f6f4f0;
+  --ar-bg: #f3f2ef;
   --ar-bg-deep: #ffffff;
-  --ar-bezel: #eae7e0;
+  --ar-bezel: #e6e4df;
   --ar-surface: #ffffff;
   --ar-surface2: rgba(0, 0, 0, 0.035);
-  --ar-line: rgba(0, 0, 0, 0.1);
-  --ar-text: #201f1c;
-  --ar-dim: rgba(32, 31, 28, 0.58);
-  --ar-faint: rgba(32, 31, 28, 0.38);
+  --ar-line: rgba(20, 25, 40, 0.11);
+  --ar-text: #1d1e22;
+  --ar-dim: rgba(29, 30, 34, 0.64);
+  --ar-faint: rgba(29, 30, 34, 0.42);
   --ar-input: rgba(0, 0, 0, 0.045);
   --ar-moonlight: rgba(0, 0, 0, 0.035);
 }
@@ -146,12 +146,17 @@
   box-sizing: border-box;
 }
 
-a {
-  color: var(--ar-gold);
-  text-decoration: none;
-}
-a:hover {
-  color: var(--ar-gold2);
+/* Base layer, so Tailwind utilities (text-ar-dim, text-ar-text …) override the
+   default link color. Unlayered, this rule beat them and turned every inactive
+   nav link gold. */
+@layer base {
+  a {
+    color: var(--ar-gold);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--ar-gold2);
+  }
 }
 
 input,
@@ -159,9 +164,17 @@ textarea,
 button {
   font-family: inherit;
 }
-input:focus,
-textarea:focus {
-  outline: none;
+/* Visible keyboard/field focus. The ring is the accent on Night and the text
+   color on Day, since gold on the light surfaces falls below 3:1. */
+:root {
+  --ar-focus: var(--ar-gold);
+}
+[data-mode="light"] {
+  --ar-focus: var(--ar-text);
+}
+:focus-visible {
+  outline: 2px solid var(--ar-focus);
+  outline-offset: 2px;
 }
 ::placeholder {
   color: var(--ar-faint);
@@ -185,22 +198,20 @@ textarea:focus {
   overflow: hidden;
   background: linear-gradient(
     135deg,
-    var(--ar-accent-dark),
-    var(--ar-gold) 45%,
-    var(--ar-accent-bright) 55%,
-    var(--ar-gold) 70%,
-    var(--ar-accent-dark)
+    var(--ar-gold) 0%,
+    var(--ar-accent-bright) 50%,
+    var(--ar-gold) 100%
   );
   background-size: 220% auto;
-  animation: arSheen 5s ease-in-out infinite;
+  animation: arSheen 6s ease-in-out infinite;
 }
 .ar-grad::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.55) 48%, transparent 60%);
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.28) 48%, transparent 60%);
   background-size: 220% 100%;
-  animation: arChromeSweep 3.2s ease-in-out infinite;
+  animation: arChromeSweep 3.6s ease-in-out infinite;
   pointer-events: none;
 }
 
@@ -277,7 +288,7 @@ textarea:focus {
 /* Gold counterpart to ar-shimmer-text/ar-shimmer-red, for the login
    screen's gold wordmark and tagline. */
 .ar-shimmer-gold {
-  background: linear-gradient(100deg, #8a6d1f 15%, var(--ar-truegold) 40%, #fff3cf 55%, var(--ar-truegold) 75%, #8a6d1f);
+  background: linear-gradient(100deg, #8a6429 15%, var(--ar-truegold) 40%, #fff1c9 55%, var(--ar-truegold) 75%, #8a6429);
   background-size: 220% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -345,7 +356,7 @@ textarea:focus {
 /* Active-tab fill for the login portal switcher: a soft gold gradient,
    distinct from the red-tinted ar-goldfill used elsewhere. */
 .ar-tab-active-gold {
-  background: linear-gradient(135deg, rgba(205, 164, 56, 0.28), rgba(243, 223, 160, 0.32));
+  background: linear-gradient(135deg, rgba(220, 180, 95, 0.26), rgba(245, 223, 165, 0.3));
   color: var(--ar-truegold2);
 }
 
@@ -362,8 +373,8 @@ textarea:focus {
   border-radius: 34px;
   border: 1.5px solid var(--ar-truegold-line);
   box-shadow:
-    0 0 26px -4px rgba(205, 164, 56, 0.4),
-    inset 0 0 26px -10px rgba(205, 164, 56, 0.25);
+    0 0 26px -4px rgba(220, 180, 95, 0.4),
+    inset 0 0 26px -10px rgba(220, 180, 95, 0.25);
   pointer-events: none;
 }
 .ar-ring-gold::after {
@@ -371,7 +382,7 @@ textarea:focus {
   position: absolute;
   inset: -7px;
   border-radius: 26px;
-  border: 1px solid rgba(205, 164, 56, 0.3);
+  border: 1px solid rgba(220, 180, 95, 0.3);
   pointer-events: none;
 }
 
@@ -446,5 +457,20 @@ textarea:focus {
     left: 0;
     top: 0;
     width: 100%;
+  }
+}
+
+/* Honor the OS "reduce motion" setting: stop every looping or entrance
+   animation (sheens, sweeps, pulse, marquee, fade-in). Content stays visible. */
+@media (prefers-reduced-motion: reduce) {
+  .ar-grad,
+  .ar-grad::after,
+  .ar-shimmer-text,
+  .ar-shimmer-red,
+  .ar-shimmer-gold,
+  .ar-pulse,
+  .ar-in,
+  .ar-marquee-track span {
+    animation: none;
   }
 }

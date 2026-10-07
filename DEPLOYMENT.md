@@ -13,7 +13,8 @@ Optional (real OTP delivery — see `.env.example` for the full list and `src/li
 
 | Var | Enables |
 |---|---|
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Real email OTPs |
+| `BREVO_API_KEY` | Real email OTPs and payslip emails over Brevo's HTTP API (preferred over SMTP). Use an API key (`xkeysib-…`), set `SMTP_FROM` to a verified Brevo sender, and turn off Brevo's unauthorized-IP blocking for API keys (Security → Authorized IPs), since Railway has no fixed IP |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Real email OTPs (fallback when `BREVO_API_KEY` is unset or fails) |
 | `FONNTE_TOKEN` | Real WhatsApp OTPs (phone logins) — sign up at [fonnte.com](https://fonnte.com), connect a device, copy its token |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Real SMS OTPs (phone logins, only used if `FONNTE_TOKEN` is unset) |
 

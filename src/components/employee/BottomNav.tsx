@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Icon, { type IconName } from "@/components/ui/Icon";
 
 const TABS = [
-  { href: "/app", mono: "B", short: "Home" },
-  { href: "/app/voucher", mono: "V", short: "Voucher" },
-  { href: "/app/kasbon", mono: "K", short: "Kasbon" },
-  { href: "/app/lapor", mono: "L", short: "Lapor" },
-  { href: "/app/profil", mono: "P", short: "Profil" },
-] as const;
+  { href: "/app", icon: "home", short: "Home" },
+  { href: "/app/voucher", icon: "ticket", short: "Voucher" },
+  { href: "/app/kasbon", icon: "wallet", short: "Kasbon" },
+  { href: "/app/lapor", icon: "flag", short: "Lapor" },
+  { href: "/app/profil", icon: "user", short: "Profil" },
+] as const satisfies readonly { href: string; icon: IconName; short: string }[];
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -27,8 +28,8 @@ export default function BottomNav() {
                 active ? "bg-ar-goldfill text-ar-gold2" : "text-ar-dim"
               }`}
             >
-              <span className="font-display text-[17px] leading-none">{t.mono}</span>
-              <span className="text-[8px] tracking-[0.08em] uppercase">{t.short}</span>
+              <Icon name={t.icon} className="w-[22px] h-[22px]" />
+              <span className="text-[10px] tracking-[0.06em] uppercase">{t.short}</span>
             </Link>
           );
         })}

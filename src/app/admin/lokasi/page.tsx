@@ -8,6 +8,7 @@ import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
 import { ATTENDANCE_RADIUS_KM, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp, relativeTimeLabel } from "@/lib/format";
 import type { MapPresence } from "@/components/admin/LocationsMap";
+import { cardClass } from "@/components/ui/styles";
 
 const LocationsMap = dynamic(() => import("@/components/admin/LocationsMap"), { ssr: false });
 
@@ -98,7 +99,7 @@ export default function LokasiPage() {
         className={`grid grid-cols-1 gap-4 pt-5.5 ${restricted ? "" : "lg:[grid-template-columns:minmax(0,1fr)_330px]"}`}
       >
         {!restricted && (
-          <div className="p-5 bg-ar-surface border border-ar-line rounded-2xl">
+          <div className={cardClass}>
             <div className="flex justify-between gap-3 items-center mb-1.5">
               <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
                 Sebaran lokasi absensi · radius {ATTENDANCE_RADIUS_KM} km

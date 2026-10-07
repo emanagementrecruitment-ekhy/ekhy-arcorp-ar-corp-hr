@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
+import { cardCompactClass } from "@/components/ui/styles";
 
 interface KasbonRow {
   id: string;
@@ -63,7 +64,7 @@ export default function AdminKasbonPage() {
         {rows.map((k) => (
           <div
             key={k.id}
-            className="p-4.5 bg-ar-surface border border-ar-line rounded-2xl flex flex-wrap gap-4.5 items-center justify-between"
+            className={`${cardCompactClass} flex flex-wrap gap-4.5 items-center justify-between`}
           >
             <div className="min-w-[210px]">
               <div className="text-[13.5px]">{k.name}</div>

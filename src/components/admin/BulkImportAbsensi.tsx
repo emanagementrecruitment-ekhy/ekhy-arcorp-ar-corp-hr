@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { btnPrimaryClass } from "@/components/ui/styles";
 
 interface ImportResult {
   created: number;
@@ -56,6 +57,8 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
           <div className="text-[11px] text-ar-dim mb-3 leading-[1.6]">
             Untuk backfill absen yang lupa di-tap, atau catatan kehadiran dari kertas — satu baris per karyawan/Tera
             per tanggal.{" "}
+            {/* File download from a route handler, not a page: next/link would client-navigate to it. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/admin/absensi/import" className="text-ar-gold underline">
               Unduh template kolomnya di sini
             </a>
@@ -81,7 +84,7 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
           <button
             disabled={busy || !file}
             onClick={upload}
-            className="w-full py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer disabled:opacity-60"
+            className={`${btnPrimaryClass} w-full py-2.5 px-4`}
           >
             {busy ? "Memproses…" : "Upload & Impor"}
           </button>
