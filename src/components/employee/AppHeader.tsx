@@ -19,7 +19,7 @@ export default function AppHeader({
           width={64}
           height={64}
           unoptimized
-          className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-full object-contain bg-ar-bg border border-ar-goldline"
+          className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
         <div className="min-w-0">
           <div className="font-display text-[13px] tracking-[0.34em] text-ar-gold uppercase">AR Corp</div>

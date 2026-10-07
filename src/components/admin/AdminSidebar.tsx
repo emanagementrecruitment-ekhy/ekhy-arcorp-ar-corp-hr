@@ -136,10 +136,10 @@ export default function AdminSidebar({
         <Image
           src="/api/brand-logo"
           alt="AR Corp"
-          width={26}
-          height={26}
+          width={30}
+          height={30}
           unoptimized
-          className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
+          className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" className="p-2 text-ar-dim cursor-pointer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -163,7 +163,7 @@ export default function AdminSidebar({
                 width={30}
                 height={30}
                 unoptimized
-                className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
+                className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
               />
               <button onClick={() => setMobileOpen(false)} aria-label="Tutup menu" className="p-1.5 text-ar-dim cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -190,10 +190,10 @@ export default function AdminSidebar({
           <Image
             src="/api/brand-logo"
             alt="AR Corp"
-            width={40}
-            height={40}
+            width={48}
+            height={48}
             unoptimized
-            className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
+            className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
           />
           <div>
             <div className="font-display text-[12.5px] tracking-[0.3em] text-ar-gold uppercase">AR Corp</div>
