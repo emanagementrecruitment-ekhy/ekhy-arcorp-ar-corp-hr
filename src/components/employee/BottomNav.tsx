@@ -28,7 +28,7 @@ export default function BottomNav() {
               }`}
             >
               <span className="font-display text-[17px] leading-none">{t.mono}</span>
-              <span className="text-[8px] tracking-[0.08em] uppercase">{t.short}</span>
+              <span className="text-[10px] tracking-[0.06em] uppercase">{t.short}</span>
             </Link>
           );
         })}

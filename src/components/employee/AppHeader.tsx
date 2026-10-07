@@ -12,23 +12,23 @@ export default function AppHeader({
 }) {
   return (
     <div className="max-w-[720px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 px-4 sm:px-5 pt-6 pb-5 border-b border-ar-line">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-1 basis-0 min-w-0">
         <Image
           src="/api/brand-logo"
           alt="AR Corp"
           width={64}
           height={64}
           unoptimized
-          className="rounded-full object-contain bg-ar-bg border border-ar-goldline"
+          className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-full object-contain bg-ar-bg border border-ar-goldline"
         />
-        <div>
+        <div className="min-w-0">
           <div className="font-display text-[13px] tracking-[0.34em] text-ar-gold uppercase">AR Corp</div>
           <div className="text-[10px] tracking-[0.16em] text-ar-dim mt-1 uppercase">
             Aplikasi Karyawan · {name} ({code})
           </div>
         </div>
       </div>
-      <LogoutButton className="py-[9px] px-[15px] bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[11px] cursor-pointer" />
+      <LogoutButton className="shrink-0 py-[9px] px-[15px] bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[11px] cursor-pointer" />
       {announcementText && (
         <div className="ar-marquee-track w-full py-1.5 px-3 bg-ar-goldfill border border-ar-goldline/50 rounded-[9px]">
           <span className="text-[11px] text-ar-gold2">📢 {announcementText}</span>

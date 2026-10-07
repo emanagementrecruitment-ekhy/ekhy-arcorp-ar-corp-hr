@@ -146,12 +146,17 @@
   box-sizing: border-box;
 }
 
-a {
-  color: var(--ar-gold);
-  text-decoration: none;
-}
-a:hover {
-  color: var(--ar-gold2);
+/* Base layer, so Tailwind utilities (text-ar-dim, text-ar-text …) override the
+   default link color. Unlayered, this rule beat them and turned every inactive
+   nav link gold. */
+@layer base {
+  a {
+    color: var(--ar-gold);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--ar-gold2);
+  }
 }
 
 input,
@@ -193,22 +198,20 @@ button {
   overflow: hidden;
   background: linear-gradient(
     135deg,
-    var(--ar-accent-dark),
-    var(--ar-gold) 45%,
-    var(--ar-accent-bright) 55%,
-    var(--ar-gold) 70%,
-    var(--ar-accent-dark)
+    var(--ar-gold) 0%,
+    var(--ar-accent-bright) 50%,
+    var(--ar-gold) 100%
   );
   background-size: 220% auto;
-  animation: arSheen 5s ease-in-out infinite;
+  animation: arSheen 6s ease-in-out infinite;
 }
 .ar-grad::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.55) 48%, transparent 60%);
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.28) 48%, transparent 60%);
   background-size: 220% 100%;
-  animation: arChromeSweep 3.2s ease-in-out infinite;
+  animation: arChromeSweep 3.6s ease-in-out infinite;
   pointer-events: none;
 }
 
