@@ -8,3 +8,4 @@
 ## Always
 
 ## Lessons
+- otp-providers.ts: Brevo OTP "Connection timeout" = Brevo Authorized IPs blocking API keys; Railway has no fixed IP
