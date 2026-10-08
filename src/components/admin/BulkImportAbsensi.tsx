@@ -46,14 +46,16 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
   }
 
   return (
-    <div className="mb-4 p-4.5 bg-ar-surface border border-ar-goldline rounded-2xl">
-      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between cursor-pointer">
-        <span className="font-display text-[16px] text-ar-gold2">📁 Import Massal Absensi (Excel/CSV/Text)</span>
-        <span className="text-[11px] text-ar-dim">{open ? "Tutup ▲" : "Buka ▼"}</span>
+    <div className="mb-4">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="py-1.5 px-3 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] tracking-[0.08em] cursor-pointer hover:text-ar-gold"
+      >
+        📁 Import massal (Excel/CSV/Text) {open ? "▲" : "▼"}
       </button>
 
       {open && (
-        <div className="mt-3.5">
+        <div className="mt-2.5 p-4 bg-ar-surface border border-ar-goldline rounded-2xl">
           <div className="text-[11px] text-ar-dim mb-3 leading-[1.6]">
             Untuk backfill absen yang lupa di-tap, atau catatan kehadiran dari kertas — satu baris per karyawan/Tera
             per tanggal.{" "}

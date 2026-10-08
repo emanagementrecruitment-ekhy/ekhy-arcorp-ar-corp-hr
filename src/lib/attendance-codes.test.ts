@@ -6,6 +6,7 @@ test("normalizeAttendanceCode accepts codes case-insensitively", () => {
   assert.equal(normalizeAttendanceCode("m"), "M");
   assert.equal(normalizeAttendanceCode(" pk "), "PK");
   assert.equal(normalizeAttendanceCode("s"), "S");
+  assert.equal(normalizeAttendanceCode("j"), "J");
 });
 
 test("normalizeAttendanceCode: empty clears, unknown is rejected", () => {
@@ -23,6 +24,7 @@ test("toneForMark: code colour wins, then orange for manual, else plain", () => 
   assert.equal(toneForMark("P", false), "green");
   assert.equal(toneForMark("PK", false), "green");
   assert.equal(toneForMark("S", false), "blue");
+  assert.equal(toneForMark("J", false), "orange");
   assert.equal(toneForMark(null, true), "orange");
   assert.equal(toneForMark(null, false), null);
   assert.equal(toneForMark("zzz", false), null);

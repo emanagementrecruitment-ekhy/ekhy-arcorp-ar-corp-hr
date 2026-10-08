@@ -1,11 +1,12 @@
 /**
  * Status codes an admin can type into a cell of the Absensi Harian grid.
- * Each code has a fixed colour; "manual" (no code) is orange.
+ * Each code has a fixed colour (J = Jingga/orange; an admin-entered mark with no code is orange too).
  * `label` is the legend text — edit it here if the meaning of a letter changes.
  */
 export const ATTENDANCE_CODES = {
   M: { label: "M", tone: "red" },
   O: { label: "O", tone: "yellow" },
+  J: { label: "J", tone: "orange" },
   P: { label: "P", tone: "green" },
   PK: { label: "PK", tone: "green" },
   S: { label: "S", tone: "blue" },
