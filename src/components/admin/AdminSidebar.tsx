@@ -14,9 +14,8 @@ type Desk = Link_ | Group;
 
 const DESKS: readonly Desk[] = [
   { href: "/admin", icon: "home", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
-  { href: "/admin/lokasi", icon: "pin", label: "Lokasi & Absensi", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
+  { href: "/admin/lokasi", icon: "pin", label: "Lokasi, Absensi & Kalender", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
   { href: "/admin/absensi-harian", icon: "calendar-check", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
-  { href: "/admin/kalender", icon: "bell", label: "Kalender Pengingat", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   {
     group: "Data Karyawan",
     items: [
@@ -36,6 +35,7 @@ const DESKS: readonly Desk[] = [
       { href: "/admin/payslip", icon: "receipt", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
     ],
   },
+  { href: "/admin/pengumuman", icon: "bell", label: "Pengumuman", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   { href: "/admin/lapor-lapangan", icon: "megaphone", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
   { href: "/admin/pengaturan", icon: "sliders", label: "Pengaturan Tampilan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
 ];
