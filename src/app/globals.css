@@ -474,3 +474,44 @@ button {
     animation: none;
   }
 }
+
+/* Attendance map (admin Lokasi & Absensi): pins, labels and a dark basemap. */
+.arc-map-dot {
+  display: block;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+.arc-map-dot-live {
+  animation: arcMapPulse 1.8s ease-out infinite;
+}
+@keyframes arcMapPulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--dot) 70%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--dot) 0%, transparent);
+  }
+}
+.arc-map-label.leaflet-tooltip {
+  background: rgba(7, 8, 11, 0.82);
+  color: #f1d18a;
+  border: 1px solid rgba(224, 184, 104, 0.35);
+  border-radius: 6px;
+  font-size: 10.5px;
+  padding: 2px 7px;
+  box-shadow: none;
+}
+.arc-map-label.leaflet-tooltip::before {
+  display: none;
+}
+[data-mode="dark"] .arc-map {
+  background: #0b0d12;
+}
+[data-mode="dark"] .arc-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.92) saturate(0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .arc-map-dot-live {
+    animation: none;
+  }
+}

@@ -40,12 +40,8 @@ export default async function BerandaPage() {
           <div className="flex justify-between gap-2.5">
             <span>Jarak dari pusat</span>
             <span className="text-ar-text">
-              {data.myDistanceKm ?? "—"} / {ATTENDANCE_RADIUS_KM} km
+              {data.myDistanceKm ?? "—"} / {ATTENDANCE_RADIUS_KM.toLocaleString("id-ID")} km
             </span>
-          </div>
-          <div className="flex justify-between gap-2.5">
-            <span>Koordinat</span>
-            <span className="text-ar-text">{data.myCoord}</span>
           </div>
         </div>
       </div>
