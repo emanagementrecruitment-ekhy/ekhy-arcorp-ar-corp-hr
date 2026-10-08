@@ -56,6 +56,8 @@ export async function POST(req: Request) {
     await notifyOffice(`${employee.name} (${employee.role}) login ke Office.`);
   } else if (usesVcr(employee.role)) {
     await notifyOffice(`${employee.name} (Tera) login.`);
+  } else {
+    await notifyOffice(`${employee.name} (${employee.role}) login.`);
   }
 
   return NextResponse.json({

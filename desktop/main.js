@@ -158,6 +158,8 @@ async function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
+      // Let the notification chime play without a prior click (Chromium would otherwise mute it).
+      autoplayPolicy: "no-user-gesture-required",
     },
   });
   mainWindow.once("ready-to-show", () => mainWindow.show());

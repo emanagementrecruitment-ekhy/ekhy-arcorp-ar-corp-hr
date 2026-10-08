@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SOUNDS, playSound, unlockAudioOnFirstGesture, countNewUnread, type SoundId } from "@/lib/notif-sound";
 
 interface Notif {
   id: string;
@@ -10,36 +11,6 @@ interface Notif {
 }
 
 const SOUND_KEY = "arcorp_notif_sound";
-type SoundId = "lembut" | "dering" | "tegas" | "senyap";
-
-const SOUNDS: { id: SoundId; label: string; tones: { freq: number; duration: number }[] }[] = [
-  { id: "lembut", label: "Lembut", tones: [{ freq: 660, duration: 0.16 }] },
-  { id: "dering", label: "Dering", tones: [{ freq: 784, duration: 0.12 }, { freq: 988, duration: 0.16 }] },
-  { id: "tegas", label: "Tegas", tones: [{ freq: 523, duration: 0.1 }, { freq: 523, duration: 0.1 }, { freq: 659, duration: 0.22 }] },
-  { id: "senyap", label: "Senyap", tones: [] },
-];
-
-/** Synthesizes a short beep pattern with the Web Audio API — no audio file needed, works offline. */
-function playSound(id: SoundId) {
-  const preset = SOUNDS.find((s) => s.id === id);
-  if (!preset || preset.tones.length === 0) return;
-  const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-  const ctx = new AudioCtx();
-  let t = ctx.currentTime;
-  for (const { freq, duration } of preset.tones) {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.frequency.value = freq;
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    gain.gain.setValueAtTime(0.18, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
-    osc.start(t);
-    osc.stop(t + duration);
-    t += duration + 0.05;
-  }
-  setTimeout(() => ctx.close(), (t + 0.2) * 1000);
-}
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -56,7 +27,7 @@ export default function NotificationBell() {
     return "lembut";
   });
   const boxRef = useRef<HTMLDivElement>(null);
-  const lastNewestId = useRef<string | null>(null);
+  const seenIds = useRef<Set<string>>(new Set());
   const isFirstLoad = useRef(true);
 
   function load() {
@@ -66,15 +37,15 @@ export default function NotificationBell() {
         setUnreadCount(d.unreadCount ?? 0);
         const list: Notif[] = d.notifications ?? [];
         setNotifications(list);
-        const newestId = list[0]?.id ?? null;
-        if (!isFirstLoad.current && newestId && newestId !== lastNewestId.current && !list[0]?.read) {
-          playSound(sound);
-        }
-        lastNewestId.current = newestId;
+        const fresh = countNewUnread(seenIds.current, list);
+        // The very first load only records what is already there — it must not ring for old items.
+        if (!isFirstLoad.current && fresh > 0) playSound(sound);
         isFirstLoad.current = false;
       })
       .catch(() => {});
   }
+
+  useEffect(() => unlockAudioOnFirstGesture(), []);
 
   useEffect(() => {
     load();
