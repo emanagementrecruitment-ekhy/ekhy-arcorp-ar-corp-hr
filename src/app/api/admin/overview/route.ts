@@ -4,6 +4,8 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM, ATTENDANCE_MIN_DAYS, usesVcr } from "@/lib/constants";
 import { shortRp, dLabel, dayKey, timeLabel, monthLabel } from "@/lib/format";
 import { parseMonth } from "@/lib/period";
+import { distanceKm } from "@/lib/geo";
+import { newestFix } from "@/lib/live-location";
 
 export async function GET() {
   try {
@@ -61,7 +63,17 @@ export async function GET() {
       seen.add(e.employeeId);
       return true;
     });
-    const onlineCount = latestByEmployee.filter((e) => e.inRadius).length;
+    // In/out of radius now: a periodic ping from the employee app (see
+    // /api/attendance/ping) wins over the last login whenever it is newer.
+    const loginByEmployee = new Map(latestByEmployee.map((l) => [l.employeeId, l]));
+    const inRadiusNow = (e: (typeof employees)[number]) => {
+      const login = loginByEmployee.get(e.id);
+      if (newestFix(login?.createdAt, e.liveAt) === "live" && e.liveLat !== null && e.liveLng !== null) {
+        return distanceKm(HQ, { lat: e.liveLat, lng: e.liveLng }) <= ATTENDANCE_RADIUS_KM;
+      }
+      return login?.inRadius ?? false;
+    };
+    const onlineCount = employees.filter(inRadiusNow).length;
 
     const days: { key: string; label: string; sum: number }[] = [];
     for (let i = 13; i >= 0; i--) {

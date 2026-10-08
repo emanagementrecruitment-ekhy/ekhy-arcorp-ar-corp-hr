@@ -85,7 +85,7 @@ export const VOUCHER_STATUS_LABEL: Record<VoucherStatus, string> = {
 // AR Corp head office — Jakarta.
 export const HQ = { lat: -6.2088, lng: 106.8456 };
 export const HQ_NAME = "Kantor Pusat — Jakarta";
-export const ATTENDANCE_RADIUS_KM = 500;
+export const ATTENDANCE_RADIUS_KM = 1000;
 
 export const SESSION_COOKIE = "arcorp_session";
 export const SESSION_TTL_SECONDS = 60 * 60 * 12; // one field shift

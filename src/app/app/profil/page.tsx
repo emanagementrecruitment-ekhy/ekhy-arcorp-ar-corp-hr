@@ -100,7 +100,7 @@ export default async function ProfilPage() {
         {logins.map((l) => (
           <div key={l.id} className="flex justify-between gap-2.5 items-center py-3 px-3.5 bg-ar-surface2 border border-ar-line rounded-xl">
             <span>
-              <span className="block text-[12.5px]">{l.place ?? `${l.lat.toFixed(4)}, ${l.lng.toFixed(4)}`}</span>
+              <span className="block text-[12.5px]">{l.place ?? "Lokasi GPS perangkat"}</span>
               <span className="block text-[10.5px] text-ar-dim mt-1">
                 {l.createdAt.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })} · {l.distanceKm} km
               </span>

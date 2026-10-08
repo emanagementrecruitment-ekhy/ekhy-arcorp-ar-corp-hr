@@ -4,6 +4,7 @@ import { getActiveAnnouncementText } from "@/lib/settings";
 import AppHeader from "@/components/employee/AppHeader";
 import BottomNav from "@/components/employee/BottomNav";
 import PushSubscribe from "@/components/employee/PushSubscribe";
+import LiveLocationPing from "@/components/employee/LiveLocationPing";
 
 export default async function EmployeeLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -21,6 +22,7 @@ export default async function EmployeeLayout({ children }: { children: React.Rea
       <AppHeader name={session.name} code={session.code} announcementText={announcementText} />
       <main className="flex-1 max-w-[720px] w-full mx-auto px-4 sm:px-5 pb-28 pt-2">
         <PushSubscribe vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null} />
+        <LiveLocationPing />
         {children}
       </main>
       <BottomNav />

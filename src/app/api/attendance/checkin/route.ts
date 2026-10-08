@@ -31,8 +31,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      lat,
-      lng,
       distanceKm: km,
       inRadius,
       radiusKm: ATTENDANCE_RADIUS_KM,

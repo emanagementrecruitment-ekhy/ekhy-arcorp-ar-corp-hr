@@ -49,7 +49,6 @@ export async function getBerandaData(employeeId: string) {
     myPlace: lastLogin?.place ?? employee.homePlace,
     myDistanceKm: lastLogin?.distanceKm ?? null,
     inRadius: lastLogin?.inRadius ?? false,
-    myCoord: lastLogin ? `${lastLogin.lat.toFixed(4)}, ${lastLogin.lng.toFixed(4)}` : "—",
     salary: fmtRp(employee.salary ?? 0),
     saldoTotal: fmtRp(unpaid.length * myRate),
     saldoCount: unpaid.length,

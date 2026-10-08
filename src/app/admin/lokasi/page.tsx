@@ -46,6 +46,7 @@ export default function LokasiPage() {
   const [canEdit, setCanEdit] = useState(false);
   const [supervisors, setSupervisors] = useState<SupervisorOption[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [focusId, setFocusId] = useState<{ id: string; n: number } | null>(null);
 
   function load() {
     fetch("/api/admin/locations")
@@ -91,7 +92,7 @@ export default function LokasiPage() {
         subtitle={
           restricted
             ? "Absensi karyawan — peta lokasi & koordinat GPS tidak ditampilkan untuk peran ini"
-            : `Posisi terakhir setiap karyawan terhadap radius ${ATTENDANCE_RADIUS_KM} km dari kantor pusat`
+            : `Posisi terakhir setiap karyawan terhadap radius ${ATTENDANCE_RADIUS_KM.toLocaleString("id-ID")} km dari kantor pusat`
         }
       />
 
@@ -102,14 +103,20 @@ export default function LokasiPage() {
           <div className={cardClass}>
             <div className="flex justify-between gap-3 items-center mb-1.5">
               <span className="text-[10.5px] tracking-[0.18em] uppercase text-ar-dim">
-                Sebaran lokasi absensi · radius {ATTENDANCE_RADIUS_KM} km
+                Sebaran lokasi absensi · radius {ATTENDANCE_RADIUS_KM.toLocaleString("id-ID")} km
               </span>
               {canEdit && <span className="text-[10.5px] text-ar-faint">Klik pin karyawan untuk mengubah datanya</span>}
             </div>
-            <div className="text-[10.5px] text-ar-faint mb-3.5 leading-[1.6]">
-              Posisi diperbarui setiap karyawan/Tera login/absen — bukan pelacakan GPS langsung sepanjang hari, jadi
-              pin bisa berumur beberapa jam. Titik <span className="text-ar-dim">●</span> abu-abu = belum ada bacaan
-              GPS (lokasi terdaftar sementara).
+            <div className="text-[10.5px] text-ar-faint mb-2.5 leading-[1.6]">
+              Posisi dikirim aplikasi karyawan/Tera kira-kira tiap menit selama aplikasinya terbuka (saat aplikasi
+              ditutup atau layar mati, titik tetap di posisi terakhir). Daftar diperbarui otomatis tiap 20 detik; klik
+              nama di daftar untuk terbang ke titiknya.
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3 text-[10.5px] text-ar-dim">
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#7FD1A8] inline-block" />GPS langsung, dalam radius</span>
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#E2716B] inline-block" />Luar radius</span>
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#8A93A3] inline-block" />Lokasi terdaftar (belum ada GPS)</span>
+              <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#D6AE5F] inline-block" />Kantor pusat</span>
             </div>
 
             {data && (
@@ -119,6 +126,7 @@ export default function LokasiPage() {
                 presence={data.presence}
                 canEdit={canEdit}
                 onSelect={(id) => setEditingId(id)}
+                focusId={focusId}
               />
             )}
           </div>
@@ -128,7 +136,17 @@ export default function LokasiPage() {
           {data?.presence.map((p) => (
             <div key={p.id} className="p-3.5 bg-ar-surface border border-ar-line rounded-[13px]">
               <div className="flex justify-between gap-2.5 items-center">
-                <span className="text-[13px]">{p.name}</span>
+                {restricted ? (
+                  <span className="text-[13px]">{p.name}</span>
+                ) : (
+                  <button
+                    onClick={() => setFocusId({ id: p.id, n: Date.now() })}
+                    className="text-[13px] text-left cursor-pointer hover:text-ar-gold2"
+                    title="Lihat di peta"
+                  >
+                    {p.name}
+                  </button>
+                )}
                 <Badge status={p.status} />
               </div>
               <div className="text-[11px] text-ar-dim mt-1.5 leading-[1.6]">

@@ -111,9 +111,9 @@ export default function LoginPage() {
     setStep("gps");
     setGpsSteps([
       { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
-      { label: "Koordinat", value: "Mencari lokasi…" },
+      { label: "Lokasi", value: "Mencari lokasi…" },
       { label: "Jarak dari kantor pusat", value: "Menghitung…" },
-      { label: "Status absensi", value: "Menunggu koordinat…" },
+      { label: "Status absensi", value: "Menunggu lokasi…" },
       { label: "Notifikasi ke pusat", value: "Menunggu…" },
     ]);
 
@@ -127,7 +127,7 @@ export default function LoginPage() {
         .then((data) => {
           setGpsSteps([
             { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
-            { label: "Koordinat", value: Number.isFinite(data.lat) ? `${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}` : "—" },
+            { label: "Lokasi", value: data.usedFallbackLocation ? "Memakai lokasi terdaftar" : "GPS perangkat terdeteksi" },
             { label: "Jarak dari kantor pusat", value: `${data.distanceKm} km · batas ${data.radiusKm} km` },
             { label: "Status absensi", value: data.inRadius ? "Diterima — dalam radius" : "Ditandai — di luar radius" },
             { label: "Notifikasi ke pusat", value: `Terkirim ${new Date(data.at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}` },
