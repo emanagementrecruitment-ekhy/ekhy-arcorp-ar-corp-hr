@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import BulkImportAbsensi from "@/components/admin/BulkImportAbsensi";
 import { btnPrimaryClass, cardClass, cardCompactClass, inputClass } from "@/components/ui/styles";
+import { ATTENDANCE_CODES, TONE_CLASS, toneForMark } from "@/lib/attendance-codes";
 
 interface EmployeeRow {
   id: string;
@@ -13,6 +14,8 @@ interface EmployeeRow {
   isTera: boolean;
   days: boolean[];
   dayIds: (string | null)[];
+  dayCodes: (string | null)[];
+  dayManual: boolean[];
   hariHadir: number;
   persenHadir: number;
 }
@@ -41,6 +44,48 @@ function currentMonth() {
 
 function today() {
   return new Date().toISOString().slice(0, 10);
+}
+
+/** Last 12 months up to and including the current one, newest first. */
+function monthOptions() {
+  const out: { value: string; label: string }[] = [];
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const value = d.toISOString().slice(0, 7);
+    out.push({ value, label: d.toLocaleDateString("id-ID", { month: "long", year: "numeric", timeZone: "UTC" }) });
+  }
+  return out;
+}
+
+// Colour buttons the admin presses; the chosen one "paints" the cells that are clicked next.
+const BRUSHES: { code: "M" | "O" | "J" | "P" | "S"; cls: string; name: string }[] = [
+  { code: "M", cls: TONE_CLASS.red, name: "Merah" },
+  { code: "O", cls: TONE_CLASS.yellow, name: "Kuning" },
+  { code: "P", cls: TONE_CLASS.green, name: "Hijau" },
+  { code: "S", cls: TONE_CLASS.blue, name: "Biru" },
+  { code: "J", cls: TONE_CLASS.orange, name: "Jingga (input manual Admin)" },
+];
+
+function DayCell({
+  toneCls,
+  editable,
+  absent,
+  title,
+  onPress,
+}: {
+  toneCls: string;
+  editable: boolean;
+  absent: boolean;
+  title?: string;
+  onPress: () => void;
+}) {
+  const look = toneCls || (absent ? "bg-ar-red/25 border-ar-red" : "border-ar-line bg-transparent");
+  const cls = `inline-block w-5 h-5 rounded-[3px] border align-middle ${look}`;
+  if (!editable) return <span className={cls} title={title} />;
+  return (
+    <button type="button" onClick={onPress} title={title} aria-label={title ?? "Isi absensi"} className={`${cls} cursor-pointer hover:ring-2 hover:ring-ar-gold`} />
+  );
 }
 
 export default function AbsensiHarianPage() {
@@ -73,10 +118,22 @@ export default function AbsensiHarianPage() {
 
   useEffect(load, [month]);
 
-  async function deleteMark(id: string) {
-    if (!confirm("Hapus catatan absensi hari ini untuk karyawan/Tera ini?")) return;
-    const res = await fetch(`/api/admin/absensi/${id}`, { method: "DELETE" });
-    if (res.ok) load();
+  const [cellMsg, setCellMsg] = useState("");
+  const [brush, setBrush] = useState<string | null>(null); // code to paint, "" = eraser, null = nothing chosen
+
+  async function commitCell(employeeId: string, day: number, code: string) {
+    const dateKey = `${month}-${String(day).padStart(2, "0")}`;
+    setCellMsg("");
+    const res = await fetch("/api/admin/absensi/cell", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ employeeId, dateKey, code }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setCellMsg(d.error ?? "Gagal menyimpan kode.");
+    }
+    load();
   }
 
   const allEmployees = (data?.outlets ?? []).flatMap((o) => o.employees);
@@ -117,12 +174,17 @@ export default function AbsensiHarianPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
             <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim">Bulan</label>
-            <input
-              type="month"
+            <select
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="py-2 px-3 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
-            />
+              className="py-2 px-3 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px] capitalize"
+            >
+              {(monthOptions().some((o) => o.value === month) ? monthOptions() : [{ value: month, label: month }, ...monthOptions()]).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
           </div>
           {canDelete && (
             <button
@@ -208,6 +270,65 @@ export default function AbsensiHarianPage() {
               </div>
             </div>
 
+            <div className="mb-4 p-3.5 bg-ar-surface border border-ar-line rounded-2xl text-[11px] text-ar-dim">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                {BRUSHES.map((l) => {
+                  const active = brush === l.code;
+                  const body = (
+                    <>
+                      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-[3px] border text-[10px] font-bold ${l.cls}`}>{l.code}</span>
+                      {l.code} = {l.name}
+                    </>
+                  );
+                  return canDelete ? (
+                    <button
+                      key={l.code}
+                      type="button"
+                      onClick={() => setBrush(active ? null : l.code)}
+                      aria-pressed={active}
+                      className={`inline-flex items-center gap-1.5 py-1 px-2 rounded-[8px] border cursor-pointer ${
+                        active ? "border-ar-gold bg-ar-goldfill text-ar-text" : "border-ar-line"
+                      }`}
+                    >
+                      {body}
+                    </button>
+                  ) : (
+                    <span key={l.code} className="inline-flex items-center gap-1.5">
+                      {body}
+                    </span>
+                  );
+                })}
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={() => setBrush(brush === "" ? null : "")}
+                    aria-pressed={brush === ""}
+                    className={`inline-flex items-center gap-1.5 py-1 px-2 rounded-[8px] border cursor-pointer ${
+                      brush === "" ? "border-ar-gold bg-ar-goldfill text-ar-text" : "border-ar-line"
+                    }`}
+                  >
+                    ✕ Hapus warna
+                  </button>
+                )}
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-[3px] border bg-ar-gold2 border-ar-gold2" /> Emas = absen sendiri (karyawan)
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-[3px] border bg-ar-red/25 border-ar-red" /> Merah muda = tidak absen
+                </span>
+              </div>
+              {canDelete && (
+                <div className="mt-2 text-ar-faint">
+                  {brush === null
+                    ? "Tekan salah satu tombol warna di atas, lalu klik kotak absensi yang ingin diwarnai. Klik lagi dengan warna yang sama untuk mengosongkan."
+                    : brush === ""
+                      ? "Mode hapus: klik kotak untuk mengosongkan warnanya."
+                      : `Warna ${brush} aktif: klik kotak absensi untuk mewarnai.`}
+                </div>
+              )}
+              {cellMsg && <div className="mt-2 text-ar-red">{cellMsg}</div>}
+            </div>
+
             <div className="flex flex-col gap-4">
               {data.outlets.length === 0 && (
                 <div className="p-8 bg-ar-surface border border-ar-line rounded-2xl text-center text-[12.5px] text-ar-faint">
@@ -240,38 +361,26 @@ export default function AbsensiHarianPage() {
                               {e.name} <span className="text-ar-faint">({e.isTera ? "Tera" : e.role})</span>
                             </td>
                             {e.days.map((present, i) => {
-                              const id = e.dayIds[i];
                               const dayNum = i + 1;
                               // A day only counts as "genuinely absent" once it's actually
                               // over — today and any day after it just haven't happened yet.
                               const isDecided =
                                 !data.isFutureMonth && (data.todayDay === null || dayNum < data.todayDay);
                               const isAbsent = isDecided && !present;
-                              const box = (
-                                <span
-                                  className={`inline-block w-3.5 h-3.5 rounded-[3px] border ${
-                                    present
-                                      ? "bg-ar-gold2 border-ar-gold2"
-                                      : isAbsent
-                                        ? "bg-ar-red/25 border-ar-red"
-                                        : "border-ar-line"
-                                  }`}
-                                  title={isAbsent ? "Tidak absen" : undefined}
-                                />
-                              );
+                              const code = e.dayCodes[i];
+                              const tone = present ? toneForMark(code, e.dayManual[i]) : null;
+                              const toneCls = tone ? TONE_CLASS[tone] : present ? "bg-ar-gold2 border-ar-gold2" : "";
+                              const isFuture = data.isFutureMonth || (data.todayDay !== null && dayNum > data.todayDay);
+                              const shown = code && code in ATTENDANCE_CODES ? code : null;
                               return (
-                                <td key={i} className="text-center">
-                                  {present && canDelete && id ? (
-                                    <button
-                                      onClick={() => deleteMark(id)}
-                                      title="Hapus centang hari ini"
-                                      className="cursor-pointer"
-                                    >
-                                      {box}
-                                    </button>
-                                  ) : (
-                                    box
-                                  )}
+                                <td key={i} className="text-center px-px py-0.5">
+                                  <DayCell
+                                    toneCls={toneCls}
+                                    editable={canDelete && !isFuture && brush !== null}
+                                    absent={isAbsent}
+                                    title={shown ? `Kode ${shown}` : present ? "Absen" : undefined}
+                                    onPress={() => commitCell(e.id, dayNum, brush === shown ? "" : (brush ?? ""))}
+                                  />
                                 </td>
                               );
                             })}

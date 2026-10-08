@@ -115,6 +115,12 @@ model Attendance {
   // booked) this day's late-checkin deduction — see LATE_CHECKIN_* in
   // src/lib/constants.ts. Prevents re-charging the same day twice.
   latePenaltyApplied Boolean @default(false)
+  // Status code an admin typed into the Absensi Harian grid (M / O / P / PK / S — see
+  // src/lib/attendance-codes.ts). null = plain self check-in or an uncoded manual mark.
+  code       String?
+  // true when an admin entered/backfilled this day (manual add, import or typed code) —
+  // drawn orange in the grid when there is no code colour to show.
+  manual     Boolean  @default(false)
 
   @@unique([employeeId, dateKey])
   @@index([employeeId, month])
