@@ -492,7 +492,10 @@ button {
     box-shadow: 0 0 0 14px color-mix(in srgb, var(--dot) 0%, transparent);
   }
 }
-.arc-map-label.leaflet-tooltip {
+.arc-map-label {
+  white-space: nowrap;
+  margin-bottom: 3px;
+  pointer-events: none;
   background: rgba(7, 8, 11, 0.82);
   color: #f1d18a;
   border: 1px solid rgba(224, 184, 104, 0.35);
@@ -501,14 +504,8 @@ button {
   padding: 2px 7px;
   box-shadow: none;
 }
-.arc-map-label.leaflet-tooltip::before {
-  display: none;
-}
 [data-mode="dark"] .arc-map {
   background: #0b0d12;
-}
-[data-mode="dark"] .arc-map .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.92) saturate(0.7);
 }
 @media (prefers-reduced-motion: reduce) {
   .arc-map-dot-live {
