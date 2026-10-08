@@ -45,6 +45,9 @@ model Employee {
   supervisorNote String?   // legacy free-text note — no longer editable from Data Karyawan/Tera (replaced by birthPlace/birthDate below), kept only so old values already saved keep displaying
   birthPlace  String?      // tempat lahir sesuai KTP
   birthDate   DateTime?    // tanggal lahir sesuai KTP — age is always computed live from this (see computeAge in src/lib/birthday.ts), never stored
+  liveLat     Float?       // latest periodic GPS ping from the employee app while it is open (see /api/attendance/ping); newer than the last LoginEvent => the map shows this
+  liveLng     Float?
+  liveAt      DateTime?
   lastBirthdayNotifiedYear Int? // guards the once-a-year office notification (see src/lib/birthday-scheduler.ts) so a restart mid-birthday never double-fires it
   reports     Employee[]   @relation("Supervision")
   createdAt   DateTime     @default(now())

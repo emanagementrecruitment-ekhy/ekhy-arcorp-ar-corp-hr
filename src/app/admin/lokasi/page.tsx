@@ -108,8 +108,9 @@ export default function LokasiPage() {
               {canEdit && <span className="text-[10.5px] text-ar-faint">Klik pin karyawan untuk mengubah datanya</span>}
             </div>
             <div className="text-[10.5px] text-ar-faint mb-2.5 leading-[1.6]">
-              Posisi diambil saat karyawan/Tera login atau absen (bukan pelacakan sepanjang hari). Daftar diperbarui
-              otomatis tiap 20 detik; klik nama di daftar untuk terbang ke titiknya.
+              Posisi dikirim aplikasi karyawan/Tera kira-kira tiap menit selama aplikasinya terbuka (saat aplikasi
+              ditutup atau layar mati, titik tetap di posisi terakhir). Daftar diperbarui otomatis tiap 20 detik; klik
+              nama di daftar untuk terbang ke titiknya.
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3 text-[10.5px] text-ar-dim">
               <span className="flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full bg-[#7FD1A8] inline-block" />GPS langsung, dalam radius</span>

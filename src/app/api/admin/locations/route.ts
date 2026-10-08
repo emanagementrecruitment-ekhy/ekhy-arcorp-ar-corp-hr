@@ -4,6 +4,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, HQ_NAME, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
 import { timeLabel } from "@/lib/format";
 import { distanceKm } from "@/lib/geo";
+import { newestFix } from "@/lib/live-location";
 
 export async function GET() {
   try {
@@ -19,10 +20,13 @@ export async function GET() {
 
     const presence = employees.map((e) => {
       const last = e.loginEvents[0];
-      const lat = last?.lat ?? e.homeLat;
-      const lng = last?.lng ?? e.homeLng;
-      const km = last?.distanceKm ?? distanceKm(HQ, { lat, lng });
-      const inRadius = last?.inRadius ?? km <= ATTENDANCE_RADIUS_KM;
+      // A periodic ping from the employee app (see /api/attendance/ping) wins
+      // over the last login whenever it is newer.
+      const useLive = newestFix(last?.createdAt, e.liveAt) === "live" && e.liveLat !== null && e.liveLng !== null;
+      const lat = useLive ? (e.liveLat as number) : (last?.lat ?? e.homeLat);
+      const lng = useLive ? (e.liveLng as number) : (last?.lng ?? e.homeLng);
+      const km = useLive ? distanceKm(HQ, { lat, lng }) : (last?.distanceKm ?? distanceKm(HQ, { lat, lng }));
+      const inRadius = useLive ? km <= ATTENDANCE_RADIUS_KM : (last?.inRadius ?? km <= ATTENDANCE_RADIUS_KM);
       return {
         id: e.id,
         code: e.code,
@@ -38,19 +42,19 @@ export async function GET() {
         supervisorNote: e.supervisorNote ?? "",
         birthPlace: e.birthPlace,
         birthDate: e.birthDate,
-        place: last?.place ?? e.homePlace,
+        place: useLive ? "GPS langsung" : (last?.place ?? e.homePlace),
         km: `${km} km`,
         time: last ? timeLabel(last.createdAt) : "—",
         // Raw timestamp so the client can show "X menit/jam lalu" — position
         // only updates on login/absen (a one-shot GPS read), never
         // continuously, so without this a pin from days ago looks identical
         // to a fresh one.
-        lastSeenAt: last?.createdAt ?? null,
+        lastSeenAt: useLive ? e.liveAt : (last?.createdAt ?? null),
         // LoginEvent.place is only set when the check-in fell back to the
         // employee's registered outlet (GPS denied/unavailable) — so this
         // pin is that fixed address, not a real GPS reading, whenever
         // there's no login yet at all OR the last one used that fallback.
-        isFallbackLocation: !last || last.place !== null,
+        isFallbackLocation: useLive ? false : !last || last.place !== null,
         coord: restricted ? "" : `${lat.toFixed(3)}, ${lng.toFixed(3)}`,
         status: inRadius ? "Dalam radius" : "Luar radius",
         lat: restricted ? 0 : lat,
