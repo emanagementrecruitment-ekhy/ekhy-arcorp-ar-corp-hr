@@ -46,13 +46,6 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-const WEEKDAY_LETTERS = ["M", "S", "S", "R", "K", "J", "S"]; // Minggu, Senin, Selasa, Rabu, Kamis, Jumat, Sabtu
-
-function weekdayOf(month: string, day: number) {
-  const [y, m] = month.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, day)).getUTCDay();
-}
-
 /** Last 12 months up to and including the current one, newest first. */
 function monthOptions() {
   const out: { value: string; label: string }[] = [];
@@ -350,23 +343,6 @@ export default function AbsensiHarianPage() {
                   <div className="overflow-x-auto">
                     <table className="border-collapse text-[11px]">
                       <thead>
-                        <tr>
-                          <th className="sticky left-0 bg-ar-surface" />
-                          {Array.from({ length: data.daysInMonth }, (_, i) => {
-                            const wd = weekdayOf(data.month, i + 1);
-                            return (
-                              <th
-                                key={i}
-                                className={`w-6 text-center text-[9.5px] font-semibold ${
-                                  wd === 0 ? "bg-[#2f7d4f] text-white rounded-[3px]" : "text-ar-dim font-normal"
-                                }`}
-                              >
-                                {WEEKDAY_LETTERS[wd]}
-                              </th>
-                            );
-                          })}
-                          <th colSpan={2} />
-                        </tr>
                         <tr>
                           <th className="text-left py-1.5 pr-3 font-normal text-ar-dim sticky left-0 bg-ar-surface">Nama</th>
                           {Array.from({ length: data.daysInMonth }, (_, i) => (
