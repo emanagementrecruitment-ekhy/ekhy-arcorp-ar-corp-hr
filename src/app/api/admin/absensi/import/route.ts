@@ -116,7 +116,7 @@ export async function POST(req: Request) {
       }
 
       try {
-        await prisma.attendance.create({ data: { employeeId: employee.id, dateKey: dateRaw, month: dateRaw.slice(0, 7) } });
+        await prisma.attendance.create({ data: { employeeId: employee.id, dateKey: dateRaw, month: dateRaw.slice(0, 7), manual: true } });
         created++;
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {

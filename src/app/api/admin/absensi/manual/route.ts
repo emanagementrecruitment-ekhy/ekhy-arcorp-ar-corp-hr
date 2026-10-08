@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     try {
-      await prisma.attendance.create({ data: { employeeId, dateKey, month: dateKey.slice(0, 7) } });
+      await prisma.attendance.create({ data: { employeeId, dateKey, month: dateKey.slice(0, 7), manual: true } });
       return NextResponse.json({ ok: true, alreadyMarked: false });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {

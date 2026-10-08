@@ -117,6 +117,8 @@ export interface OutletEmployeeRow {
   isTera: boolean;
   days: boolean[]; // index 0 = day 1
   dayIds: (string | null)[]; // Attendance.id per day, for the delete button — null when not marked
+  dayCodes: (string | null)[]; // typed status code per day (M/O/P/PK/S), null when none
+  dayManual: boolean[]; // admin-entered mark (drawn orange when there is no code)
   hariHadir: number;
   persenHadir: number;
 }
@@ -165,10 +167,10 @@ export async function getAttendanceDashboard(monthInput: string | null): Promise
     prisma.voucher.findMany({ where: { occurredAt: { gte: start, lt: end } }, select: { amount: true } }),
   ]);
 
-  const byEmployee = new Map<string, { id: string; dateKey: string }[]>();
+  const byEmployee = new Map<string, { id: string; dateKey: string; code: string | null; manual: boolean }[]>();
   for (const a of attendanceRows) {
     const list = byEmployee.get(a.employeeId) ?? [];
-    list.push({ id: a.id, dateKey: a.dateKey });
+    list.push({ id: a.id, dateKey: a.dateKey, code: a.code, manual: a.manual });
     byEmployee.set(a.employeeId, list);
   }
 
@@ -177,13 +179,17 @@ export async function getAttendanceDashboard(monthInput: string | null): Promise
 
   for (const e of employees) {
     const marks = byEmployee.get(e.id) ?? [];
-    const byDay = new Map(marks.map((m) => [Number(m.dateKey.slice(8, 10)), m.id]));
+    const byDay = new Map(marks.map((m) => [Number(m.dateKey.slice(8, 10)), m]));
     const days: boolean[] = [];
     const dayIds: (string | null)[] = [];
+    const dayCodes: (string | null)[] = [];
+    const dayManual: boolean[] = [];
     for (let d = 1; d <= totalDays; d++) {
-      const id = byDay.get(d) ?? null;
-      days.push(id !== null);
-      dayIds.push(id);
+      const m = byDay.get(d) ?? null;
+      days.push(m !== null);
+      dayIds.push(m?.id ?? null);
+      dayCodes.push(m?.code ?? null);
+      dayManual.push(m?.manual ?? false);
     }
     const hariHadir = marks.length;
     const persenHadir = totalDays > 0 ? Math.round((hariHadir / totalDays) * 100) : 0;
@@ -197,6 +203,8 @@ export async function getAttendanceDashboard(monthInput: string | null): Promise
       isTera: usesVcr(e.role),
       days,
       dayIds,
+      dayCodes,
+      dayManual,
       hariHadir,
       persenHadir,
     };
