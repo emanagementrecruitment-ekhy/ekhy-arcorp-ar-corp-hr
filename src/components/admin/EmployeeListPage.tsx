@@ -286,7 +286,7 @@ export default function EmployeeListPage({
         )}
 
         <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
-          <div className="min-w-[900px]">
+          <div className="min-w-[840px]">
           <div
             className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.12em] uppercase text-ar-dim items-center leading-snug"
             style={{ gridTemplateColumns: cols }}

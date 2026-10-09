@@ -225,7 +225,6 @@ export default function EmployeeFields({
           value={value.nik}
           onChange={(e) => onChange({ nik: e.target.value.replace(/\D/g, "").slice(0, 16) })}
           inputMode="numeric"
-          maxLength={16}
           placeholder="cth. 3171xxxxxxxxxxxx"
           className={inputCls}
         />
