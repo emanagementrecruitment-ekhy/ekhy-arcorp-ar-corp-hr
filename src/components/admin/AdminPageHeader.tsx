@@ -16,7 +16,7 @@ export default function AdminPageHeader({
   const [clock, setClock] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/overview")
+    fetch("/api/admin/online-count")
       .then((r) => r.json())
       .then((d) => setOnlineCount(d.onlineCount))
       .catch(() => {});

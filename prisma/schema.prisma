@@ -43,6 +43,7 @@ model Employee {
   supervisorId String?
   supervisor  Employee?    @relation("Supervision", fields: [supervisorId], references: [id])
   supervisorNote String?   // legacy free-text note — no longer editable from Data Karyawan/Tera (replaced by birthPlace/birthDate below), kept only so old values already saved keep displaying
+  nik         String?      // NIK (16 digit, sesuai KTP) — diisi saat pendaftaran karyawan/tera
   birthPlace  String?      // tempat lahir sesuai KTP
   birthDate   DateTime?    // tanggal lahir sesuai KTP — age is always computed live from this (see computeAge in src/lib/birthday.ts), never stored
   liveLat     Float?       // latest periodic GPS ping from the employee app while it is open (see /api/attendance/ping); newer than the last LoginEvent => the map shows this

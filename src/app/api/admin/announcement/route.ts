@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { getAnnouncement, SETTING_ID } from "@/lib/settings";
+import { notifyOffice } from "@/lib/notify";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] as const;
 
@@ -38,6 +39,8 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Waktu berhenti tidak boleh sebelum waktu mulai." }, { status: 400 });
     }
 
+    const previous = await getAnnouncement();
+
     await prisma.appSetting.upsert({
       where: { id: SETTING_ID },
       update: {
@@ -56,6 +59,13 @@ export async function PUT(req: Request) {
         announcementUpdatedById: session.employeeId,
       },
     });
+
+    // Ring the office bell when the running text actually changes (not on a pure schedule edit or a clear).
+    if (textRaw && textRaw !== (previous.text ?? "")) {
+      await notifyOffice(`Pengumuman diperbarui oleh ${session.name}: ${textRaw.slice(0, 80)}`).catch((e) =>
+        console.error("[announcement] notifyOffice failed:", e)
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

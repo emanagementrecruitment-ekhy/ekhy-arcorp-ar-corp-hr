@@ -74,10 +74,24 @@ export async function GET(req: Request) {
     });
     const hadirByEmployee = new Map(hadirRows.map((r) => [r.employeeId, r._count._all]));
 
+    // Bonus/Fee = this month's Slip Pay earning lines (debit) whose description says bonus or fee.
+    const bonusRows = await prisma.payslipItem.groupBy({
+      by: ["employeeId"],
+      where: {
+        month,
+        debit: { gt: 0 },
+        employeeId: { in: employees.map((e) => e.id) },
+        OR: [{ description: { contains: "bonus" } }, { description: { contains: "fee" } }],
+      },
+      _sum: { debit: true },
+    });
+    const bonusByEmployee = new Map(bonusRows.map((r) => [r.employeeId, r._sum.debit ?? 0]));
+
     return NextResponse.json({
       employees: employees.map((e) => {
         const kasApproved = e.kasbonRequests.reduce((s, k) => s + k.amount, 0);
         const vcr = usesVcr(e.role);
+        const bonusFee = bonusByEmployee.get(e.id) ?? 0;
         return {
           id: e.id,
           name: e.name,
@@ -96,13 +110,16 @@ export async function GET(req: Request) {
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
           supervisorNote: e.supervisorNote ?? "",
+          nik: e.nik ?? "",
           birthPlace: e.birthPlace,
           birthDate: e.birthDate,
           photoDataUrl: e.photoDataUrl,
           hadirPct: Math.round(((hadirByEmployee.get(e.id) ?? 0) / monthDays) * 100),
           count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
-          total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp(e.salary ?? 0),
+          bonusFee: bonusFee ? shortRp(bonusFee) : "—",
+          // Staff are paid Gaji plus any Bonus/Fee; Tera are paid by voucher.
+          total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp((e.salary ?? 0) + bonusFee),
         };
       }),
       total,
@@ -152,6 +169,8 @@ export async function POST(req: Request) {
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
     const birthPlace = typeof body?.birthPlace === "string" ? body.birthPlace.trim() : "";
+    const nikRaw = typeof body?.nik === "string" ? body.nik.replace(/\D/g, "") : "";
+    if (nikRaw && nikRaw.length !== 16) return NextResponse.json({ error: "NIK harus 16 digit." }, { status: 400 });
     const birthDateResult = parseBirthDate(body?.birthDate);
     if (!birthDateResult.ok) return NextResponse.json({ error: birthDateResult.error }, { status: 400 });
     const customRateRaw = Number(body?.customRate);
@@ -221,6 +240,7 @@ export async function POST(req: Request) {
         supervisorId,
         channelLink: channelLink || null,
         supervisorNote: supervisorNote || null,
+        nik: nikRaw || null,
         birthPlace: birthPlace || null,
         birthDate: birthDateResult.value,
       },

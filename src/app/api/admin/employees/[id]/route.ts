@@ -31,6 +31,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     // string (including "") from some other caller actually changes it.
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() || null : existing.supervisorNote;
     const birthPlace = typeof body?.birthPlace === "string" ? body.birthPlace.trim() : "";
+    const nikRaw = typeof body?.nik === "string" ? body.nik.replace(/\D/g, "") : "";
+    if (nikRaw && nikRaw.length !== 16) return NextResponse.json({ error: "NIK harus 16 digit." }, { status: 400 });
     const birthDateResult = parseBirthDate(body?.birthDate);
     if (!birthDateResult.ok) return NextResponse.json({ error: birthDateResult.error }, { status: 400 });
     const customRateRaw = Number(body?.customRate);
@@ -112,6 +114,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           supervisorId,
           channelLink: channelLink || null,
           supervisorNote,
+          // A caller that omits nik (e.g. an older form) must not wipe the stored one.
+          nik: typeof body?.nik === "string" ? nikRaw || null : existing.nik,
           birthPlace: birthPlace || null,
           birthDate: birthDateResult.value,
           // A corrected birthdate must not stay silenced by a notification

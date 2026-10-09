@@ -18,6 +18,7 @@ export interface EmployeeFieldsValue {
   place: string;
   supervisorId: string;
   channelLink: string;
+  nik: string;
   birthPlace: string;
   birthDate: string; // "" or "YYYY-MM-DD" (native <input type="date"> value)
   customRate: string;
@@ -40,6 +41,7 @@ export function emptyEmployeeFields(kind?: "staff" | "tera"): EmployeeFieldsValu
     place: FIELD_CITIES[0].place,
     supervisorId: "",
     channelLink: "",
+    nik: "",
     birthPlace: "",
     birthDate: "",
     customRate: "",
@@ -216,6 +218,16 @@ export default function EmployeeFields({
             </option>
           ))}
         </select>
+      </div>
+      <div>
+        <label className={labelCls}>NIK (16 digit, sesuai KTP)</label>
+        <input
+          value={value.nik}
+          onChange={(e) => onChange({ nik: e.target.value.replace(/\D/g, "").slice(0, 16) })}
+          inputMode="numeric"
+          placeholder="cth. 3171xxxxxxxxxxxx"
+          className={inputCls}
+        />
       </div>
       <div>
         <label className={labelCls}>Tempat Lahir (sesuai KTP)</label>
