@@ -12,6 +12,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Aplikasi jauh lebih cepat: daftar dan dasbor admin tidak lagi ikut membaca foto profil (bisa 1–2 MB per orang) dari database. Pemilih nama (supervisor, kalender, slip pay, pendapatan) memakai daftar ringkas; foto baru dimuat saat form Edit dibuka. Uji 150 karyawan: total waktu server 8,5 dtk menjadi 0,5 dtk
 
 ### Added
+- Akun demo Tera Grace kini memiliki NIK contoh (fiktif) agar kolom NIK terlihat; NIK yang diubah admin tidak ditimpa
 - Lonceng notifikasi kantor kini ikut berbunyi saat pengumuman diganti dan saat Owner/Admin membuat pemberitahuan (pengingat) baru, selain saat karyawan/Tera login
 - Halaman admin lebih ringan: lencana "N aktif" di atas halaman tidak lagi memuat seluruh data Ringkasan di setiap halaman
 - Data Karyawan: kolom Jumlah VCR menjadi Gaji, CH/Link diganti Kasbon, dan kolom baru Bonus/Fee (rincian Slip Pay bulan ini yang bertuliskan bonus/fee); Total Pendapatan = Gaji + Bonus/Fee. Data Tera tetap memakai VCR dan CH/Link
