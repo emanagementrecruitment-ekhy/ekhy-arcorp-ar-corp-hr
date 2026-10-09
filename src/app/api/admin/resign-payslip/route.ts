@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { monthLabel } from "@/lib/format";
+import { hasArchiveUnlock } from "@/lib/owner-confirm";
 
 /**
  * Lists archived resign Slip Pay snapshots (see ResignPayslip in
@@ -13,7 +14,10 @@ import { monthLabel } from "@/lib/format";
  */
 export async function GET() {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    if (!(await hasArchiveUnlock(session.employeeId))) {
+      return NextResponse.json({ error: "Arsip terkunci. Minta kode ke Owner untuk membukanya.", locked: true }, { status: 403 });
+    }
 
     const rows = await prisma.resignPayslip.findMany({
       include: { employee: { select: { name: true, code: true, role: true, homePlace: true, status: true } } },

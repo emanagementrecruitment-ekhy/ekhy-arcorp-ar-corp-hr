@@ -15,8 +15,7 @@ interface ImportResult {
  * (see /api/admin/employees/import). Bad rows are reported individually
  * rather than failing the whole batch.
  */
-export default function BulkImportEmployees({ onImported }: { onImported: () => void }) {
-  const [open, setOpen] = useState(false);
+export default function BulkImportEmployees({ open, onClose, onImported }: { open: boolean; onClose: () => void; onImported: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -46,12 +45,16 @@ export default function BulkImportEmployees({ onImported }: { onImported: () => 
     }
   }
 
+  if (!open) return null;
+
   return (
     <div className="mb-4 p-4.5 bg-ar-surface border border-ar-goldline rounded-2xl">
-      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between cursor-pointer">
+      <div className="flex items-center justify-between">
         <span className="font-display text-[16px] text-ar-gold2">📁 Import Massal (Excel/CSV/Text)</span>
-        <span className="text-[11px] text-ar-dim">{open ? "Tutup ▲" : "Buka ▼"}</span>
-      </button>
+        <button onClick={onClose} className="text-[11px] text-ar-dim cursor-pointer">
+          Tutup ▲
+        </button>
+      </div>
 
       {open && (
         <div className="mt-3.5">

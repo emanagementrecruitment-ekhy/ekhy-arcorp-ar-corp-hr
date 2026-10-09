@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { STAFF_CODE_PREFIX, TERA_CODE_PREFIX, codePrefixForRole, formatCode, nextCodeNumber } from "@/lib/employee-code";
 import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
@@ -143,12 +144,11 @@ export async function POST(req: Request) {
     const usedPhones = new Set(existingPhones.map((e) => e.phone));
     const byCode = new Map(existingByCode.map((e) => [e.code, e]));
 
-    const existingArCodes = await prisma.employee.findMany({ where: { code: { startsWith: "AR-" } }, select: { code: true } });
-    let nextArNum =
-      existingArCodes.reduce((max, e) => {
-        const n = Number(e.code.slice(3));
-        return Number.isFinite(n) && n > max ? n : max;
-      }, 0) + 1;
+    const existingCodes = (await prisma.employee.findMany({ select: { code: true } })).map((e) => e.code);
+    const nextNum: Record<string, number> = {
+      [STAFF_CODE_PREFIX]: nextCodeNumber(existingCodes, STAFF_CODE_PREFIX),
+      [TERA_CODE_PREFIX]: nextCodeNumber(existingCodes, TERA_CODE_PREFIX),
+    };
 
     let created = 0;
     let skippedLimit = 0;
@@ -222,7 +222,8 @@ export async function POST(req: Request) {
       const weightKg = usesVcr(role) ? toIntOrNull(weightRaw) : null;
       const heightCm = usesVcr(role) ? toIntOrNull(heightRaw) : null;
       const city = FIELD_CITIES.find((c) => c.place === place)!;
-      const code = `AR-${String(nextArNum++).padStart(2, "0")}`;
+      const prefix = codePrefixForRole(role);
+      const code = formatCode(prefix, nextNum[prefix]++);
 
       const employee = await prisma.employee.create({
         data: {

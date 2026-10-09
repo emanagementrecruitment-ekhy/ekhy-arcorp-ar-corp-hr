@@ -17,13 +17,11 @@ const DESKS: readonly Desk[] = [
   { href: "/admin/lokasi", icon: "pin", label: "Lokasi, Absensi & Kalender", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
   { href: "/admin/absensi-harian", icon: "calendar-check", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   {
-    group: "Data Karyawan",
+    group: "Operasional · HR & Office",
     items: [
-      { href: "/admin/karyawan/tambah", icon: "user-plus", label: "Tambah Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/hr-office", icon: "briefcase", label: "HR & Office", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
       { href: "/admin/karyawan/tera", icon: "id-card", label: "Data Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/karyawan", icon: "users", label: "Data Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
-      { href: "/admin/jabatan", icon: "briefcase", label: "Jabatan", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
-      { href: "/admin/karyawan/arsip-resign", icon: "archive", label: "Arsip Slip Resign", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
     ],
   },
   {
@@ -69,7 +67,8 @@ export default function AdminSidebar({
   }, [supervisorOnly]);
 
   function navItem(d: Link_, onNavigate?: () => void, mobile?: boolean) {
-    const active = d.href === "/admin" ? pathname === "/admin" : pathname.startsWith(d.href);
+    // /admin and /admin/karyawan are prefixes of other menu items (Data Tera lives under /admin/karyawan/tera), so they match exactly.
+    const active = d.href === "/admin" || d.href === "/admin/karyawan" ? pathname === d.href : pathname.startsWith(d.href);
     return (
       <Link
         key={d.href}

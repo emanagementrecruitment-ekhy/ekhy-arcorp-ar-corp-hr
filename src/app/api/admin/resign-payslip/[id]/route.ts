@@ -1,5 +1,7 @@
 import { requireSession, apiError } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
+import { hasArchiveUnlock } from "@/lib/owner-confirm";
+import { NextResponse } from "next/server";
 
 /**
  * Downloads one archived resign Slip Pay PDF, frozen at the moment the
@@ -8,7 +10,10 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    if (!(await hasArchiveUnlock(session.employeeId))) {
+      return NextResponse.json({ error: "Arsip terkunci. Minta kode ke Owner untuk membukanya.", locked: true }, { status: 403 });
+    }
     const { id } = await params;
 
     const row = await prisma.resignPayslip.findUnique({ where: { id } });

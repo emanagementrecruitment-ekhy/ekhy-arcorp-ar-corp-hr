@@ -32,13 +32,13 @@ function generateCode(): string {
  * whose email/phone aren't real (see DEMO_TERA_CODE) — otherwise no one
  * could ever retrieve its code at all.
  */
-export async function issueOtp(employeeId: string, target: string, kind: IdentifierKind, alwaysReturnCode = false) {
+export async function issueOtp(employeeId: string, target: string, kind: IdentifierKind, alwaysReturnCode = false, purpose = "LOGIN") {
   const code = generateCode();
   const codeHash = await bcrypt.hash(code, 10);
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
 
   await prisma.otpCode.create({
-    data: { employeeId, codeHash, expiresAt },
+    data: { employeeId, codeHash, expiresAt, purpose },
   });
 
   const channel =
@@ -49,7 +49,7 @@ export async function issueOtp(employeeId: string, target: string, kind: Identif
   // that anyone could actually read it. Show the code regardless of outcome.
   if (channel === "email" && emailProviderConfigured()) {
     try {
-      await sendOtpEmail(target, code);
+      await sendOtpEmail(target, code, purpose === "OWNER_CONFIRM" ? "owner-confirm" : "login");
       return { devCode: alwaysReturnCode ? code : undefined, delivered: true as const };
     } catch (err) {
       console.error(`[otp] email delivery failed for employee ${employeeId}, falling back to console:`, err);
@@ -87,9 +87,9 @@ export type OtpVerifyResult =
   | { ok: true }
   | { ok: false; reason: "not_found" | "expired" | "too_many_attempts" | "mismatch" };
 
-export async function verifyOtp(employeeId: string, code: string): Promise<OtpVerifyResult> {
+export async function verifyOtp(employeeId: string, code: string, purpose = "LOGIN"): Promise<OtpVerifyResult> {
   const otp = await prisma.otpCode.findFirst({
-    where: { employeeId, consumedAt: null },
+    where: { employeeId, consumedAt: null, purpose },
     orderBy: { createdAt: "desc" },
   });
   if (!otp) return { ok: false, reason: "not_found" };

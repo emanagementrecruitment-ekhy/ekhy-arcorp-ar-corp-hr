@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "OtpCode" ADD COLUMN "purpose" TEXT NOT NULL DEFAULT 'LOGIN';

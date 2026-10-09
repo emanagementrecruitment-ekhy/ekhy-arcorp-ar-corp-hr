@@ -30,13 +30,13 @@ export interface EmployeeFieldsValue {
 const inputCls = "w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]";
 const labelCls = "text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block";
 
-export function emptyEmployeeFields(): EmployeeFieldsValue {
+export function emptyEmployeeFields(kind?: "staff" | "tera"): EmployeeFieldsValue {
   return {
     name: "",
     email: "",
     phone: "",
     level: "SILVER",
-    role: FIELD_ROLES[0],
+    role: kind === "tera" ? "Tera" : kind === "staff" ? "Staff" : FIELD_ROLES[0],
     place: FIELD_CITIES[0].place,
     supervisorId: "",
     channelLink: "",
@@ -56,12 +56,16 @@ export default function EmployeeFields({
   onChange,
   supervisors,
   excludeSupervisorId,
+  roleKind,
 }: {
   value: EmployeeFieldsValue;
   onChange: (patch: Partial<EmployeeFieldsValue>) => void;
   supervisors: SupervisorOption[];
   excludeSupervisorId?: string;
+  /** "staff" hides the Tera role, "tera" locks the role to Tera; omit for the edit form (all roles). */
+  roleKind?: "staff" | "tera";
 }) {
+  const roleChoices = FIELD_ROLES.filter((r) => (roleKind === "staff" ? !usesVcr(r) : roleKind === "tera" ? usesVcr(r) : true));
   const supervisorOptions = supervisors.filter((s) => s.id !== excludeSupervisorId);
 
   return (
@@ -77,14 +81,14 @@ export default function EmployeeFields({
       </div>
       <div>
         <label className={labelCls}>Peran</label>
-        <select value={value.role} onChange={(e) => onChange({ role: e.target.value })} className={inputCls}>
+        <select value={value.role} onChange={(e) => onChange({ role: e.target.value })} disabled={roleKind === "tera"} className={inputCls}>
           {/* A legacy value from before the Peran list changed won't match any preset —
               show it anyway so the dropdown never silently displays something other than
               what's actually stored (and about to be resubmitted unless changed). */}
-          {value.role && !(FIELD_ROLES as readonly string[]).includes(value.role) && (
+          {value.role && !roleKind && !(FIELD_ROLES as readonly string[]).includes(value.role) && (
             <option value={value.role}>{value.role} (lama)</option>
           )}
-          {FIELD_ROLES.map((r) => (
+          {roleChoices.map((r) => (
             <option key={r} value={r}>
               {r}
             </option>
