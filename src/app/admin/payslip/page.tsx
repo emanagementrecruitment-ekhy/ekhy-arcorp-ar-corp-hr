@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import PayslipDocument from "@/components/PayslipDocument";
@@ -80,8 +81,7 @@ export default function AdminPayslipPage() {
   const isTera = selectedEmployee ? usesVcr(selectedEmployee.role) : false;
 
   useEffect(() => {
-    fetch("/api/admin/employees?pageSize=500&lite=1")
-      .then((r) => r.json())
+    cachedJson("/api/admin/employees?pageSize=500&lite=1")
       .then((d) =>
         setEmployees(
           (d.employees ?? []).map((e: EmployeeOption) => ({

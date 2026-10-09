@@ -8,6 +8,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [Unreleased]
 
 ### Fixed
+- Pindah antar menu admin terasa lebih cepat: layar rangka muncul seketika saat menu diklik, permintaan berulang (peran pengguna, lencana "aktif", daftar nama) dipakai ulang selama 20 detik sehingga permintaan per klik turun dari 44 menjadi 27 pada uji, dan logo merek di-cache 30 detik
 - Aplikasi jauh lebih cepat: daftar dan dasbor admin tidak lagi ikut membaca foto profil (bisa 1–2 MB per orang) dari database. Pemilih nama (supervisor, kalender, slip pay, pendapatan) memakai daftar ringkas; foto baru dimuat saat form Edit dibuka. Uji 150 karyawan: total waktu server 8,5 dtk menjadi 0,5 dtk
 
 ### Added

@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
@@ -57,8 +58,7 @@ export default function PendapatanPage() {
   const importInputRef = useRef<HTMLInputElement>(null);
 
   function load() {
-    fetch("/api/admin/employees?pageSize=500&lite=1")
-      .then((r) => r.json())
+    cachedJson("/api/admin/employees?pageSize=500&lite=1")
       .then((d) =>
         setEmployees(
           (d.employees ?? [])

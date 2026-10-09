@@ -3,6 +3,7 @@ import path from "node:path";
 import { prisma } from "@/lib/prisma";
 import { SETTING_ID } from "@/lib/settings";
 
+// Short browser cache (30 s): the sidebar and layout request this several times per page load, and each hit used to read the whole logo from the database.
 // Public — every logged-out login page and every logged-in page's header
 // loads this. Serves the uploaded logo (see /api/admin/settings/logo) when
 // one exists, otherwise falls back to the shipped default mark, so every
@@ -23,12 +24,12 @@ export async function GET() {
   if (match) {
     const [, mimeType, base64] = match;
     return new Response(Buffer.from(base64, "base64"), {
-      headers: { "Content-Type": mimeType, "Cache-Control": "no-cache" },
+      headers: { "Content-Type": mimeType, "Cache-Control": "private, max-age=30, stale-while-revalidate=600" },
     });
   }
 
   const defaultMark = await readFile(path.join(process.cwd(), "public", "ar-corp-logo.png"));
   return new Response(defaultMark, {
-    headers: { "Content-Type": "image/png", "Cache-Control": "no-cache" },
+    headers: { "Content-Type": "image/png", "Cache-Control": "private, max-age=30, stale-while-revalidate=600" },
   });
 }

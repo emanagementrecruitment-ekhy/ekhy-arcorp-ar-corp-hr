@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -66,14 +67,12 @@ export default function LokasiPage({ initialTab = "lokasi" }: { initialTab?: "lo
   }, []);
 
   useEffect(() => {
-    fetch("/api/auth/session")
-      .then((r) => r.json())
+    cachedJson("/api/auth/session")
       .then((d) => {
         const role = d.session?.accessRole;
         setCanEdit(["OWNER", "CONSULTANT", "MANAGER"].includes(role));
         if (role !== "SUPERVISOR") {
-          fetch("/api/admin/employees?pageSize=500&lite=1")
-            .then((r) => r.json())
+          cachedJson("/api/admin/employees?pageSize=500&lite=1")
             .then((dd) =>
               setSupervisors(
                 (dd.employees ?? [])
