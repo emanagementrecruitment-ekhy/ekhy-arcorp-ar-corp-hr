@@ -12,6 +12,10 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Aplikasi jauh lebih cepat: daftar dan dasbor admin tidak lagi ikut membaca foto profil (bisa 1–2 MB per orang) dari database. Pemilih nama (supervisor, kalender, slip pay, pendapatan) memakai daftar ringkas; foto baru dimuat saat form Edit dibuka. Uji 150 karyawan: total waktu server 8,5 dtk menjadi 0,5 dtk
 
 ### Added
+- Menu "Gabungan Totalan" menjadi "Report Operasional & Payslip"; "Laporan Pendapatan" menjadi "Laporan Totalan"
+- Laporan Totalan: tombol CSV diperkecil, ditambah Print; laporan dipisah Terapis dan Karyawan dengan ringkasan pengeluaran gaji per hari, minggu, dan bulan; CSV kini hanya total operasional (rincian voucher ada di Input Pendapatan)
+- Input Pendapatan: tombol Upload DATA pindah ke kartu Tambah Entri sehingga lencana "aktif" kembali di ujung kanan
+- Kasbon: dipisah tab Karyawan, Terapis, dan Channel/Link (Channel/Link aktif setelah daftarnya ditetapkan); Owner/Manager menyetujui, lalu Admin menandai "Sudah Ditransfer" (hanya bisa setelah disetujui)
 - Akun demo Tera Grace kini memiliki NIK contoh (fiktif) agar kolom NIK terlihat; NIK yang diubah admin tidak ditimpa
 - Lonceng notifikasi kantor kini ikut berbunyi saat pengumuman diganti dan saat Owner/Admin membuat pemberitahuan (pengingat) baru, selain saat karyawan/Tera login
 - Halaman admin lebih ringan: lencana "N aktif" di atas halaman tidak lagi memuat seluruh data Ringkasan di setiap halaman

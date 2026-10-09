@@ -460,6 +460,32 @@ button {
   }
 }
 
+/* Printing Laporan Totalan: same approach — only the report area prints, in plain black on white
+   so it is readable on paper regardless of the dark/gold screen theme. */
+@media print {
+  body:has(#report-print-area) * {
+    visibility: hidden;
+  }
+  body:has(#report-print-area) #report-print-area,
+  body:has(#report-print-area) #report-print-area * {
+    visibility: visible;
+    color: #000 !important;
+    background: transparent !important;
+    border-color: #999 !important;
+    box-shadow: none !important;
+  }
+  body:has(#report-print-area) #report-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #fff !important;
+  }
+  body:has(#report-print-area) .report-no-print {
+    display: none !important;
+  }
+}
+
 /* Honor the OS "reduce motion" setting: stop every looping or entrance
    animation (sheens, sweeps, pulse, marquee, fade-in). Content stays visible. */
 @media (prefers-reduced-motion: reduce) {
