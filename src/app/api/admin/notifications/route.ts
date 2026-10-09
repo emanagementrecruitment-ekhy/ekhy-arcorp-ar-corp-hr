@@ -8,14 +8,16 @@ const NOTIFIABLE_ROLES = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "M
 export async function GET() {
   try {
     const session = await requireSession([...NOTIFIABLE_ROLES]);
-    const notifications = await prisma.notification.findMany({
-      where: { recipientRole: session.accessRole },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-    const unreadCount = await prisma.notification.count({
-      where: { recipientRole: session.accessRole, readAt: null },
-    });
+    const [notifications, unreadCount] = await Promise.all([
+      prisma.notification.findMany({
+        where: { recipientRole: session.accessRole },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+      prisma.notification.count({
+        where: { recipientRole: session.accessRole, readAt: null },
+      }),
+    ]);
     return NextResponse.json({
       unreadCount,
       notifications: notifications.map((n) => ({

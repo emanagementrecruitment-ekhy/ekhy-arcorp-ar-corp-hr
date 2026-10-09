@@ -10,6 +10,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ### Added
 - Data Karyawan/Tera: kolom Outlet, Jumlah VCR, Presentase Hadir, CH/Link, dan Total Pendapatan; tombol Tambah/Import di baris tab Aktif/Resign; menandai Resign sekarang juga meminta kode Owner
 - Lonceng notifikasi pindah ke samping logo di sidebar
+- Server lebih ringan: lonceng notifikasi cek tiap 15 detik (sebelumnya 6 detik) dan berhenti saat tab tidak aktif
 - Arsip Slip Resign dan hapus karyawan butuh kode sekali pakai yang dikirim ke email Owner saja; arsip terbuka 15 menit setelah kode benar
 - Kode terapis (Tera) lama berawalan AR- otomatis diganti EQ- dengan nomor yang sama
 - Data Karyawan/Tera: tombol "Tambah Staff" dan "Tambah Terapis" terpisah di kanan atas (Import dikecilkan di sebelahnya); kode Staff AR-xx, Terapis EQ-xx
