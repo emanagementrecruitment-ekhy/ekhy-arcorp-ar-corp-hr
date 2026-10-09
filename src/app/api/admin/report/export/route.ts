@@ -1,3 +1,4 @@
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, VOUCHER_LABEL, VOUCHER_STATUS_LABEL, type EmployeeLevel, type VoucherStatus } from "@/lib/constants";
@@ -14,7 +15,7 @@ export async function GET(req: Request) {
 
     const vouchers = await prisma.voucher.findMany({
       where: { occurredAt: { gte: start } },
-      include: { employee: true },
+      include: { employee: { select: EMPLOYEE_NO_PHOTO } },
       orderBy: { occurredAt: "desc" },
     });
 

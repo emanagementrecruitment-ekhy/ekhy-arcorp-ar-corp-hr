@@ -57,7 +57,7 @@ export default function PendapatanPage() {
   const importInputRef = useRef<HTMLInputElement>(null);
 
   function load() {
-    fetch("/api/admin/employees?pageSize=500")
+    fetch("/api/admin/employees?pageSize=500&lite=1")
       .then((r) => r.json())
       .then((d) =>
         setEmployees(

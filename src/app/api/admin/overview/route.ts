@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM, ATTENDANCE_MIN_DAYS, usesVcr } from "@/lib/constants";
@@ -23,13 +24,13 @@ export async function GET() {
 
     const [employees, vouchers14, todayVouchers, monthVouchers, pendingKasbon, latestLoginPerEmployee, monthAttendance] =
       await Promise.all([
-        prisma.employee.findMany({ where: { accessRole: "KARYAWAN" } }),
+        prisma.employee.findMany({ where: { accessRole: "KARYAWAN" }, select: EMPLOYEE_NO_PHOTO }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: start14 } } }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: startToday } } }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: start30 } } }),
         prisma.kasbon.count({ where: { status: "MENUNGGU_OWNER" } }),
         prisma.loginEvent.findMany({
-          include: { employee: true },
+          include: { employee: { select: EMPLOYEE_NO_PHOTO } },
           orderBy: { createdAt: "desc" },
           take: 30,
         }),

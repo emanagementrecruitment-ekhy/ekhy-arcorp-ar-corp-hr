@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { EmployeeLevel } from "@/lib/constants";
 import EmployeeFields, { type EmployeeFieldsValue, type SupervisorOption } from "./EmployeeFields";
@@ -66,6 +66,22 @@ export default function EditEmployeeForm({
   const [msg, setMsg] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState(employee.photoDataUrl ?? null);
   const [photoBusy, setPhotoBusy] = useState(false);
+
+  // The employee list no longer ships profile photos (they can be megabytes each), so when the
+  // caller did not pass one, load just this employee's photo once the form opens.
+  useEffect(() => {
+    if (employee.photoDataUrl !== undefined) return;
+    let cancelled = false;
+    fetch(`/api/admin/employees/${employee.id}/photo`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.photoDataUrl) setPhotoDataUrl(d.photoDataUrl);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [employee.id, employee.photoDataUrl]);
   const [photoMsg, setPhotoMsg] = useState("");
   const [confirmRemovePhoto, setConfirmRemovePhoto] = useState(false);
   const photoFileRef = useRef<HTMLInputElement>(null);
