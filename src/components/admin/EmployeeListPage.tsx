@@ -7,7 +7,7 @@ import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
 import BulkImportEmployees from "@/components/admin/BulkImportEmployees";
 import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
-import { isLink } from "@/lib/format";
+import { isLink, shortRp } from "@/lib/format";
 
 interface EmpRow {
   id: string;
@@ -34,6 +34,7 @@ interface EmpRow {
   hadirPct: number;
   count: string;
   kasbon: string;
+  bonusFee: string;
   total: string;
 }
 
@@ -172,9 +173,15 @@ export default function EmployeeListPage({
   }
 
   // minmax(0, …) lets long emails/links wrap instead of pushing the table wider than the page.
-  const cols = canEdit
-    ? "minmax(0,1.3fr) minmax(0,.9fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,.95fr) minmax(0,1fr) minmax(0,.7fr) minmax(0,1fr) 150px"
-    : "minmax(0,1.4fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1.6fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,.9fr) minmax(0,1.1fr)";
+  // Staff (gaji) and Tera (voucher) have different pay columns, so each gets its own grid.
+  const isStaff = type === "staff";
+  const cols = isStaff
+    ? canEdit
+      ? "minmax(0,1.2fr) minmax(0,.9fr) minmax(0,.7fr) minmax(0,1.8fr) minmax(0,.9fr) minmax(0,.7fr) minmax(0,.8fr) minmax(0,.9fr) 150px"
+      : "minmax(0,1.4fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1.6fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1.1fr)"
+    : canEdit
+      ? "minmax(0,1.3fr) minmax(0,.9fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,.95fr) minmax(0,1fr) minmax(0,.7fr) minmax(0,1fr) 150px"
+      : "minmax(0,1.4fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1.6fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,.9fr) minmax(0,1.1fr)";
 
   return (
     <div>
@@ -286,11 +293,20 @@ export default function EmployeeListPage({
           >
             <span>Karyawan</span>
             <span>Outlet</span>
-            <span>Jumlah VCR</span>
+            <span>{isStaff ? "Gaji" : "Jumlah VCR"}</span>
             <span>Kontak</span>
             <span>Presentase Hadir</span>
-            <span>CH/Link</span>
-            <span>Kasbon</span>
+            {isStaff ? (
+              <>
+                <span>Kasbon</span>
+                <span>Bonus/Fee</span>
+              </>
+            ) : (
+              <>
+                <span>CH/Link</span>
+                <span>Kasbon</span>
+              </>
+            )}
             <span>Total Pendapatan</span>
             {canEdit && <span>Aksi</span>}
           </div>
@@ -360,12 +376,16 @@ export default function EmployeeListPage({
                   )}
                 </span>
                 <span className="text-[12px] text-ar-text break-words">{e.place}</span>
-                <span>
-                  <span className="block text-[12px]">{e.count}</span>
-                  <span className={`block text-[10.5px] mt-0.5 ${e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}`}>
-                    {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}
+                {isStaff ? (
+                  <span className="text-[12px]">{e.salary ? shortRp(e.salary) : <span className="text-ar-faint">—</span>}</span>
+                ) : (
+                  <span>
+                    <span className="block text-[12px]">{e.count}</span>
+                    <span className={`block text-[10.5px] mt-0.5 ${e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}`}>
+                      {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}
+                    </span>
                   </span>
-                </span>
+                )}
                 <span className="text-[11px] text-ar-dim leading-[1.6] break-all">
                   {e.email}
                   <br />
@@ -379,11 +399,18 @@ export default function EmployeeListPage({
                   {e.nik && (
                     <>
                       <br />
-                      NIK {e.nik}
+                      <span className="whitespace-nowrap text-[10.5px]">NIK {e.nik}</span>
                     </>
                   )}
                 </span>
                 <span className="text-[12px]">{e.hadirPct}%</span>
+                {isStaff ? (
+                  <>
+                <span className={`text-[12px] ${e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}`}>{e.kasbon}</span>
+                    <span className={`text-[12px] ${e.bonusFee !== "—" ? "text-ar-green" : "text-ar-faint"}`}>{e.bonusFee}</span>
+                  </>
+                ) : (
+                  <>
                 <span className="text-[11px] break-all">
                   {e.channelLink ? (
                     isLink(e.channelLink) ? (
@@ -398,6 +425,8 @@ export default function EmployeeListPage({
                   )}
                 </span>
                 <span className={`text-[12px] ${e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}`}>{e.kasbon}</span>
+                  </>
+                )}
                 <span className="font-display text-[15px] text-ar-gold2 whitespace-nowrap">{e.total}</span>
                 {canEdit &&
                   (confirmDeleteId === e.id ? (

@@ -74,10 +74,24 @@ export async function GET(req: Request) {
     });
     const hadirByEmployee = new Map(hadirRows.map((r) => [r.employeeId, r._count._all]));
 
+    // Bonus/Fee = this month's Slip Pay earning lines (debit) whose description says bonus or fee.
+    const bonusRows = await prisma.payslipItem.groupBy({
+      by: ["employeeId"],
+      where: {
+        month,
+        debit: { gt: 0 },
+        employeeId: { in: employees.map((e) => e.id) },
+        OR: [{ description: { contains: "bonus" } }, { description: { contains: "fee" } }],
+      },
+      _sum: { debit: true },
+    });
+    const bonusByEmployee = new Map(bonusRows.map((r) => [r.employeeId, r._sum.debit ?? 0]));
+
     return NextResponse.json({
       employees: employees.map((e) => {
         const kasApproved = e.kasbonRequests.reduce((s, k) => s + k.amount, 0);
         const vcr = usesVcr(e.role);
+        const bonusFee = bonusByEmployee.get(e.id) ?? 0;
         return {
           id: e.id,
           name: e.name,
@@ -103,7 +117,9 @@ export async function GET(req: Request) {
           hadirPct: Math.round(((hadirByEmployee.get(e.id) ?? 0) / monthDays) * 100),
           count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
-          total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp(e.salary ?? 0),
+          bonusFee: bonusFee ? shortRp(bonusFee) : "—",
+          // Staff are paid Gaji plus any Bonus/Fee; Tera are paid by voucher.
+          total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp((e.salary ?? 0) + bonusFee),
         };
       }),
       total,
