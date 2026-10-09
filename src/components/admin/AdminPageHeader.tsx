@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import NotificationBell from "./NotificationBell";
 
 export default function AdminPageHeader({
   title,
@@ -40,7 +39,6 @@ export default function AdminPageHeader({
             {onlineCount ?? "…"} aktif · {clock}
           </span>
         </div>
-        <NotificationBell />
         {actions}
       </div>
     </div>

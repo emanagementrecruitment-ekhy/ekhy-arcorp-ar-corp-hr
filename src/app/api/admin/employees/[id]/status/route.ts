@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkOwnerCode } from "@/lib/owner-confirm";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_STATUSES, type EmployeeStatus } from "@/lib/constants";
@@ -26,6 +27,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const status = body?.status as EmployeeStatus;
     if (!EMPLOYEE_STATUSES.includes(status)) {
       return NextResponse.json({ error: "Status tidak valid." }, { status: 400 });
+    }
+
+    // Marking someone resign is a big step (they can no longer log in), so it needs the Owner's emailed code.
+    if (status === "RESIGN" && !(await checkOwnerCode(typeof body?.ownerCode === "string" ? body.ownerCode : ""))) {
+      return NextResponse.json({ error: "Kode Owner salah atau kedaluwarsa.", needsOwnerCode: true }, { status: 403 });
     }
 
     const existing = await prisma.employee.findUnique({ where: { id } });

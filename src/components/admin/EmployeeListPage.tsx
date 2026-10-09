@@ -31,6 +31,7 @@ interface EmpRow {
   birthPlace: string | null;
   birthDate: string | null;
   photoDataUrl: string | null;
+  hadirPct: number;
   count: string;
   kasbon: string;
   total: string;
@@ -66,6 +67,7 @@ export default function EmployeeListPage({
   const [notice, setNotice] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [resignRow, setResignRow] = useState<EmpRow | null>(null);
   const noun = type === "tera" ? "Terapis" : "Staff";
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -143,18 +145,21 @@ export default function EmployeeListPage({
     return null;
   }
 
-  async function toggleStatus(row: EmpRow, status: "AKTIF" | "RESIGN") {
+  /** Returns an error message, or null on success. Marking RESIGN needs the Owner's emailed code. */
+  async function toggleStatus(row: EmpRow, status: "AKTIF" | "RESIGN", ownerCode?: string): Promise<string | null> {
     setDeleteMsg("");
     const res = await fetch(`/api/admin/employees/${row.id}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, ownerCode }),
     });
     const data = await res.json();
     if (!res.ok) {
-      setDeleteMsg(data.error ?? "Gagal mengubah status.");
-      return;
+      const msg = data.error ?? "Gagal mengubah status.";
+      setDeleteMsg(msg);
+      return msg;
     }
+    setResignRow(null);
     showNotice(
       status === "RESIGN"
         ? `✓ ${row.name} (${row.code}) ditandai resign — tidak bisa login lagi, tapi riwayatnya tetap tersimpan.`
@@ -163,38 +168,16 @@ export default function EmployeeListPage({
     );
     loadPage(page, query);
     loadSupervisors();
+    return null;
   }
 
-  const cols = canEdit ? "1.4fr .9fr 1.4fr .8fr .8fr 1fr auto" : "1.6fr 1fr 1.5fr .9fr .9fr 1.1fr";
+  const cols = canEdit ? "1.3fr .9fr .8fr 1.3fr .8fr 1.1fr .8fr 1fr auto" : "1.4fr 1fr .9fr 1.4fr .9fr 1.2fr .9fr 1.1fr";
 
   return (
     <div>
       <AdminPageHeader
         title={title}
         subtitle={`${total} terdaftar · login dengan email atau nomor HP`}
-        actions={
-          <>
-            <button
-              onClick={() => {
-                setAddOpen((v) => !v);
-                setImportOpen(false);
-              }}
-              className="py-2 px-3 ar-grad rounded-[10px] text-ar-ongold text-[10.5px] font-bold tracking-[0.12em] uppercase cursor-pointer whitespace-nowrap"
-            >
-              + Tambah {noun}
-            </button>
-            <button
-              onClick={() => {
-                setImportOpen((v) => !v);
-                setAddOpen(false);
-              }}
-              className="py-2 px-2.5 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer whitespace-nowrap"
-              title="Import massal"
-            >
-              📁 Import
-            </button>
-          </>
-        }
       />
 
       <div className="pt-5.5">
@@ -217,7 +200,7 @@ export default function EmployeeListPage({
           }}
         />
 
-        <div className="flex gap-2 mb-3.5">
+        <div className="flex flex-wrap items-center gap-2 mb-3.5">
           {(["AKTIF", "RESIGN"] as const).map((s) => (
             <button
               key={s}
@@ -231,6 +214,26 @@ export default function EmployeeListPage({
               {s === "AKTIF" ? "Aktif" : "Resign"}
             </button>
           ))}
+          <span className="flex-1" />
+          <button
+            onClick={() => {
+              setAddOpen((v) => !v);
+              setImportOpen(false);
+            }}
+            className="py-2 px-3.5 ar-grad rounded-[10px] text-ar-ongold text-[10.5px] font-bold tracking-[0.12em] uppercase cursor-pointer whitespace-nowrap"
+          >
+            + Tambah {noun}
+          </button>
+          <button
+            onClick={() => {
+              setImportOpen((v) => !v);
+              setAddOpen(false);
+            }}
+            className="py-2 px-2.5 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer whitespace-nowrap"
+            title="Import massal"
+          >
+            📁 Import
+          </button>
         </div>
 
         <div className="flex flex-wrap gap-3 justify-between items-center mb-3.5">
@@ -254,6 +257,18 @@ export default function EmployeeListPage({
           </div>
         )}
 
+        {resignRow && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <OwnerCodeBox
+              title={`Tandai ${resignRow.name} resign?`}
+              hint="Akun ini tidak bisa login lagi, tetapi riwayat voucher, absensi, dan slipnya tetap tersimpan (bisa diaktifkan kembali). Perlu kode yang dikirim ke email Owner."
+              actionLabel="Ya, Resign"
+              onConfirm={(code) => toggleStatus(resignRow, "RESIGN", code)}
+              onCancel={() => setResignRow(null)}
+            />
+          </div>
+        )}
+
         {notice && (
           <div className="mb-3.5 py-3 px-4 bg-[rgba(127,209,168,.1)] border border-[rgba(127,209,168,.3)] rounded-xl text-ar-green text-[12px]">
             {notice}
@@ -261,17 +276,19 @@ export default function EmployeeListPage({
         )}
 
         <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
-          <div className="min-w-[720px]">
+          <div className="min-w-[1080px]">
           <div
             className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim"
             style={{ gridTemplateColumns: cols }}
           >
             <span>Karyawan</span>
-            <span>Pendapatan/VCR</span>
+            <span>Outlet</span>
+            <span>Jumlah VCR</span>
             <span>Kontak</span>
-            <span>Voucher</span>
+            <span>Presentase Hadir</span>
+            <span>CH/Link</span>
             <span>Kasbon</span>
-            <span>Pendapatan 30 hari</span>
+            <span>Total Pendapatan</span>
             {canEdit && <span>Aksi</span>}
           </div>
           {rows.length === 0 && (
@@ -338,25 +355,17 @@ export default function EmployeeListPage({
                     </span>
                   )}
                 </span>
-                <span className={e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}>
-                  {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}
+                <span className="text-[12px]">{e.place}</span>
+                <span>
+                  <span className="block">{e.count}</span>
+                  <span className={`block text-[10.5px] mt-0.5 ${e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}`}>
+                    {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}
+                  </span>
                 </span>
                 <span className="text-[11px] text-ar-dim leading-[1.6]">
                   {e.email}
                   <br />
                   {e.phone}
-                  {e.channelLink && (
-                    <>
-                      <br />
-                      {isLink(e.channelLink) ? (
-                        <a href={e.channelLink} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline">
-                          {e.channelLink}
-                        </a>
-                      ) : (
-                        e.channelLink
-                      )}
-                    </>
-                  )}
                   {e.supervisorNote && (
                     <>
                       <br />
@@ -371,7 +380,20 @@ export default function EmployeeListPage({
                     </>
                   )}
                 </span>
-                <span>{e.count}</span>
+                <span>{e.hadirPct}%</span>
+                <span className="text-[11px] break-all">
+                  {e.channelLink ? (
+                    isLink(e.channelLink) ? (
+                      <a href={e.channelLink} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline">
+                        {e.channelLink}
+                      </a>
+                    ) : (
+                      e.channelLink
+                    )
+                  ) : (
+                    <span className="text-ar-faint">—</span>
+                  )}
+                </span>
                 <span className={e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}>{e.kasbon}</span>
                 <span className="font-display text-[17px] text-ar-gold2">{e.total}</span>
                 {canEdit &&
@@ -390,14 +412,14 @@ export default function EmployeeListPage({
                       </button>
                       {statusTab === "AKTIF" ? (
                         <button
-                          onClick={() => toggleStatus(e, "RESIGN")}
+                          onClick={() => setResignRow(e)}
                           className="text-[11px] text-ar-dim cursor-pointer"
                         >
                           Resign
                         </button>
                       ) : (
                         <button
-                          onClick={() => toggleStatus(e, "AKTIF")}
+                          onClick={() => void toggleStatus(e, "AKTIF")}
                           className="text-[11px] text-ar-green cursor-pointer"
                         >
                           Aktifkan
@@ -442,10 +464,11 @@ export default function EmployeeListPage({
         )}
 
         <div className="mt-3.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
-          Hak akses: <span className="text-ar-gold">Owner</span> dan{" "}
-          <span className="text-ar-gold">Admin</span> dapat menambahkan lewat tombol Tambah di kanan atas (kode Staff AR-, Terapis EQ-). Hanya
-          Owner yang dapat mengedit/menghapus data karyawan, mengubah nilai voucher, dan menyetujui
-          kasbon.
+          Hak akses: <span className="text-ar-gold">Owner</span> dan <span className="text-ar-gold">Admin</span> dapat menambahkan
+          data lewat tombol <b>+ Tambah</b> di sebelah tab Aktif/Resign (kode Staff berawalan AR-, Terapis EQ-).{" "}
+          <span className="text-ar-gold">Owner</span>, Konsultan, dan Manager dapat mengedit data, menandai resign, dan menghapus —
+          <b> Resign dan Hapus</b> selalu meminta kode konfirmasi yang dikirim ke email Owner. Perubahan nilai voucher dan
+          persetujuan kasbon tetap di tangan Owner dan Manager.
         </div>
       </div>
     </div>
