@@ -8,6 +8,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [Unreleased]
 
 ### Added
+- Lonceng notifikasi kantor kini ikut berbunyi saat pengumuman diganti dan saat Owner/Admin membuat pemberitahuan (pengingat) baru, selain saat karyawan/Tera login
 - Halaman admin lebih ringan: lencana "N aktif" di atas halaman tidak lagi memuat seluruh data Ringkasan di setiap halaman
 - Data Karyawan: kolom Jumlah VCR menjadi Gaji, CH/Link diganti Kasbon, dan kolom baru Bonus/Fee (rincian Slip Pay bulan ini yang bertuliskan bonus/fee); Total Pendapatan = Gaji + Bonus/Fee. Data Tera tetap memakai VCR dan CH/Link
 - Data Karyawan/Tera: tanggal lahir di kolom Kontak diganti NIK (diisi di form Tambah/Edit, 16 digit); tabel dirapikan agar sejajar dan muat di layar
@@ -46,6 +47,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [0.1.0] - 2026-09-04
 
 ### Added
+- Lonceng notifikasi kantor kini ikut berbunyi saat pengumuman diganti dan saat Owner/Admin membuat pemberitahuan (pengingat) baru, selain saat karyawan/Tera login
 - Halaman admin lebih ringan: lencana "N aktif" di atas halaman tidak lagi memuat seluruh data Ringkasan di setiap halaman
 - Data Karyawan: kolom Jumlah VCR menjadi Gaji, CH/Link diganti Kasbon, dan kolom baru Bonus/Fee (rincian Slip Pay bulan ini yang bertuliskan bonus/fee); Total Pendapatan = Gaji + Bonus/Fee. Data Tera tetap memakai VCR dan CH/Link
 - Data Karyawan/Tera: tanggal lahir di kolom Kontak diganti NIK (diisi di form Tambah/Edit, 16 digit); tabel dirapikan agar sejajar dan muat di layar
@@ -71,6 +73,7 @@ Ketika membuat PR yang merubah behavior atau menambah features:
 
 ```markdown
 ### Added
+- Lonceng notifikasi kantor kini ikut berbunyi saat pengumuman diganti dan saat Owner/Admin membuat pemberitahuan (pengingat) baru, selain saat karyawan/Tera login
 - Halaman admin lebih ringan: lencana "N aktif" di atas halaman tidak lagi memuat seluruh data Ringkasan di setiap halaman
 - Data Karyawan: kolom Jumlah VCR menjadi Gaji, CH/Link diganti Kasbon, dan kolom baru Bonus/Fee (rincian Slip Pay bulan ini yang bertuliskan bonus/fee); Total Pendapatan = Gaji + Bonus/Fee. Data Tera tetap memakai VCR dan CH/Link
 - Data Karyawan/Tera: tanggal lahir di kolom Kontak diganti NIK (diisi di form Tambah/Edit, 16 digit); tabel dirapikan agar sejajar dan muat di layar
