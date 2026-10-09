@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
+import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
+import BulkImportEmployees from "@/components/admin/BulkImportEmployees";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink } from "@/lib/format";
 import { computeAge } from "@/lib/birthday";
@@ -39,7 +41,7 @@ interface SupervisorOption {
   code: string;
 }
 
-/** Shared list+edit table behind Data Tera and Data Karyawan — same data, filtered server-side by role via `type`. Adding a new employee lives on its own page (Tambah Karyawan); this one only lists/edits/deletes. */
+/** Shared list+edit table behind Data Tera and Data Karyawan — same data, filtered server-side by role via `type`. Adding is done from the small buttons at the top right (Tambah Staff on Data Karyawan, Tambah Terapis on Data Tera, plus a compact bulk import). */
 export default function EmployeeListPage({
   type,
   title,
@@ -61,6 +63,9 @@ export default function EmployeeListPage({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleteMsg, setDeleteMsg] = useState("");
   const [notice, setNotice] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const noun = type === "tera" ? "Terapis" : "Staff";
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function showNotice(text: string, ms: number) {
@@ -160,9 +165,54 @@ export default function EmployeeListPage({
 
   return (
     <div>
-      <AdminPageHeader title={title} subtitle={`${total} terdaftar · login dengan email atau nomor HP`} />
+      <AdminPageHeader
+        title={title}
+        subtitle={`${total} terdaftar · login dengan email atau nomor HP`}
+        actions={
+          <>
+            <button
+              onClick={() => {
+                setAddOpen((v) => !v);
+                setImportOpen(false);
+              }}
+              className="py-2 px-3 ar-grad rounded-[10px] text-ar-ongold text-[10.5px] font-bold tracking-[0.12em] uppercase cursor-pointer whitespace-nowrap"
+            >
+              + Tambah {noun}
+            </button>
+            <button
+              onClick={() => {
+                setImportOpen((v) => !v);
+                setAddOpen(false);
+              }}
+              className="py-2 px-2.5 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer whitespace-nowrap"
+              title="Import massal"
+            >
+              📁 Import
+            </button>
+          </>
+        }
+      />
 
       <div className="pt-5.5">
+        <AddEmployeeForm
+          kind={type}
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          supervisors={supervisors}
+          onCreated={() => {
+            loadPage(1, query);
+            loadSupervisors();
+          }}
+        />
+        <BulkImportEmployees
+          open={importOpen}
+          onClose={() => setImportOpen(false)}
+          onImported={() => {
+            loadPage(1, query);
+            loadSupervisors();
+          }}
+        />
+
         <div className="flex gap-2 mb-3.5">
           {(["AKTIF", "RESIGN"] as const).map((s) => (
             <button
@@ -387,7 +437,7 @@ export default function EmployeeListPage({
 
         <div className="mt-3.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
           Hak akses: <span className="text-ar-gold">Owner</span> dan{" "}
-          <span className="text-ar-gold">Admin</span> dapat menambahkan karyawan baru lewat menu Tambah Karyawan. Hanya
+          <span className="text-ar-gold">Admin</span> dapat menambahkan lewat tombol Tambah di kanan atas (kode Staff AR-, Terapis EQ-). Hanya
           Owner yang dapat mengedit/menghapus data karyawan, mengubah nilai voucher, dan menyetujui
           kasbon.
         </div>

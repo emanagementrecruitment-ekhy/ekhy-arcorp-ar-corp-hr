@@ -4,15 +4,25 @@ import { useState } from "react";
 import EmployeeFields, { emptyEmployeeFields, type EmployeeFieldsValue, type SupervisorOption } from "./EmployeeFields";
 import { btnPrimaryClass } from "@/components/ui/styles";
 
+/** Add panel for one kind of person: "staff" (code AR-xx) or "tera" (code EQ-xx). Open/close is controlled by the page's header button. */
 export default function AddEmployeeForm({
+  kind,
+  open,
+  onClose,
   supervisors,
   onCreated,
 }: {
+  kind: "staff" | "tera";
+  open: boolean;
+  onClose: () => void;
   supervisors: SupervisorOption[];
   onCreated: (code: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<EmployeeFieldsValue>(emptyEmployeeFields());
+  const noun = kind === "tera" ? "Terapis" : "Staff";
+  const setOpen = (v: boolean) => {
+    if (!v) onClose();
+  };
+  const [value, setValue] = useState<EmployeeFieldsValue>(emptyEmployeeFields(kind));
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [success, setSuccess] = useState("");
@@ -28,12 +38,12 @@ export default function AddEmployeeForm({
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg(data.error ?? "Gagal menambahkan karyawan.");
+        setMsg(data.error ?? `Gagal menambahkan ${noun.toLowerCase()}.`);
         return;
       }
       const savedName = value.name;
       onCreated(data.code);
-      setValue(emptyEmployeeFields());
+      setValue(emptyEmployeeFields(kind));
       setSuccess(`✓ ${savedName} (${data.code}) berhasil ditambahkan.`);
       setTimeout(() => {
         setSuccess("");
@@ -44,16 +54,7 @@ export default function AddEmployeeForm({
     }
   }
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="py-2.5 px-4 ar-grad rounded-[10px] text-ar-ongold text-[11px] font-bold tracking-[0.14em] uppercase cursor-pointer"
-      >
-        + Tambah Karyawan
-      </button>
-    );
-  }
+  if (!open) return null;
 
   if (success) {
     return (
@@ -75,11 +76,11 @@ export default function AddEmployeeForm({
   return (
     <div className="p-4.5 bg-ar-surface border border-ar-goldline rounded-2xl mb-3.5">
       <div className="flex justify-between items-center mb-3.5">
-        <span className="font-display text-[19px] text-ar-gold2">Tambah Karyawan Baru</span>
+        <span className="font-display text-[19px] text-ar-gold2">Tambah {noun} Baru</span>
         <button
           onClick={() => {
             setOpen(false);
-            setValue(emptyEmployeeFields());
+            setValue(emptyEmployeeFields(kind));
           }}
           className="text-ar-dim text-[11px] cursor-pointer"
         >
@@ -87,7 +88,7 @@ export default function AddEmployeeForm({
         </button>
       </div>
 
-      <EmployeeFields value={value} onChange={(patch) => setValue((v) => ({ ...v, ...patch }))} supervisors={supervisors} />
+      <EmployeeFields roleKind={kind} value={value} onChange={(patch) => setValue((v) => ({ ...v, ...patch }))} supervisors={supervisors} />
 
       <div className="min-h-[18px] text-[11px] mt-3 text-ar-red">{msg}</div>
       <button
@@ -95,7 +96,7 @@ export default function AddEmployeeForm({
         onClick={submit}
         className={`${btnPrimaryClass} mt-1 py-2.5 px-5`}
       >
-        Simpan Karyawan
+        Simpan {noun}
       </button>
     </div>
   );

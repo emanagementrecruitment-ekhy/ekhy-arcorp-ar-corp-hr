@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { codePrefixForRole, formatCode, nextCodeNumber } from "@/lib/employee-code";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel } from "@/lib/constants";
@@ -101,16 +102,13 @@ export async function GET(req: Request) {
   }
 }
 
-async function nextEmployeeCode() {
+async function nextEmployeeCode(role: string) {
+  const prefix = codePrefixForRole(role);
   const employees = await prisma.employee.findMany({
-    where: { code: { startsWith: "AR-" } },
+    where: { code: { startsWith: `${prefix}-` } },
     select: { code: true },
   });
-  const max = employees.reduce((m, e) => {
-    const n = Number(e.code.slice(3));
-    return Number.isFinite(n) && n > m ? n : m;
-  }, 0);
-  return `AR-${String(max + 1).padStart(2, "0")}`;
+  return formatCode(prefix, nextCodeNumber(employees.map((e) => e.code), prefix));
 }
 
 export async function POST(req: Request) {
@@ -189,7 +187,7 @@ export async function POST(req: Request) {
     if (emailTaken) return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 });
     if (phoneTaken) return NextResponse.json({ error: "Nomor HP sudah terdaftar." }, { status: 409 });
 
-    const code = await nextEmployeeCode();
+    const code = await nextEmployeeCode(role);
     const employee = await prisma.employee.create({
       data: {
         code,
