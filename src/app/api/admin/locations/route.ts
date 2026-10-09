@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, HQ, HQ_NAME, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
@@ -15,7 +16,7 @@ export async function GET() {
 
     const employees = await prisma.employee.findMany({
       where: { accessRole: "KARYAWAN" },
-      include: { loginEvents: { orderBy: { createdAt: "desc" }, take: 1 } },
+      select: { ...EMPLOYEE_NO_PHOTO, loginEvents: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 
     const presence = employees.map((e) => {

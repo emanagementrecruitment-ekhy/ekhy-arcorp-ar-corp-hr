@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { fmtRp, dLabel, timeLabel } from "@/lib/format";
@@ -8,7 +9,7 @@ export async function GET() {
   try {
     await requireSession(OFFICE_ROLES);
     const rows = await prisma.kasbon.findMany({
-      include: { employee: true },
+      include: { employee: { select: EMPLOYEE_NO_PHOTO } },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({

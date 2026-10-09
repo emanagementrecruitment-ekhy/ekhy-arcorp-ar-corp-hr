@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { parseMonth } from "@/lib/period";
 import { daysInMonth } from "@/lib/attendance";
 import { codePrefixForRole, formatCode, nextCodeNumber } from "@/lib/employee-code";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel } from "@/lib/constants";
@@ -49,12 +50,40 @@ export async function GET(req: Request) {
         : {}),
     };
 
+    // Pickers (supervisor, kalender, slip pay, pendapatan) only need a name list. The full
+    // response carries 30 days of vouchers, kasbon, attendance and profile photos (up to
+    // 1.5 MB each, as base64) for every employee — megabytes for a list of names.
+    if (searchParams.get("lite") === "1") {
+      const lite = await prisma.employee.findMany({
+        where,
+        select: { id: true, name: true, code: true, role: true, status: true, homePlace: true, birthDate: true, supervisorId: true },
+        orderBy: { code: "asc" },
+        take: pageSize,
+      });
+      return NextResponse.json({
+        employees: lite.map((e) => ({
+          id: e.id,
+          name: e.name,
+          code: e.code,
+          role: e.role,
+          status: e.status,
+          place: e.homePlace,
+          birthDate: e.birthDate,
+          supervisorId: e.supervisorId ?? "",
+        })),
+        total: lite.length,
+        page: 1,
+        pageSize,
+      });
+    }
+
     const start30 = new Date(Date.now() - 29 * 864e5);
     const [total, employees] = await Promise.all([
       prisma.employee.count({ where }),
       prisma.employee.findMany({
         where,
-        include: {
+        select: {
+          ...EMPLOYEE_NO_PHOTO,
           vouchers: { where: { occurredAt: { gte: start30 } } },
           kasbonRequests: { where: { status: "DISETUJUI" } },
         },
@@ -113,7 +142,7 @@ export async function GET(req: Request) {
           nik: e.nik ?? "",
           birthPlace: e.birthPlace,
           birthDate: e.birthDate,
-          photoDataUrl: e.photoDataUrl,
+          hasPhoto: Boolean(e.photoUpdatedAt),
           hadirPct: Math.round(((hadirByEmployee.get(e.id) ?? 0) / monthDays) * 100),
           count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",

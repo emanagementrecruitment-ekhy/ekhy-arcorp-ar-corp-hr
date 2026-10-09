@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
@@ -17,7 +18,7 @@ export async function GET(req: Request) {
 
     if (employeeId) {
       const [employee, messages] = await Promise.all([
-        prisma.employee.findUniqueOrThrow({ where: { id: employeeId } }),
+        prisma.employee.findUniqueOrThrow({ where: { id: employeeId }, select: EMPLOYEE_NO_PHOTO }),
         prisma.chatMessage.findMany({ where: { employeeId }, orderBy: { createdAt: "asc" } }),
       ]);
       return NextResponse.json({
@@ -33,7 +34,7 @@ export async function GET(req: Request) {
 
     const employees = await prisma.employee.findMany({
       where: { accessRole: "KARYAWAN", chatsAsEmployee: { some: {} } },
-      include: { chatsAsEmployee: { orderBy: { createdAt: "desc" }, take: 1 } },
+      select: { ...EMPLOYEE_NO_PHOTO, chatsAsEmployee: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 
     const threads = employees

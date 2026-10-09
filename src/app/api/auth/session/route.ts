@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ session: null });
 
-  const employee = await prisma.employee.findUnique({ where: { id: session.employeeId } });
+  const employee = await prisma.employee.findUnique({ where: { id: session.employeeId }, select: EMPLOYEE_NO_PHOTO });
   if (!employee) return NextResponse.json({ session: null });
 
   return NextResponse.json({

@@ -30,7 +30,7 @@ interface EmpRow {
   nik: string;
   birthPlace: string | null;
   birthDate: string | null;
-  photoDataUrl: string | null;
+  hasPhoto: boolean;
   hadirPct: number;
   count: string;
   kasbon: string;
@@ -82,7 +82,7 @@ export default function EmployeeListPage({
   }
 
   function loadSupervisors() {
-    fetch("/api/admin/employees?pageSize=500")
+    fetch("/api/admin/employees?pageSize=500&lite=1")
       .then((r) => r.json())
       .then((d) =>
         setSupervisors(
@@ -342,7 +342,6 @@ export default function EmployeeListPage({
                     nik: e.nik,
                     birthPlace: e.birthPlace,
                     birthDate: e.birthDate,
-                    photoDataUrl: e.photoDataUrl,
                   }}
                   supervisors={supervisors}
                   onSaved={onSaved}

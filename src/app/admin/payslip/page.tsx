@@ -80,7 +80,7 @@ export default function AdminPayslipPage() {
   const isTera = selectedEmployee ? usesVcr(selectedEmployee.role) : false;
 
   useEffect(() => {
-    fetch("/api/admin/employees?pageSize=500")
+    fetch("/api/admin/employees?pageSize=500&lite=1")
       .then((r) => r.json())
       .then((d) =>
         setEmployees(

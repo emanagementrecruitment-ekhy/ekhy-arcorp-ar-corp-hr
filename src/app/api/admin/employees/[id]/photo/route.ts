@@ -6,6 +6,19 @@ const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 const ALLOWED_TYPES = ["image/png", "image/webp", "image/jpeg"];
 const MAX_BYTES = 1_500_000;
 
+/** The profile photo is no longer sent with the employee list (it can be megabytes); the edit form loads it on demand from here. */
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    await requireSession([...MANAGERS]);
+    const { id } = await params;
+    const employee = await prisma.employee.findUnique({ where: { id }, select: { photoDataUrl: true } });
+    if (!employee) return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
+    return NextResponse.json({ photoDataUrl: employee.photoDataUrl });
+  } catch (e) {
+    return apiError(e);
+  }
+}
+
 /** Owner/Consultant override — replaces an employee's self-service photo directly, bypassing their 30-day lock and restarting it so they can't immediately overwrite the admin's pick. */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

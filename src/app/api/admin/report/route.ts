@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, VCR_ROLE, employeeRate, type EmployeeLevel } from "@/lib/constants";
@@ -18,7 +19,8 @@ export async function GET(req: Request) {
     // instead) don't belong in it.
     const employees = await prisma.employee.findMany({
       where: { accessRole: "KARYAWAN", role: VCR_ROLE },
-      include: {
+      select: {
+        ...EMPLOYEE_NO_PHOTO,
         vouchers: { where: { occurredAt: { gte: start } } },
         kasbonRequests: { where: { status: "DISETUJUI", createdAt: { gte: start } } },
       },

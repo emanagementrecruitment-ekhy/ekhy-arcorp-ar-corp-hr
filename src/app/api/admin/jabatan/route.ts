@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { APPOINTABLE_ROLES } from "@/lib/constants";
@@ -12,7 +13,7 @@ export async function GET() {
     const seats = await Promise.all(
       APPOINTABLE_ROLES.map(async (seat) => {
         const [holder, candidates] = await Promise.all([
-          prisma.employee.findFirst({ where: { accessRole: seat.accessRole }, orderBy: { createdAt: "asc" } }),
+          prisma.employee.findFirst({ where: { accessRole: seat.accessRole }, orderBy: { createdAt: "asc" }, select: EMPLOYEE_NO_PHOTO }),
           prisma.employee.findMany({
             where: { accessRole: "KARYAWAN", role: seat.peran },
             select: { id: true, name: true, code: true },
