@@ -12,7 +12,7 @@ interface Notif {
 
 const SOUND_KEY = "arcorp_notif_sound";
 
-export default function NotificationBell() {
+export default function NotificationBell({ align = "right" }: { align?: "left" | "right" }) {
   const [open, setOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -104,7 +104,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+8px)] w-[300px] max-h-[420px] overflow-y-auto bg-ar-surface border border-ar-line rounded-2xl shadow-lg z-50 p-2">
+        <div className={`absolute ${align === "left" ? "left-0" : "right-0"} top-[calc(100%+8px)] w-[300px] max-w-[calc(100vw-2rem)] max-h-[420px] overflow-y-auto bg-ar-surface border border-ar-line rounded-2xl shadow-lg z-50 p-2`}>
           <div className="flex items-center justify-between px-1.5 pb-1.5 mb-1 border-b border-ar-line">
             <span className="text-[10px] tracking-[0.1em] uppercase text-ar-dim">Notifikasi</span>
             <button

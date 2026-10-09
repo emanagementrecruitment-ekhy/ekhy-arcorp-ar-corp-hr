@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { parseMonth } from "@/lib/period";
+import { daysInMonth } from "@/lib/attendance";
 import { codePrefixForRole, formatCode, nextCodeNumber } from "@/lib/employee-code";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
@@ -62,6 +64,16 @@ export async function GET(req: Request) {
       }),
     ]);
 
+    // Attendance this month as a share of the calendar days (same formula as Absensi Harian's "%").
+    const month = parseMonth(null);
+    const monthDays = daysInMonth(month);
+    const hadirRows = await prisma.attendance.groupBy({
+      by: ["employeeId"],
+      where: { month, employeeId: { in: employees.map((e) => e.id) } },
+      _count: { _all: true },
+    });
+    const hadirByEmployee = new Map(hadirRows.map((r) => [r.employeeId, r._count._all]));
+
     return NextResponse.json({
       employees: employees.map((e) => {
         const kasApproved = e.kasbonRequests.reduce((s, k) => s + k.amount, 0);
@@ -87,6 +99,7 @@ export async function GET(req: Request) {
           birthPlace: e.birthPlace,
           birthDate: e.birthDate,
           photoDataUrl: e.photoDataUrl,
+          hadirPct: Math.round(((hadirByEmployee.get(e.id) ?? 0) / monthDays) * 100),
           count: vcr ? `${e.vouchers.length} vc` : "—",
           kasbon: kasApproved ? shortRp(kasApproved) : "—",
           total: vcr ? shortRp(e.vouchers.reduce((s, v) => s + v.amount, 0)) : shortRp(e.salary ?? 0),

@@ -3,10 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import LogoutButton from "@/components/LogoutButton";
 import RefreshAppButton from "@/components/employee/RefreshAppButton";
+import NotificationBell from "@/components/admin/NotificationBell";
+
+/** True at the lg breakpoint and up. The bell must exist exactly once (it polls and plays the chime), so we pick the layout in JS instead of rendering it in both. */
+function useIsDesktop() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia("(min-width: 1024px)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia("(min-width: 1024px)").matches,
+    () => false
+  );
+}
 
 type Link_ = { href: string; label: string; icon: IconName; roles: readonly string[] };
 type Group = { group: string; items: readonly Link_[] };
@@ -52,6 +66,7 @@ export default function AdminSidebar({
   const pathname = usePathname();
   const [pendingKasbon, setPendingKasbon] = useState<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isDesktop = useIsDesktop();
 
   const canSee = (roles: readonly string[]) => roles.includes(accessRole);
   const desks: Desk[] = DESKS.map((d) =>
@@ -140,6 +155,8 @@ export default function AdminSidebar({
           unoptimized
           className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
+        <span className="flex items-center gap-1.5">
+        {!isDesktop && <NotificationBell align="right" />}
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" className="p-2 text-ar-dim cursor-pointer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="4" y1="7" x2="20" y2="7" />
@@ -147,6 +164,7 @@ export default function AdminSidebar({
             <line x1="4" y1="17" x2="20" y2="17" />
           </svg>
         </button>
+        </span>
       </div>
 
       {mobileOpen && (
@@ -185,19 +203,20 @@ export default function AdminSidebar({
 
       {/* Desktop persistent sidebar */}
       <div className="hidden lg:flex w-60 shrink-0 border-r border-ar-line p-4 sm:p-5 flex-col gap-6">
-        <div className="flex items-center gap-3 px-1.5">
+        <div className="flex items-center gap-2.5 px-1.5">
           <Image
             src="/api/brand-logo"
             alt="AR Corp"
-            width={48}
-            height={48}
+            width={44}
+            height={44}
             unoptimized
             className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
           />
-          <div>
-            <div className="font-display text-[12.5px] tracking-[0.3em] text-ar-gold uppercase">AR Corp</div>
-            <div className="text-[9.5px] tracking-[0.14em] text-ar-dim mt-1 uppercase">Kantor Pusat</div>
+          <div className="min-w-0">
+            <div className="font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">AR Corp</div>
+            <div className="text-[9.5px] tracking-[0.08em] text-ar-dim mt-1 uppercase whitespace-nowrap">Kantor Pusat</div>
           </div>
+          <span className="ml-auto">{isDesktop && <NotificationBell align="left" />}</span>
         </div>
 
         {navLinks()}
