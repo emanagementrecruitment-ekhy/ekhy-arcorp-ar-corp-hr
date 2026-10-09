@@ -27,6 +27,9 @@ const DEMO_TERA = {
   ageYears: 21,
   weightKg: 64,
   heightCm: 160,
+  // Fictional example NIK (DKI 31-71, born 11-11-01 as in the demo profile) so the NIK column
+  // and form field have something to show. Not a real person's number.
+  nik: "3171011111010001",
 };
 
 // Example self-check-in marks for the Absensi Harian box feature (September
@@ -48,6 +51,7 @@ async function main() {
       heightCm: DEMO_TERA.heightCm,
     },
     create: {
+      nik: DEMO_TERA.nik,
       code: DEMO_TERA.code,
       name: DEMO_TERA.name,
       email: DEMO_TERA.email,
@@ -63,6 +67,9 @@ async function main() {
       homePlace: "Kantor Pusat Jakarta",
     },
   });
+
+  // The demo existed before the NIK field did, so fill it in once; a NIK an admin typed later is never overwritten.
+  await prisma.employee.updateMany({ where: { id: employee.id, nik: null }, data: { nik: DEMO_TERA.nik } });
 
   for (const d of DEMO_ATTENDANCE_DAYS) {
     const dateKey = `2026-09-${String(d).padStart(2, "0")}`;
