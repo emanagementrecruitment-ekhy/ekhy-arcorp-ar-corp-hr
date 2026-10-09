@@ -8,6 +8,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [Unreleased]
 
 ### Added
+- Data Karyawan/Tera: tanggal lahir di kolom Kontak diganti NIK (diisi di form Tambah/Edit, 16 digit); tabel dirapikan agar sejajar dan muat di layar
 - Data Karyawan/Tera: kolom Outlet, Jumlah VCR, Presentase Hadir, CH/Link, dan Total Pendapatan; tombol Tambah/Import di baris tab Aktif/Resign; menandai Resign sekarang juga meminta kode Owner
 - Lonceng notifikasi pindah ke samping logo di sidebar
 - Server lebih ringan: lonceng notifikasi cek tiap 15 detik (sebelumnya 6 detik) dan berhenti saat tab tidak aktif
@@ -43,6 +44,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [0.1.0] - 2026-09-04
 
 ### Added
+- Data Karyawan/Tera: tanggal lahir di kolom Kontak diganti NIK (diisi di form Tambah/Edit, 16 digit); tabel dirapikan agar sejajar dan muat di layar
 - Initial repository setup
 - Project structure dan documentation
 - GitHub Actions CI/CD pipeline
@@ -65,6 +67,7 @@ Ketika membuat PR yang merubah behavior atau menambah features:
 
 ```markdown
 ### Added
+- Data Karyawan/Tera: tanggal lahir di kolom Kontak diganti NIK (diisi di form Tambah/Edit, 16 digit); tabel dirapikan agar sejajar dan muat di layar
 - New user authentication module (#123)
 - Support untuk OAuth 2.0 (#124)
 

@@ -96,6 +96,7 @@ export async function GET(req: Request) {
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
           supervisorNote: e.supervisorNote ?? "",
+          nik: e.nik ?? "",
           birthPlace: e.birthPlace,
           birthDate: e.birthDate,
           photoDataUrl: e.photoDataUrl,
@@ -152,6 +153,8 @@ export async function POST(req: Request) {
     const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
     const supervisorNote = typeof body?.supervisorNote === "string" ? body.supervisorNote.trim() : "";
     const birthPlace = typeof body?.birthPlace === "string" ? body.birthPlace.trim() : "";
+    const nikRaw = typeof body?.nik === "string" ? body.nik.replace(/\D/g, "") : "";
+    if (nikRaw && nikRaw.length !== 16) return NextResponse.json({ error: "NIK harus 16 digit." }, { status: 400 });
     const birthDateResult = parseBirthDate(body?.birthDate);
     if (!birthDateResult.ok) return NextResponse.json({ error: birthDateResult.error }, { status: 400 });
     const customRateRaw = Number(body?.customRate);
@@ -221,6 +224,7 @@ export async function POST(req: Request) {
         supervisorId,
         channelLink: channelLink || null,
         supervisorNote: supervisorNote || null,
+        nik: nikRaw || null,
         birthPlace: birthPlace || null,
         birthDate: birthDateResult.value,
       },

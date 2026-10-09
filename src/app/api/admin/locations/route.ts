@@ -40,6 +40,7 @@ export async function GET() {
         supervisorId: e.supervisorId ?? "",
         channelLink: e.channelLink ?? "",
         supervisorNote: e.supervisorNote ?? "",
+        nik: e.nik ?? "",
         birthPlace: e.birthPlace,
         birthDate: e.birthDate,
         place: useLive ? "GPS langsung" : (last?.place ?? e.homePlace),

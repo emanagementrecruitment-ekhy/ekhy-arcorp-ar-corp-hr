@@ -8,7 +8,6 @@ import BulkImportEmployees from "@/components/admin/BulkImportEmployees";
 import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink } from "@/lib/format";
-import { computeAge } from "@/lib/birthday";
 
 interface EmpRow {
   id: string;
@@ -28,6 +27,7 @@ interface EmpRow {
   supervisorId: string;
   channelLink: string;
   supervisorNote: string;
+  nik: string;
   birthPlace: string | null;
   birthDate: string | null;
   photoDataUrl: string | null;
@@ -171,7 +171,10 @@ export default function EmployeeListPage({
     return null;
   }
 
-  const cols = canEdit ? "1.3fr .9fr .8fr 1.3fr .8fr 1.1fr .8fr 1fr auto" : "1.4fr 1fr .9fr 1.4fr .9fr 1.2fr .9fr 1.1fr";
+  // minmax(0, …) lets long emails/links wrap instead of pushing the table wider than the page.
+  const cols = canEdit
+    ? "minmax(0,1.3fr) minmax(0,.9fr) minmax(0,.8fr) minmax(0,1.5fr) minmax(0,.95fr) minmax(0,1fr) minmax(0,.7fr) minmax(0,1fr) 150px"
+    : "minmax(0,1.4fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1.6fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,.9fr) minmax(0,1.1fr)";
 
   return (
     <div>
@@ -276,9 +279,9 @@ export default function EmployeeListPage({
         )}
 
         <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
-          <div className="min-w-[1080px]">
+          <div className="min-w-[900px]">
           <div
-            className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.14em] uppercase text-ar-dim"
+            className="grid gap-3 py-3.5 px-4.5 bg-ar-surface2 text-[10px] tracking-[0.12em] uppercase text-ar-dim items-center leading-snug"
             style={{ gridTemplateColumns: cols }}
           >
             <span>Karyawan</span>
@@ -320,6 +323,7 @@ export default function EmployeeListPage({
                     place: e.place,
                     supervisorId: e.supervisorId,
                     channelLink: e.channelLink,
+                    nik: e.nik,
                     birthPlace: e.birthPlace,
                     birthDate: e.birthDate,
                     photoDataUrl: e.photoDataUrl,
@@ -332,7 +336,7 @@ export default function EmployeeListPage({
             ) : (
               <div
                 key={e.code}
-                className="grid gap-3 py-3.5 px-4.5 border-t border-ar-line text-[12.5px] items-center"
+                className="grid gap-3 py-3.5 px-4.5 border-t border-ar-line text-[12px] items-center text-left"
                 style={{ gridTemplateColumns: cols }}
               >
                 <span>
@@ -355,14 +359,14 @@ export default function EmployeeListPage({
                     </span>
                   )}
                 </span>
-                <span className="text-[12px]">{e.place}</span>
+                <span className="text-[12px] text-ar-text break-words">{e.place}</span>
                 <span>
-                  <span className="block">{e.count}</span>
+                  <span className="block text-[12px]">{e.count}</span>
                   <span className={`block text-[10.5px] mt-0.5 ${e.level === "PLATINUM" || e.level === "MODEL" ? "text-ar-gold2" : "text-ar-dim"}`}>
                     {usesVcr(e.role) ? VOUCHER_LABEL[e.level as EmployeeLevel] : "GAJI"}
                   </span>
                 </span>
-                <span className="text-[11px] text-ar-dim leading-[1.6]">
+                <span className="text-[11px] text-ar-dim leading-[1.6] break-all">
                   {e.email}
                   <br />
                   {e.phone}
@@ -372,15 +376,14 @@ export default function EmployeeListPage({
                       Sup: {e.supervisorNote}
                     </>
                   )}
-                  {e.birthDate && (
+                  {e.nik && (
                     <>
                       <br />
-                      🎂 {new Date(e.birthDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
-                      {e.birthPlace ? `, ${e.birthPlace}` : ""} ({computeAge(e.birthDate)} thn)
+                      NIK {e.nik}
                     </>
                   )}
                 </span>
-                <span>{e.hadirPct}%</span>
+                <span className="text-[12px]">{e.hadirPct}%</span>
                 <span className="text-[11px] break-all">
                   {e.channelLink ? (
                     isLink(e.channelLink) ? (
@@ -394,8 +397,8 @@ export default function EmployeeListPage({
                     <span className="text-ar-faint">—</span>
                   )}
                 </span>
-                <span className={e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}>{e.kasbon}</span>
-                <span className="font-display text-[17px] text-ar-gold2">{e.total}</span>
+                <span className={`text-[12px] ${e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}`}>{e.kasbon}</span>
+                <span className="font-display text-[15px] text-ar-gold2 whitespace-nowrap">{e.total}</span>
                 {canEdit &&
                   (confirmDeleteId === e.id ? (
                     <span className="text-[10.5px] text-ar-red">Menunggu kode Owner…</span>
