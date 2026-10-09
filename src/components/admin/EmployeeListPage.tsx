@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson, clearCachedJson } from "@/lib/client-cache";
 import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
@@ -81,9 +82,11 @@ export default function EmployeeListPage({
     }, ms);
   }
 
-  function loadSupervisors() {
-    fetch("/api/admin/employees?pageSize=500&lite=1")
-      .then((r) => r.json())
+  const SUPERVISORS_URL = "/api/admin/employees?pageSize=500&lite=1";
+  // `fresh` skips the shared cache — used after adding/editing someone, so a new Kepala Mess shows up at once.
+  function loadSupervisors(fresh = false) {
+    if (fresh) clearCachedJson(SUPERVISORS_URL);
+    cachedJson(SUPERVISORS_URL)
       .then((d) =>
         setSupervisors(
           (d.employees ?? [])
@@ -109,8 +112,7 @@ export default function EmployeeListPage({
   useEffect(() => {
     loadPage(1, "", statusTab);
     loadSupervisors();
-    fetch("/api/auth/session")
-      .then((r) => r.json())
+    cachedJson("/api/auth/session")
       .then((d) => setCanEdit(["OWNER", "CONSULTANT", "MANAGER"].includes(d.session?.accessRole)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, statusTab]);
@@ -125,7 +127,7 @@ export default function EmployeeListPage({
     setEditingId(null);
     showNotice("✓ Perubahan disimpan.", 2500);
     loadPage(page, query);
-    loadSupervisors();
+    loadSupervisors(true);
   }
 
   /** Returns an error message, or null once deleted. The Owner's emailed code is required. */
@@ -142,7 +144,7 @@ export default function EmployeeListPage({
     const reassigned = data.reassignedReports ? ` ${data.reassignedReports} anak buahnya dipindahkan ke "Tidak ada supervisor".` : "";
     showNotice(`✓ ${row.name} (${row.code}) dihapus.${reassigned}`, 4000);
     loadPage(page, query);
-    loadSupervisors();
+    loadSupervisors(true);
     return null;
   }
 
@@ -168,7 +170,7 @@ export default function EmployeeListPage({
       4000
     );
     loadPage(page, query);
-    loadSupervisors();
+    loadSupervisors(true);
     return null;
   }
 
@@ -198,7 +200,7 @@ export default function EmployeeListPage({
           supervisors={supervisors}
           onCreated={() => {
             loadPage(1, query);
-            loadSupervisors();
+            loadSupervisors(true);
           }}
         />
         <BulkImportEmployees
@@ -206,7 +208,7 @@ export default function EmployeeListPage({
           onClose={() => setImportOpen(false)}
           onImported={() => {
             loadPage(1, query);
-            loadSupervisors();
+            loadSupervisors(true);
           }}
         />
 

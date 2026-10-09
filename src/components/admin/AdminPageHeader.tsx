@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -16,8 +17,7 @@ export default function AdminPageHeader({
   const [clock, setClock] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/online-count")
-      .then((r) => r.json())
+    cachedJson("/api/admin/online-count")
       .then((d) => setOnlineCount(d.onlineCount))
       .catch(() => {});
     const tick = () => setClock(new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }));

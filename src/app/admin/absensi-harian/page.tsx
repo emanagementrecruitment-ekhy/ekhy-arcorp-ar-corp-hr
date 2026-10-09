@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import BulkImportAbsensi from "@/components/admin/BulkImportAbsensi";
@@ -101,8 +102,7 @@ export default function AbsensiHarianPage() {
   const [manualIsError, setManualIsError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/session")
-      .then((r) => r.json())
+    cachedJson("/api/auth/session")
       .then((d) =>
         setCanDelete(
           d.session?.accessRole === "OWNER" || d.session?.accessRole === "CONSULTANT" || d.session?.accessRole === "MANAGER"

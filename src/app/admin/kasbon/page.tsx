@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Badge from "@/components/Badge";
@@ -32,8 +33,7 @@ export default function AdminKasbonPage() {
 
   useEffect(() => {
     load();
-    fetch("/api/auth/session")
-      .then((r) => r.json())
+    cachedJson("/api/auth/session")
       .then((d) => setCanApprove(["OWNER", "CONSULTANT", "MANAGER"].includes(d.session?.accessRole)));
   }, []);
 

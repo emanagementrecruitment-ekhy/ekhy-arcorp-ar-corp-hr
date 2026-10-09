@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { cardClass } from "@/components/ui/styles";
@@ -40,8 +41,7 @@ export default function LaporLapanganPage() {
 
   useEffect(() => {
     loadThreads();
-    fetch("/api/auth/session")
-      .then((r) => r.json())
+    cachedJson("/api/auth/session")
       .then((d) => setCanReply(["OWNER", "CONSULTANT", "SUPERVISOR", "MANAGER"].includes(d.session?.accessRole)));
     // Poll the thread list — new incoming reports should show up without a
     // manual refresh, same as any normal chat inbox.

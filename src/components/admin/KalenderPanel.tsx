@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useMemo, useState } from "react";
 import { computeAge, monthDayKey } from "@/lib/birthday";
 
@@ -63,8 +64,7 @@ export default function KalenderPanel() {
 
   useEffect(load, [monthStart, monthEnd]);
   useEffect(() => {
-    fetch("/api/admin/employees?pageSize=500&lite=1")
-      .then((r) => r.json())
+    cachedJson("/api/admin/employees?pageSize=500&lite=1")
       .then((d) =>
         setEmployees(
           (d.employees ?? []).map((e: EmployeeOption) => ({ id: e.id, name: e.name, code: e.code, role: e.role, birthDate: e.birthDate }))
