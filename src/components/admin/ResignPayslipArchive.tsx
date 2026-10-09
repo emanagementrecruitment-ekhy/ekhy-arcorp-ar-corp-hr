@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
 
 interface ArchiveItem {
   id: string;
@@ -13,14 +14,46 @@ interface ArchiveItem {
 
 export default function ResignPayslipArchive() {
   const [items, setItems] = useState<ArchiveItem[] | null>(null);
+  const [locked, setLocked] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetch("/api/admin/resign-payslip")
-      .then((r) => r.json())
-      .then((d) => setItems(d.items ?? []));
+      .then(async (r) => {
+        const d = await r.json().catch(() => ({}));
+        if (r.status === 403 && d.locked) {
+          setLocked(true);
+          setItems([]);
+          return;
+        }
+        setLocked(false);
+        setItems(d.items ?? []);
+      });
   }, []);
 
+  useEffect(load, [load]);
+
   if (items === null) return <div className="text-[12.5px] text-ar-faint">Memuat…</div>;
+
+  if (locked) {
+    return (
+      <OwnerCodeBox
+        title="Arsip terkunci"
+        hint="Arsip slip karyawan/Tera yang resign hanya bisa dibuka dengan kode yang dikirim ke email Owner. Setelah dibuka, arsip tetap terbuka selama 15 menit."
+        actionLabel="Buka Arsip"
+        onConfirm={async (code) => {
+          const res = await fetch("/api/admin/owner-confirm/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          });
+          if (!res.ok) return (await res.json().catch(() => ({}))).error ?? "Kode salah.";
+          setItems(null);
+          load();
+          return null;
+        }}
+      />
+    );
+  }
 
   if (items.length === 0) {
     return (

@@ -79,6 +79,8 @@ model OtpCode {
   expiresAt  DateTime
   consumedAt DateTime?
   attempts   Int       @default(0)
+  // "LOGIN" for sign-in codes, "OWNER_CONFIRM" for the confirmation code emailed to the Owner (archive unlock, employee delete)
+  purpose    String    @default("LOGIN")
   createdAt  DateTime  @default(now())
 
   @@index([employeeId, createdAt])

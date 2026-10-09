@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkOwnerCode } from "@/lib/owner-confirm";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
@@ -126,10 +127,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
+
+    // Deleting is permanent, so it needs the one-time code emailed to the Owner (see src/lib/owner-confirm.ts).
+    const body = await req.json().catch(() => null);
+    if (!(await checkOwnerCode(typeof body?.ownerCode === "string" ? body.ownerCode : ""))) {
+      return NextResponse.json({ error: "Kode Owner salah atau kedaluwarsa.", needsOwnerCode: true }, { status: 403 });
+    }
 
     const existing = await prisma.employee.findUnique({ where: { id } });
     if (!existing || existing.accessRole !== "KARYAWAN") {

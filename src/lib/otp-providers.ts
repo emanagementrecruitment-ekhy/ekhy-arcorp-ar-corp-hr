@@ -46,7 +46,20 @@ function parseSender(raw: string): { name?: string; email: string } {
  * SMTP keys, since the sending host's IP isn't on the allowlist and often
  * isn't stable enough to add permanently. A plain HTTPS call sidesteps both.
  */
-async function sendOtpEmailViaBrevoApi(to: string, code: string) {
+function otpEmailContent(code: string, variant: "login" | "owner-confirm") {
+  if (variant === "owner-confirm") {
+    return {
+      subject: "Kode konfirmasi Owner AR Corp",
+      text: `Kode konfirmasi Owner: ${code} (berlaku 5 menit). Kode ini diminta untuk membuka Arsip Slip Resign atau menghapus data karyawan. Berikan hanya jika Anda menyetujuinya.`,
+    };
+  }
+  return {
+    subject: "Kode verifikasi AR Corp",
+    text: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+  };
+}
+
+async function sendOtpEmailViaBrevoApi(to: string, code: string, variant: "login" | "owner-confirm" = "login") {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error("Brevo API key is not configured");
   const senderRaw = process.env.SMTP_FROM || process.env.SMTP_USER;
@@ -59,8 +72,8 @@ async function sendOtpEmailViaBrevoApi(to: string, code: string) {
     body: JSON.stringify({
       sender: { email: sender.email, name: sender.name || "AR Corp" },
       to: [{ email: to }],
-      subject: "Kode verifikasi AR Corp",
-      textContent: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+      subject: otpEmailContent(code, variant).subject,
+      textContent: otpEmailContent(code, variant).text,
     }),
   });
   if (!res.ok) {
@@ -73,10 +86,10 @@ export function emailProviderConfigured() {
   return Boolean(process.env.BREVO_API_KEY) || getMailer() !== null;
 }
 
-export async function sendOtpEmail(to: string, code: string) {
+export async function sendOtpEmail(to: string, code: string, variant: "login" | "owner-confirm" = "login") {
   if (process.env.BREVO_API_KEY) {
     try {
-      await sendOtpEmailViaBrevoApi(to, code);
+      await sendOtpEmailViaBrevoApi(to, code, variant);
       console.log(`[otp] Brevo API send succeeded for ${to}`);
       return;
     } catch (err) {
@@ -88,8 +101,8 @@ export async function sendOtpEmail(to: string, code: string) {
   await transport.sendMail({
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to,
-    subject: "Kode verifikasi AR Corp",
-    text: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+    subject: otpEmailContent(code, variant).subject,
+    text: otpEmailContent(code, variant).text,
   });
 }
 

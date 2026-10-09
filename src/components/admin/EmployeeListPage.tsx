@@ -5,6 +5,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import EditEmployeeForm from "@/components/admin/EditEmployeeForm";
 import AddEmployeeForm from "@/components/admin/AddEmployeeForm";
 import BulkImportEmployees from "@/components/admin/BulkImportEmployees";
+import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink } from "@/lib/format";
 import { computeAge } from "@/lib/birthday";
@@ -124,19 +125,22 @@ export default function EmployeeListPage({
     loadSupervisors();
   }
 
-  async function confirmDelete(row: EmpRow) {
+  /** Returns an error message, or null once deleted. The Owner's emailed code is required. */
+  async function confirmDelete(row: EmpRow, ownerCode: string): Promise<string | null> {
     setDeleteMsg("");
-    const res = await fetch(`/api/admin/employees/${row.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/employees/${row.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerCode }),
+    });
     const data = await res.json();
+    if (!res.ok) return data.error ?? "Gagal menghapus karyawan.";
     setConfirmDeleteId(null);
-    if (!res.ok) {
-      setDeleteMsg(data.error ?? "Gagal menghapus karyawan.");
-      return;
-    }
     const reassigned = data.reassignedReports ? ` ${data.reassignedReports} anak buahnya dipindahkan ke "Tidak ada supervisor".` : "";
     showNotice(`✓ ${row.name} (${row.code}) dihapus.${reassigned}`, 4000);
     loadPage(page, query);
     loadSupervisors();
+    return null;
   }
 
   async function toggleStatus(row: EmpRow, status: "AKTIF" | "RESIGN") {
@@ -237,6 +241,18 @@ export default function EmployeeListPage({
             className="flex-1 min-w-[220px] py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
           />
         </div>
+
+        {confirmDeleteId && rows.find((r) => r.id === confirmDeleteId) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <OwnerCodeBox
+              title={`Hapus ${rows.find((r) => r.id === confirmDeleteId)!.name}?`}
+              hint="Menghapus data karyawan/Tera bersifat permanen (riwayat voucher dan kasbonnya ikut terhapus). Perlu kode yang dikirim ke email Owner."
+              actionLabel="Ya, Hapus"
+              onConfirm={(code) => confirmDelete(rows.find((r) => r.id === confirmDeleteId)!, code)}
+              onCancel={() => setConfirmDeleteId(null)}
+            />
+          </div>
+        )}
 
         {notice && (
           <div className="mb-3.5 py-3 px-4 bg-[rgba(127,209,168,.1)] border border-[rgba(127,209,168,.3)] rounded-xl text-ar-green text-[12px]">
@@ -360,17 +376,7 @@ export default function EmployeeListPage({
                 <span className="font-display text-[17px] text-ar-gold2">{e.total}</span>
                 {canEdit &&
                   (confirmDeleteId === e.id ? (
-                    <span className="flex flex-col gap-1 items-start">
-                      <span className="text-[10.5px] text-ar-red">Yakin?</span>
-                      <span className="flex gap-2">
-                        <button onClick={() => confirmDelete(e)} className="text-[10.5px] text-ar-red font-semibold cursor-pointer">
-                          Ya, Hapus
-                        </button>
-                        <button onClick={() => setConfirmDeleteId(null)} className="text-[10.5px] text-ar-dim cursor-pointer">
-                          Batal
-                        </button>
-                      </span>
-                    </span>
+                    <span className="text-[10.5px] text-ar-red">Menunggu kode Owner…</span>
                   ) : (
                     <span className="flex gap-2.5 whitespace-nowrap">
                       <button
