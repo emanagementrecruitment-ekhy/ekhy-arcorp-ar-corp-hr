@@ -139,15 +139,6 @@ export default function PendapatanPage() {
       <AdminPageHeader
         title="Input Pendapatan"
         subtitle="Catat pendapatan/voucher harian karyawan berdasarkan laporan dari lapangan — khusus Peran Tera"
-        actions={
-          <button
-            onClick={() => setUploadOpen((v) => !v)}
-            title="Upload DATA (Excel/CSV/Text)"
-            className="py-2.5 px-4 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-bold tracking-[0.1em] uppercase cursor-pointer whitespace-nowrap"
-          >
-            📁 Upload DATA
-          </button>
-        }
       />
 
       {uploadOpen && (
@@ -221,7 +212,17 @@ export default function PendapatanPage() {
       <div className="grid grid-cols-1 lg:[grid-template-columns:1fr_1.2fr] gap-4 pt-5.5">
         <div className="flex flex-col gap-4">
           <div className={`${cardClass} h-fit`}>
-            <div className="font-display text-[19px] text-ar-gold2 mb-3.5">Tambah Entri</div>
+            <div className="flex items-center justify-between gap-3 mb-3.5">
+              <div className="font-display text-[19px] text-ar-gold2">Tambah Entri</div>
+              {/* Kept out of the page header so the "N aktif" badge stays at the far right like every other page. */}
+              <button
+                onClick={() => setUploadOpen((v) => !v)}
+                title="Upload DATA (Excel/CSV/Text)"
+                className="py-1.5 px-3 bg-ar-surface2 border border-ar-goldline rounded-lg text-ar-gold text-[10px] font-bold tracking-[0.1em] uppercase cursor-pointer whitespace-nowrap"
+              >
+                📁 Upload DATA
+              </button>
+            </div>
 
           <div className="grid gap-3.5">
             <div>

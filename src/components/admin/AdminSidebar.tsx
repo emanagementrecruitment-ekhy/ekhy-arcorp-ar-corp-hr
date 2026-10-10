@@ -39,9 +39,9 @@ const DESKS: readonly Desk[] = [
     ],
   },
   {
-    group: "Gabungan Totalan",
+    group: "Report Operasional & Payslip",
     items: [
-      { href: "/admin/laporan", icon: "chart", label: "Laporan Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/laporan", icon: "chart", label: "Laporan Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/pendapatan", icon: "tray-in", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/kasbon", icon: "banknote", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/payslip", icon: "receipt", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },

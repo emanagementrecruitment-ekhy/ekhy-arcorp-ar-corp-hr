@@ -1,58 +1,47 @@
 import { NextResponse } from "next/server";
-import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
-import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, VCR_ROLE, employeeRate, type EmployeeLevel } from "@/lib/constants";
-import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
+import { OFFICE_ROLES } from "@/lib/constants";
+import { parsePeriod } from "@/lib/period";
 import { fmtRp, shortRp } from "@/lib/format";
+import { buildOperationalReport } from "@/lib/report-data";
+
+const neg = (n: number) => (n ? "-" + shortRp(n) : "—");
 
 export async function GET(req: Request) {
   try {
     await requireSession(OFFICE_ROLES);
     const { searchParams } = new URL(req.url);
-    const period = parsePeriod(searchParams.get("period"));
-    const now = new Date();
-    const start = periodStart(now, period);
-
-    // Only "Tera" earns via VCR — this report is a voucher-income recap, so
-    // salaried Peran (paid a flat monthly Gaji, tracked on the payslip
-    // instead) don't belong in it.
-    const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN", role: VCR_ROLE },
-      select: {
-        ...EMPLOYEE_NO_PHOTO,
-        vouchers: { where: { occurredAt: { gte: start } } },
-        kasbonRequests: { where: { status: "DISETUJUI", createdAt: { gte: start } } },
-      },
-      orderBy: { code: "asc" },
-    });
-
-    const rows = employees.map((e) => {
-      const level = e.level as EmployeeLevel;
-      const gross = e.vouchers.reduce((s, v) => s + v.amount, 0);
-      const ks = e.kasbonRequests.reduce((s, k) => s + k.amount, 0);
-      return {
-        name: e.name,
-        level,
-        voucherCount: e.vouchers.length,
-        rateLabel: fmtRp(employeeRate(level, e.customRate)),
-        kasbon: ks ? "-" + shortRp(ks) : "—",
-        net: shortRp(gross - ks),
-        gross, ks,
-      };
-    });
+    const report = await buildOperationalReport(parsePeriod(searchParams.get("period")));
+    const t = report.totals;
 
     return NextResponse.json({
-      period,
-      periodLabel: PERIOD_LABEL[period],
-      rows,
-      totals: {
-        voucherCount: rows.reduce((s, r) => s + r.voucherCount, 0),
-        kasbon: (() => {
-          const sum = rows.reduce((s, r) => s + r.ks, 0);
-          return sum ? "-" + shortRp(sum) : "—";
-        })(),
-        net: shortRp(rows.reduce((s, r) => s + (r.gross - r.ks), 0)),
+      period: report.period,
+      periodLabel: report.periodLabel,
+      // Terapis (paid by voucher)
+      rows: report.tera.map((r) => ({
+        name: r.name,
+        level: r.level,
+        voucherCount: r.voucherCount,
+        rateLabel: fmtRp(r.rate),
+        kasbon: neg(r.kasbon),
+        net: shortRp(r.net),
+      })),
+      totals: { voucherCount: t.teraVoucherCount, kasbon: neg(t.teraKasbon), net: shortRp(t.teraNet) },
+      // Karyawan (fixed monthly Gaji, shown for the chosen period)
+      staffRows: report.staff.map((r) => ({
+        name: r.name,
+        role: r.role,
+        monthlySalary: shortRp(r.monthlySalary),
+        pay: shortRp(r.pay),
+        kasbon: neg(r.kasbon),
+        net: shortRp(r.net),
+      })),
+      staffTotals: { pay: shortRp(t.staffPay), kasbon: neg(t.staffKasbon), net: shortRp(t.staffNet) },
+      // Pengeluaran gaji
+      summary: {
+        teraPay: shortRp(t.teraGross),
+        staffPay: shortRp(t.staffPay),
+        payroll: shortRp(t.payroll),
       },
     });
   } catch (e) {

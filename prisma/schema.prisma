@@ -155,6 +155,9 @@ model Kasbon {
   decidedBy   Employee?    @relation("KasbonDecider", fields: [decidedById], references: [id])
   decidedAt   DateTime?
   note        String?
+  // Set when Admin Pusat has actually transferred the money after Owner/Manager approved it.
+  transferredAt     DateTime?
+  transferredByName String?
   createdAt   DateTime     @default(now())
 
   @@index([employeeId, createdAt])
