@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { distanceKm } from "@/lib/geo";
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
       data: { employeeId: session.employeeId, lat, lng, distanceKm: km, inRadius, place },
     });
 
+    await logAudit(session, "ABSEN_SELF", `${session.name} (${session.code})`, `${inRadius ? "Dalam" : "Di luar"} radius · ${km.toFixed(2)} km${place ? ` · ${place}` : ""}`);
     return NextResponse.json({
       ok: true,
       distanceKm: km,

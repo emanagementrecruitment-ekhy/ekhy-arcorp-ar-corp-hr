@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 
-const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
+const MANAGERS = ["OWNER", "CONSULTANT"] as const; // Owner only — the whole business's data in one file
 
 // Lets Owner/Consultant download the raw SQLite database file — every
 // employee, voucher, kasbon, payslip item, and app setting lives in this

@@ -4,6 +4,7 @@ import { daysInMonth } from "@/lib/attendance";
 import { codePrefixForRole, formatCode, nextCodeNumber } from "@/lib/employee-code";
 import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { shortRp } from "@/lib/format";
@@ -174,7 +175,7 @@ async function nextEmployeeCode(role: string) {
 export async function POST(req: Request) {
   try {
     // Admin can add new field employees; editing/deleting existing ones stays Owner/Consultant/Manager only (see [id]/route.ts).
-    await requireSession(["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"]);
 
     const employeeLimit = await getEmployeeLimit();
     if (employeeLimit !== null) {
@@ -276,6 +277,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(session, "EMPLOYEE_ADD", `${employee.name} (${employee.code})`, `Peran ${employee.role}`);
     return NextResponse.json({ ok: true, code: employee.code });
   } catch (e) {
     return apiError(e);

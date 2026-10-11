@@ -28,3 +28,13 @@ export async function logAudit(
     console.error("[audit] failed to write:", e);
   }
 }
+
+/** "Nama (KODE)" for an employee id, for audit targets. Never throws. */
+export async function employeeLabel(id: string): Promise<string> {
+  try {
+    const e = await prisma.employee.findUnique({ where: { id }, select: { name: true, code: true } });
+    return e ? `${e.name} (${e.code})` : id;
+  } catch {
+    return id;
+  }
+}

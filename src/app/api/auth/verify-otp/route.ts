@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { findEmployeeForPortal, type Portal } from "@/lib/lookup";
 import { verifyOtp } from "@/lib/otp";
+import { logAudit } from "@/lib/audit";
 import { createSession } from "@/lib/auth";
 import { usesVcr, type AccessRole } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
@@ -51,13 +52,14 @@ export async function POST(req: Request) {
     code: employee.code,
   });
 
+  // Every office-level login goes into Riwayat Aktivitas, so the Owner can see when a Manager/Admin signs in.
   if (employee.accessRole !== "KARYAWAN") {
+    await logAudit({ employeeId: employee.id, name: employee.name, accessRole: employee.accessRole as AccessRole }, "LOGIN", `${employee.name} (${employee.code})`, `Login ke Office sebagai ${employee.role}`);
     reportCheckin();
     await notifyOffice(`${employee.name} (${employee.role}) login ke Office.`);
-  } else if (usesVcr(employee.role)) {
-    await notifyOffice(`${employee.name} (Tera) login.`);
   } else {
-    await notifyOffice(`${employee.name} (${employee.role}) login.`);
+    await logAudit({ employeeId: employee.id, name: employee.name, accessRole: employee.accessRole as AccessRole }, "LOGIN", `${employee.name} (${employee.code})`, `Login sebagai ${employee.role}`);
+    await notifyOffice(usesVcr(employee.role) ? `${employee.name} (Tera) login.` : `${employee.name} (${employee.role}) login.`);
   }
 
   return NextResponse.json({

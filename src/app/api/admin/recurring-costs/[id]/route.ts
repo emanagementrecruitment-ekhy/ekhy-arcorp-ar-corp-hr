@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
@@ -8,7 +9,7 @@ import { buildPayslip } from "@/lib/payslip";
 /** Edits the nominal/keterangan of a recurring cost — applies to this and every future month; past-generated rows are untouched. */
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const { id } = await params;
     const body = await req.json().catch(() => null);
 
@@ -20,6 +21,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (amount <= 0) return NextResponse.json({ error: "Isi nominal." }, { status: 400 });
 
     await prisma.recurringCost.update({ where: { id }, data: { amount, note: note || null } });
+    await logAudit(session, "RECURRING_COST", await employeeLabel(existing.employeeId), `${existing.category}: Rp ${existing.amount.toLocaleString("id-ID")} → Rp ${amount.toLocaleString("id-ID")}/bulan`);
 
     const month = parseMonth(typeof body?.month === "string" ? body.month : null);
     const payslip = await buildPayslip(existing.employeeId, month);
@@ -32,7 +34,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 /** Stops future billing — only removes the template, never the PayslipItem rows it already generated for past/current months. */
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const { id } = await params;
     const { searchParams } = new URL(req.url);
 
@@ -40,6 +42,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     if (!existing) return NextResponse.json({ error: "Penambahan Biaya tidak ditemukan." }, { status: 404 });
 
     await prisma.recurringCost.delete({ where: { id } });
+    await logAudit(session, "RECURRING_COST", await employeeLabel(existing.employeeId), `${existing.category} dihentikan`);
 
     const month = parseMonth(searchParams.get("month"));
     const payslip = await buildPayslip(existing.employeeId, month);

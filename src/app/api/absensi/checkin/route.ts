@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { markAttendanceToday, ensureLateCheckinPenalty } from "@/lib/attendance";
 
@@ -10,6 +11,7 @@ export async function POST() {
     await ensureLateCheckinPenalty(session.employeeId, result.dateKey).catch((e) =>
       console.error("[absensi-checkin] ensureLateCheckinPenalty failed:", e)
     );
+    await logAudit(session, "ABSEN_SELF", `${session.name} (${session.code})`, `Check-in harian ${result.dateKey}`);
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     return apiError(e);

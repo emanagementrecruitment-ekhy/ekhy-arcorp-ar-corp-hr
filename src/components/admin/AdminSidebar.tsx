@@ -52,7 +52,6 @@ const DESKS: readonly Desk[] = [
   { href: "/admin/pengumuman", icon: "bell", label: "Pengumuman", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   { href: "/admin/lapor-lapangan", icon: "megaphone", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
   { href: "/admin/pengaturan", icon: "sliders", label: "Pengaturan Tampilan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
-  { href: "/admin/sistem", icon: "shield", label: "Pusat Sistem", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
 ];
 
 export default function AdminSidebar({
@@ -127,6 +126,17 @@ export default function AdminSidebar({
     </div>
   );
 
+  // "Pusat Sistem" is deliberately kept out of the menu: a small, quiet link under the Keluar button.
+  const systemLink = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"].includes(accessRole) ? (
+    <Link
+      href="/admin/sistem"
+      onClick={() => setMobileOpen(false)}
+      className={`block w-full text-center text-[9.5px] ${pathname.startsWith("/admin/sistem") ? "text-ar-gold" : "text-ar-faint"}`}
+    >
+      Pusat Sistem
+    </Link>
+  ) : null;
+
   const accountCard = (
     <div className="mt-auto p-3 bg-ar-surface2 border border-ar-line rounded-2xl">
       <div className="flex items-center gap-2.5">
@@ -197,6 +207,7 @@ export default function AdminSidebar({
               <span>{roleLabel}</span>
               <LogoutButton className="text-ar-faint cursor-pointer" />
             </div>
+            <div className="-mt-3">{systemLink}</div>
           </div>
         </div>
       )}
@@ -225,6 +236,7 @@ export default function AdminSidebar({
 
         {navLinks()}
         {accountCard}
+        <div className="-mt-3">{systemLink}</div>
       </div>
     </>
   );

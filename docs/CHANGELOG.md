@@ -7,9 +7,22 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Changed
+- Pusat Sistem kini terkunci untuk selain Owner: tulisan kecil di bawah Keluar tetap ada, tetapi Manager dan Admin Pusat hanya melihat "Halaman ini terkunci"; API sistem, Riwayat Aktivitas, dan unduh backup hanya untuk Owner. Log tidak bisa dihapus siapa pun.
+
+### Added
+- Riwayat Aktivitas juga mencatat kegiatan karyawan/Tera: login, absen/check-in lokasi, chat laporan, pengajuan kasbon, input pendapatan sendiri, dan ganti foto profil; serta perubahan foto karyawan dan identitas Owner oleh kantor.
+- Riwayat Aktivitas kini mencatat semua kegiatan Manager/Admin/Supervisor: login ke Office, chat Laporan Lapangan (cuplikan pesan), edit absensi dan jabatan, pengumuman, pengingat, pengaturan, tabungan, biaya rutin, tambah karyawan, impor data, kirim slip, dan upgrade lisensi.
+
+### Changed
+- Riwayat Aktivitas kini hanya bisa dilihat Owner (Manager dan peran lain tidak melihat kartunya, dan API menolaknya).
+
+### Changed
+- "Pusat Sistem" tidak lagi tampil sebagai menu utama; kembali menjadi tulisan kecil tersembunyi di bawah tombol Keluar (desktop dan menu HP).
+
 ### Added
 - Menu baru "Pusat Sistem" (menggantikan tautan kecil "Nav layout preview (dev)"): Tentang & Lisensi (produk, versi, status lisensi, paket dan batas karyawan, Call Center 0881-02545-8888), Status Sistem (server, database, OTP email/WhatsApp, backup terakhir dan tombol unduh backup), Catatan Pembaruan, Riwayat Aktivitas, dan Bantuan per peran dengan tombol Hubungi Support (WhatsApp). Tulisan besar "AR Corporation" dengan efek emas bergerak.
-- Riwayat Aktivitas (audit log, khusus Owner/Manager): mencatat perubahan data/gaji karyawan, penghapusan, resign, keputusan dan transfer kasbon, rincian slip pay, input pendapatan, dan unduh backup — siapa, apa, kapan.
+- Riwayat Aktivitas (audit log, khusus Owner): mencatat perubahan data/gaji karyawan, penghapusan, resign, keputusan dan transfer kasbon, rincian slip pay, input pendapatan, dan unduh backup — siapa, apa, kapan.
 
 ### Changed
 - Versi aplikasi menjadi 1.0.0; nama file backup menjadi arcorp-backup-<tanggal>.db. Halaman lama /dev/nav-layout kini mengarah ke Pusat Sistem; panel Identitas Owner, Paket, dan Reset Tampilan dipindah ke sana.

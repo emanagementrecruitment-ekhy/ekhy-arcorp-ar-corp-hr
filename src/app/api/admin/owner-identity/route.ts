@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OWNER_ACCOUNT_CODE, HQ } from "@/lib/constants";
@@ -41,7 +42,7 @@ export async function GET() {
 /** Consultant-only: (re)generates the single Owner account's Name/Email/HP. Locked for everyone else once set — see /dev/nav-layout. */
 export async function POST(req: Request) {
   try {
-    await requireSession(["CONSULTANT"]);
+    const session = await requireSession(["CONSULTANT"]);
     const body = await req.json().catch(() => null);
 
     const name = typeof body?.name === "string" ? body.name.trim() : "";
@@ -102,6 +103,7 @@ export async function POST(req: Request) {
       }),
     ]);
 
+    await logAudit(session, "IDENTITY_CHANGE", "Identitas Owner", "Nama/Email/HP Owner di-generate ulang");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

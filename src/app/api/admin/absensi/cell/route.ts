@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { normalizeAttendanceCode } from "@/lib/attendance-codes";
 
@@ -11,7 +12,7 @@ import { normalizeAttendanceCode } from "@/lib/attendance-codes";
  */
 export async function PUT(req: Request) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const body = await req.json().catch(() => null);
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
     const dateKey = typeof body?.dateKey === "string" ? body.dateKey : "";
@@ -30,6 +31,7 @@ export async function PUT(req: Request) {
 
     if (code === null) {
       await prisma.attendance.deleteMany({ where: { employeeId, dateKey } });
+      await logAudit(session, "ABSENSI_EDIT", await employeeLabel(employeeId), `Tanggal ${dateKey}`);
       return NextResponse.json({ ok: true, code: null });
     }
     await prisma.attendance.upsert({
@@ -37,6 +39,7 @@ export async function PUT(req: Request) {
       create: { employeeId, dateKey, month: dateKey.slice(0, 7), code, manual: true },
       update: { code, manual: true },
     });
+    await logAudit(session, "ABSENSI_EDIT", await employeeLabel(employeeId), `Tanggal ${dateKey}`);
     return NextResponse.json({ ok: true, code });
   } catch (e) {
     return apiError(e);

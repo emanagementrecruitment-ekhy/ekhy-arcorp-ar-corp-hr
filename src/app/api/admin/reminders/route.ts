@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { notifyOffice } from "@/lib/notify";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 
@@ -93,6 +94,7 @@ export async function POST(req: Request) {
       console.error("[reminders] notifyOffice failed:", e)
     );
 
+    await logAudit(session, "REMINDER_ADD", "Pengingat", `${recipientIds.length} penerima`);
     return NextResponse.json({ ok: true, id: reminder.id, recipientCount: recipientIds.length });
   } catch (e) {
     return apiError(e);

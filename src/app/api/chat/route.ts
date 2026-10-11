@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { timeLabel } from "@/lib/format";
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(session, "CHAT_SEND", `${session.name} (${session.code})`, text.length > 140 ? `${text.slice(0, 140)}…` : text);
     await notifyOffice(`Laporan baru dari ${session.name}: ${text.slice(0, 80)}`);
 
     return NextResponse.json({

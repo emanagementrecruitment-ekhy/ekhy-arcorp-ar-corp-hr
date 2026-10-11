@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 
@@ -22,7 +23,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 /** Owner/Consultant override — replaces an employee's self-service photo directly, bypassing their 30-day lock and restarting it so they can't immediately overwrite the admin's pick. */
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
     const { id } = await params;
 
     const existing = await prisma.employee.findUnique({ where: { id } });
@@ -49,6 +50,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       data: { photoDataUrl: dataUrl, photoUpdatedAt: new Date() },
     });
 
+    await logAudit(session, "PHOTO_CHANGE", await employeeLabel(id), "Foto diganti oleh kantor");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);
@@ -58,7 +60,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 /** Clears the photo and its lock, so the employee can freely upload a fresh one right away. */
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
     const { id } = await params;
 
     const existing = await prisma.employee.findUnique({ where: { id } });
@@ -68,6 +70,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
     await prisma.employee.update({ where: { id }, data: { photoDataUrl: null, photoUpdatedAt: null } });
 
+    await logAudit(session, "PHOTO_CHANGE", await employeeLabel(id), "Foto dihapus oleh kantor");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

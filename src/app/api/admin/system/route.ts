@@ -4,12 +4,12 @@ import { NextResponse } from "next/server";
 import pkg from "../../../../../package.json";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES } from "@/lib/constants";
 import { licensingConfigured, getEmployeeLimit } from "@/lib/license";
 import { parseChangelog } from "@/lib/changelog";
 import { SETTING_ID } from "@/lib/settings";
 
-const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"];
+// Pusat Sistem is Owner-only (CONSULTANT is the vendor tier shown as Owner): Manager/Admin see only the locked page.
+const OWNER_ROLES = ["OWNER", "CONSULTANT"] as const;
 
 const SUPPORT_PHONE_DISPLAY = "0881-02545-8888";
 const SUPPORT_WA = "62881025458888";
@@ -29,8 +29,7 @@ async function dbFileSizeKb(): Promise<number | null> {
 /** Pusat Sistem data: product/license info, live system health, and the latest changelog entries. */
 export async function GET() {
   try {
-    const session = await requireSession(OFFICE_ROLES);
-    const isManager = MANAGERS.includes(session.accessRole);
+    const session = await requireSession([...OWNER_ROLES]);
 
     const t0 = Date.now();
     let dbOk = true;
@@ -45,7 +44,7 @@ export async function GET() {
       getEmployeeLimit(),
       prisma.employee.count({ where: { accessRole: "KARYAWAN", status: "AKTIF" } }),
       prisma.appSetting.findUnique({ where: { id: SETTING_ID }, select: { ownerGeneratedAt: true } }),
-      isManager ? prisma.auditLog.findFirst({ where: { action: "BACKUP_DOWNLOAD" }, orderBy: { at: "desc" }, select: { at: true, actorName: true } }) : Promise.resolve(null),
+      prisma.auditLog.findFirst({ where: { action: "BACKUP_DOWNLOAD" }, orderBy: { at: "desc" }, select: { at: true, actorName: true } }),
       readFile(path.join(process.cwd(), "docs", "CHANGELOG.md"), "utf8").catch(() => ""),
       dbFileSizeKb(),
     ]);
@@ -74,11 +73,11 @@ export async function GET() {
           whatsapp: Boolean(process.env.FONNTE_TOKEN),
         },
         lastBackup: lastBackup ? { at: lastBackup.at, by: lastBackup.actorName } : null,
-        canBackup: isManager,
+        canBackup: true,
         now: new Date().toISOString(),
       },
       changelog: parseChangelog(changelogText, 12),
-      viewer: { role: session.accessRole, canSeeAudit: isManager },
+      viewer: { role: session.accessRole, canSeeAudit: true },
     });
   } catch (e) {
     return apiError(e);

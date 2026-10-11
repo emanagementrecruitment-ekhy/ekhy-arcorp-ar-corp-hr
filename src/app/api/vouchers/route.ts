@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { parsePeriod, periodStart, PERIOD_LABEL } from "@/lib/period";
@@ -120,6 +121,7 @@ export async function POST(req: Request) {
 
     await notifyOffice(`Pendapatan baru dari ${employee.name} (self-entry): ${qty} voucher · ${fmtRp(amount * qty)}`);
 
+    await logAudit(session, "VOUCHER_SELF", `${employee.name} (${employee.code})`, `${qty} voucher · ${fmtRp(amount * qty)}`);
     return NextResponse.json({ ok: true, count: qty, total: amount * qty });
   } catch (e) {
     return apiError(e);

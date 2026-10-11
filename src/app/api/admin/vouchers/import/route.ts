@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { FIELD_CITIES, HQ, type EmployeeLevel } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
@@ -58,7 +59,7 @@ async function uniquePhone(taken: Set<string>) {
 
 export async function POST(req: Request) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
 
     const form = await req.formData().catch(() => null);
     const file = form?.get("file");
@@ -229,6 +230,7 @@ export async function POST(req: Request) {
       await notifyOffice(`Import Pendapatan: ${vouchersInserted} voucher dari ${sheetsProcessed} outlet · ${fmtRp(totalAmount)}`);
     }
 
+    await logAudit(session, "IMPORT_DATA", "Pendapatan (voucher)", "Impor file pendapatan");
     return NextResponse.json({
       ok: true,
       sheetsProcessed,
