@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Fixed
+- AR Corp Desktop: kalau Railway belum bisa dihubungi saat aplikasi dibuka, aplikasi mencoba 3x dulu, dan bila mode cadangan lokal juga gagal tampil halaman "menyambung ulang" yang otomatis masuk begitu server kembali (bukan kotak error di layar hitam).
+
 ### Changed
 - Slip Pay Tera memakai format Excel "Rincian Payroll": kolom Debit/Kredit (Jumlah & Total), baris tetap (TOTAL VCR, ADMIN, MESS, PINALTY ABSEN, TEST RUTIN, SPEKULO, LOKER, SALON) dan blok KASBON UANG, AMBIL BARANG, TAMBAHAN DOKTER, POTONGAN LAIN dengan Jumlah Totalan berjalan. Tampilan layar, cetak, dan PDF sama.
 - Kasbon Tera yang disetujui otomatis masuk satu per satu ke blok Kasbon Uang dan dipotong penuh bulan itu (cicilan karyawan diinput manual oleh Admin lewat "Masuk ke Blok: Kasbon Uang"); voucher yang masuk hari itu langsung menambah TOTAL VCR; rincian bertipe Ambil Barang / Tambahan Dokter / Potongan Lain otomatis masuk ke bloknya (pilih "Masuk ke Blok" di form rincian, atau tulis kata kuncinya di Rincian).

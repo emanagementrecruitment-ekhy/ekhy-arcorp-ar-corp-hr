@@ -118,6 +118,10 @@ function setupDownloadInterception() {
 function pollReconnect() {
   if (reconnectTimer) clearInterval(reconnectTimer);
   reconnectTimer = setInterval(async () => {
+    if (currentMode === "waiting") {
+      if (await checkOnline()) await goOnline();
+      return;
+    }
     if (currentMode !== "offline") return;
     const online = await checkOnline();
     if (online && mainWindow) {
@@ -137,7 +141,16 @@ async function goOffline() {
     const port = await startLocalServer();
     await mainWindow.loadURL(`http://127.0.0.1:${port}`);
   } catch (e) {
-    dialog.showErrorBox("AR Corp Desktop", "Gagal menjalankan server lokal: " + e.message);
+    // The local backup server could not start (e.g. this install has no template.db). Instead of a
+    // dead error box on a black window, show a waiting page and jump to Railway as soon as it is back.
+    console.error("[main] local server failed:", e.message);
+    currentMode = "waiting";
+    const html =
+      "<body style='margin:0;background:#08080a;color:#e8dcc0;font-family:Segoe UI,sans-serif;display:grid;place-items:center;height:100vh;text-align:center'>" +
+      "<div><div style='font-size:20px;letter-spacing:.2em;color:#c9a24b'>AR CORP</div>" +
+      "<p style='margin:18px 0 6px;font-size:16px'>Server sedang diperbarui atau internet belum tersambung.</p>" +
+      "<p style='opacity:.65;font-size:13px'>Aplikasi mencoba menyambung lagi otomatis — tidak perlu ditutup.</p></div></body>";
+    await mainWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(html));
   }
 }
 
@@ -170,7 +183,12 @@ async function createWindow() {
   // The page <title> would otherwise replace the window title on every load.
   mainWindow.on("page-title-updated", (event) => event.preventDefault());
 
-  const online = await checkOnline();
+  // Railway can be slow for a moment (cold start / redeploy) — try a few times before giving up to offline mode.
+  let online = false;
+  for (let i = 0; i < 3 && !online; i++) {
+    online = await checkOnline();
+    if (!online && i < 2) await new Promise((r) => setTimeout(r, 3000));
+  }
   if (online) await goOnline();
   else await goOffline();
 
