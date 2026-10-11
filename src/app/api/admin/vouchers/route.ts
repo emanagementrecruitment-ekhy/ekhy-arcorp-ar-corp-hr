@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp, dLabel, timeLabel, dayKey } from "@/lib/format";
@@ -63,7 +64,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
     const body = await req.json().catch(() => null);
 
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
@@ -96,6 +97,7 @@ export async function POST(req: Request) {
       data: Array.from({ length: qty }, () => ({ employeeId, category, client, amount, occurredAt })),
     });
 
+    await logAudit(session, "VOUCHER_ADD", `${employee.name} (${employee.code})`, `${qty} voucher · ${fmtRp(amount * qty)}`);
     await notifyOffice(`Pendapatan baru untuk ${employee.name}: ${qty} voucher · ${fmtRp(amount * qty)}`);
 
     return NextResponse.json({ ok: true, count: qty, total: amount * qty });

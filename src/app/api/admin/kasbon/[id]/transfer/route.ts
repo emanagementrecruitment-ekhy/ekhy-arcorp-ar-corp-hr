@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 // Admin Pusat only moves the money; Owner/Manager may also mark it (e.g. when they transfer it themselves).
 const TRANSFERRERS = ["ADMIN_PUSAT", "OWNER", "CONSULTANT", "MANAGER"] as const;
@@ -24,6 +25,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       }
       return NextResponse.json({ error: "Kasbon ini sudah ditandai ditransfer." }, { status: 409 });
     }
+    const k = await prisma.kasbon.findUnique({ where: { id }, include: { employee: { select: { name: true, code: true } } } });
+    await logAudit(session, "KASBON_TRANSFER", k ? `${k.employee.name} (${k.employee.code})` : id, k ? `Nominal Rp ${k.amount.toLocaleString("id-ID")}` : null);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

@@ -52,6 +52,7 @@ const DESKS: readonly Desk[] = [
   { href: "/admin/pengumuman", icon: "bell", label: "Pengumuman", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   { href: "/admin/lapor-lapangan", icon: "megaphone", label: "Laporan Lapangan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
   { href: "/admin/pengaturan", icon: "sliders", label: "Pengaturan Tampilan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+  { href: "/admin/sistem", icon: "shield", label: "Pusat Sistem", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
 ];
 
 export default function AdminSidebar({
@@ -224,10 +225,6 @@ export default function AdminSidebar({
 
         {navLinks()}
         {accountCard}
-
-        <Link href="/dev/nav-layout" className="text-[9.5px] text-ar-faint px-1.5 -mt-3">
-          Nav layout preview (dev)
-        </Link>
       </div>
     </>
   );

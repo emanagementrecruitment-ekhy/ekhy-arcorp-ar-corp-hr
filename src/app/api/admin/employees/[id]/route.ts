@@ -5,10 +5,12 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { parseBirthDate } from "@/lib/birthday";
+import { logAudit } from "@/lib/audit";
+import { describeEmployeeChange } from "@/lib/audit-format";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
     const body = await req.json().catch(() => null);
 
@@ -125,6 +127,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       });
     });
 
+    await logAudit(
+      session,
+      "EMPLOYEE_UPDATE",
+      `${updated.name} (${updated.code})`,
+      describeEmployeeChange(
+        { salary: existing.salary, role: existing.role, level: existing.level, name: existing.name },
+        { salary: updated.salary, role: updated.role, level: updated.level, name: updated.name },
+      ) || "Data profil diperbarui",
+    );
+
     return NextResponse.json({ ok: true, code: updated.code });
   } catch (e) {
     return apiError(e);
@@ -133,7 +145,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
 
     // Deleting is permanent, so it needs the one-time code emailed to the Owner (see src/lib/owner-confirm.ts).
@@ -153,6 +165,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     // thread cascade-delete with them; anywhere they're referenced as a
     // supervisor/decider/sender instead (nullable FKs) is set to null.
     await prisma.employee.delete({ where: { id } });
+    await logAudit(session, "EMPLOYEE_DELETE", `${existing.name} (${existing.code})`, "Dihapus permanen dengan kode Owner");
 
     return NextResponse.json({ ok: true, code: existing.code, reassignedReports: reportCount });
   } catch (e) {

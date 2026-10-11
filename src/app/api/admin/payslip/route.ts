@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
 import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
@@ -28,7 +29,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const body = await req.json().catch(() => null);
 
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
@@ -62,6 +63,8 @@ export async function POST(req: Request) {
     await prisma.payslipItem.create({
       data: { employeeId, month, date, description, category, qty: qty || null, debit, credit, note: note || null },
     });
+
+    await logAudit(session, "PAYSLIP_ADD", `${employee.name} (${employee.code}) · ${month}`, `${description} · ${credit > 0 ? "Kredit" : "Debit"} Rp ${(credit > 0 ? credit : debit).toLocaleString("id-ID")}`);
 
     const payslip = await buildPayslip(employeeId, month);
     return NextResponse.json({ ok: true, payslip });

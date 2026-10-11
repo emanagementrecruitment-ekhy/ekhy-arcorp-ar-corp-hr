@@ -544,3 +544,24 @@ button {
     animation: none;
   }
 }
+
+
+/* Pusat Sistem — big animated gold "AR Corporation" mark. */
+.ar-copyright-gold {
+  font-family: var(--font-display-bold), var(--font-sans), sans-serif;
+  font-weight: 800;
+  background: linear-gradient(100deg, #9a7420 0%, #f7e3a1 16%, #d9ab3c 32%, #fff4c9 48%, #c8932c 64%, #f3d57d 80%, #9a7420 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 18px rgba(217, 171, 60, 0.35));
+  animation: arGoldSweep 6s linear infinite;
+}
+@keyframes arGoldSweep {
+  from { background-position: 0% 0; }
+  to { background-position: -260% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-copyright-gold { animation: none; background-position: 40% 0; }
+}

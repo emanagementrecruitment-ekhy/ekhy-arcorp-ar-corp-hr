@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { fmtRp } from "@/lib/format";
+import { logAudit } from "@/lib/audit";
 
 const APPROVERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 
@@ -50,6 +51,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (count === 0) {
       return NextResponse.json({ error: "Pengajuan ini sudah diputuskan." }, { status: 409 });
     }
+
+    await logAudit(
+      session,
+      "KASBON_DECIDE",
+      `${existing.employee.name} (${existing.employee.code})`,
+      `${approve ? "Disetujui" : "Ditolak"} · ${fmtRp(finalAmount)}${amountChanged ? ` (diubah dari ${fmtRp(existing.amount)})` : ""}`,
+    );
 
     if (approve) {
       await prisma.notification.create({
