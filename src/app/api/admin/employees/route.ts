@@ -56,7 +56,7 @@ export async function GET(req: Request) {
     if (searchParams.get("lite") === "1") {
       const lite = await prisma.employee.findMany({
         where,
-        select: { id: true, name: true, code: true, role: true, status: true, homePlace: true, birthDate: true, supervisorId: true },
+        select: { id: true, name: true, code: true, role: true, status: true, homePlace: true, birthDate: true, supervisorId: true, channelLink: true },
         orderBy: { code: "asc" },
         take: pageSize,
       });
@@ -70,6 +70,7 @@ export async function GET(req: Request) {
           place: e.homePlace,
           birthDate: e.birthDate,
           supervisorId: e.supervisorId ?? "",
+          channelLink: e.channelLink ?? "",
         })),
         total: lite.length,
         page: 1,

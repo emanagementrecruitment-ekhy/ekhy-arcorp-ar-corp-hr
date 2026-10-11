@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { buildPayslip } from "@/lib/payslip";
+import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -37,6 +38,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const debit = Math.max(0, Math.round(Number(body?.debit) || 0));
     const credit = Math.max(0, Math.round(Number(body?.credit) || 0));
     const note = typeof body?.note === "string" ? body.note.trim() : "";
+    // "Blok" choice: a block category moves the row there, "" (Otomatis) clears a previous block choice,
+    // and any system category (Admin, Mess, Pinalty ...) is left alone.
+    const catRaw = typeof body?.category === "string" ? body.category : null;
+    const isBlockCat = (c: string | null) => c !== null && (SHEET_BLOCK_CATEGORIES as readonly string[]).includes(c);
+    const category =
+      catRaw === null ? existing.category : isBlockCat(catRaw) ? catRaw : isBlockCat(existing.category) ? null : existing.category;
 
     if (!description) return NextResponse.json({ error: "Rincian wajib diisi." }, { status: 400 });
     if (debit <= 0 && credit <= 0) {
@@ -51,7 +58,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     await prisma.payslipItem.update({
       where: { id },
-      data: { date, description, qty: qty || null, debit, credit, note: note || null },
+      data: { date, description, category, qty: qty || null, debit, credit, note: note || null },
     });
 
     const payslip = await buildPayslip(existing.employeeId, existing.month);

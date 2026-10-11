@@ -6,6 +6,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import PayslipDocument from "@/components/PayslipDocument";
 import type { Payslip } from "@/lib/payslip";
 import { PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
+import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
 import { downloadFile } from "@/lib/client-download";
 import { describePayslipDelivery } from "@/lib/payslip-delivery-message";
 import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
@@ -44,6 +45,7 @@ export default function AdminPayslipPage() {
   const [date, setDate] = useState(today());
   const [description, setDescription] = useState("");
   const [qty, setQty] = useState("");
+  const [block, setBlock] = useState(""); // "" = otomatis (by Rincian text), else one of SHEET_BLOCK_CATEGORIES
   const [kind, setKind] = useState<"debit" | "credit">("credit");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -117,6 +119,7 @@ export default function AdminPayslipPage() {
     setDate(today());
     setDescription("");
     setQty("");
+    setBlock("");
     setNote("");
     setAmount("");
     setKind("credit");
@@ -129,6 +132,7 @@ export default function AdminPayslipPage() {
     setDate(row.dateRaw ?? today());
     setDescription(row.description);
     setQty(row.qty ?? "");
+    setBlock((SHEET_BLOCK_CATEGORIES as readonly string[]).includes(row.category ?? "") ? (row.category as string) : "");
     setNote(row.note ?? "");
     setKind(row.credit > 0 ? "credit" : "debit");
     setAmount(String(row.credit > 0 ? row.credit : row.debit));
@@ -152,6 +156,7 @@ export default function AdminPayslipPage() {
           month,
           date,
           description,
+          category: block,
           qty,
           note,
           debit: kind === "debit" ? num : 0,
@@ -567,6 +572,17 @@ export default function AdminPayslipPage() {
                     placeholder="cth. Kasbon Uang, Ambil Barang - Seragam"
                     className={inputClass}
                   />
+                </div>
+                <div>
+                  <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Masuk ke Blok</label>
+                  <select value={block} onChange={(e) => setBlock(e.target.value)} className={inputClass}>
+                    <option value="">Otomatis (sesuai Rincian)</option>
+                    {SHEET_BLOCK_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>

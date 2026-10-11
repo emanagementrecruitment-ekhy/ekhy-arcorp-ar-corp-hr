@@ -36,6 +36,7 @@ const DESKS: readonly Desk[] = [
       { href: "/admin/hr-office", icon: "briefcase", label: "HR & Office", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
       { href: "/admin/karyawan/tera", icon: "id-card", label: "Data Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/karyawan", icon: "users", label: "Data Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/channel-link", icon: "link", label: "Channel/Link", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
     ],
   },
   {
