@@ -395,3 +395,19 @@ model ResignPayslip {
   @@unique([employeeId, month])
   @@index([employeeId])
 }
+
+// Riwayat Aktivitas (Pusat Sistem): who changed what and when. Written best-effort by src/lib/audit.ts
+// right after a sensitive action succeeds — a failure to log never blocks the action itself.
+model AuditLog {
+  id         String   @id @default(cuid())
+  at         DateTime @default(now())
+  actorId    String?
+  actorName  String
+  actorRole  String   // AccessRole at the time (CONSULTANT is shown as Owner, see auditRoleLabel)
+  action     String   // one of AUDIT_ACTIONS in src/lib/audit-format.ts
+  target     String   // human label of what was touched, e.g. "Grace (T1)"
+  detail     String?  // short change description, e.g. "Gaji Rp 3.000.000 → Rp 3.500.000"
+
+  @@index([at])
+  @@index([action, at])
+}

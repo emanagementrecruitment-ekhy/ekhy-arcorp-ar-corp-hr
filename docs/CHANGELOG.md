@@ -7,6 +7,13 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Added
+- Menu baru "Pusat Sistem" (menggantikan tautan kecil "Nav layout preview (dev)"): Tentang & Lisensi (produk, versi, status lisensi, paket dan batas karyawan, Call Center 0881-02545-8888), Status Sistem (server, database, OTP email/WhatsApp, backup terakhir dan tombol unduh backup), Catatan Pembaruan, Riwayat Aktivitas, dan Bantuan per peran dengan tombol Hubungi Support (WhatsApp). Tulisan besar "AR Corporation" dengan efek emas bergerak.
+- Riwayat Aktivitas (audit log, khusus Owner/Manager): mencatat perubahan data/gaji karyawan, penghapusan, resign, keputusan dan transfer kasbon, rincian slip pay, input pendapatan, dan unduh backup — siapa, apa, kapan.
+
+### Changed
+- Versi aplikasi menjadi 1.0.0; nama file backup menjadi arcorp-backup-<tanggal>.db. Halaman lama /dev/nav-layout kini mengarah ke Pusat Sistem; panel Identitas Owner, Paket, dan Reset Tampilan dipindah ke sana.
+
 ### Changed
 - Tombol Screenshot dipindah dari pojok kanan bawah ke deretan atas, sejajar dengan tombol Segarkan dan Lonceng (tidak lagi tertutup pemberitahuan Railway).
 

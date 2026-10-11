@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkOwnerCode } from "@/lib/owner-confirm";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_STATUSES, type EmployeeStatus } from "@/lib/constants";
 import { archiveResignPayslip } from "@/lib/payslip-archive";
@@ -20,7 +21,7 @@ import { archiveResignPayslip } from "@/lib/payslip-archive";
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const { id } = await params;
     const body = await req.json().catch(() => null);
 
@@ -40,6 +41,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     await prisma.employee.update({ where: { id }, data: { status } });
+    await logAudit(session, "EMPLOYEE_STATUS", `${existing.name} (${existing.code})`, `Status ${existing.status} → ${status}`);
 
     if (status === "RESIGN") {
       await archiveResignPayslip(id).catch((e) => console.error("[employee-status] archiveResignPayslip failed:", e));

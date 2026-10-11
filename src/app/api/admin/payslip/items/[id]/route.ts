@@ -1,19 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { buildPayslip } from "@/lib/payslip";
 import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const { id } = await params;
 
     const existing = await prisma.payslipItem.findUnique({ where: { id } });
     if (!existing) return NextResponse.json({ error: "Rincian tidak ditemukan." }, { status: 404 });
 
     await prisma.payslipItem.delete({ where: { id } });
+    const emp = await prisma.employee.findUnique({ where: { id: existing.employeeId }, select: { name: true, code: true } });
+    await logAudit(session, "PAYSLIP_DELETE", `${emp?.name ?? existing.employeeId} (${emp?.code ?? "—"}) · ${existing.month}`, `${existing.description} · Rp ${(existing.credit > 0 ? existing.credit : existing.debit).toLocaleString("id-ID")}`);
 
     const payslip = await buildPayslip(existing.employeeId, existing.month);
     return NextResponse.json({ ok: true, payslip });
@@ -25,7 +28,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 /** Edits an existing row in place — the recurring/auto rows (Pinalty Absensi, RecurringCost-generated) can be corrected this way too, not just deleted. */
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const { id } = await params;
     const body = await req.json().catch(() => null);
 
@@ -60,6 +63,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       where: { id },
       data: { date, description, category, qty: qty || null, debit, credit, note: note || null },
     });
+
+    const emp = await prisma.employee.findUnique({ where: { id: existing.employeeId }, select: { name: true, code: true } });
+    await logAudit(session, "PAYSLIP_EDIT", `${emp?.name ?? existing.employeeId} (${emp?.code ?? "—"}) · ${existing.month}`, `${description}: ${existing.credit || existing.debit} → ${credit || debit}`);
 
     const payslip = await buildPayslip(existing.employeeId, existing.month);
     return NextResponse.json({ ok: true, payslip });

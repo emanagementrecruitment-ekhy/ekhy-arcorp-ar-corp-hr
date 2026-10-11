@@ -135,6 +135,12 @@ const PATHS = {
       <circle cx="12" cy="12" r="3" />
     </>
   ),
+  shield: (
+    <>
+      <path d="M12 3l7 3v5.5c0 4.2-2.9 7.6-7 9.5-4.1-1.9-7-5.3-7-9.5V6z" />
+      <path d="M9 12l2.2 2.2L15.5 10" />
+    </>
+  ),
   megaphone: (
     <>
       <path d="M4 10v4h3l7 4V6L7 10z" />

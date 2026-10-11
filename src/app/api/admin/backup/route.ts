@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
@@ -12,7 +13,7 @@ const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 // of this through the admin panel anyway).
 export async function GET() {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
 
     const url = process.env.DATABASE_URL ?? "";
     const filePath = url.startsWith("file:") ? url.slice(5) : url;
@@ -26,11 +27,12 @@ export async function GET() {
     const absolute = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), "prisma", filePath);
     const data = await readFile(absolute);
 
+    await logAudit(session, "BACKUP_DOWNLOAD", "Database", `${Math.round(data.byteLength / 1024)} KB`);
     const stamp = new Date().toISOString().slice(0, 10);
     return new Response(data, {
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename="dear-management-backup-${stamp}.db"`,
+        "Content-Disposition": `attachment; filename="arcorp-backup-${stamp}.db"`,
         "Content-Length": String(data.byteLength),
       },
     });
