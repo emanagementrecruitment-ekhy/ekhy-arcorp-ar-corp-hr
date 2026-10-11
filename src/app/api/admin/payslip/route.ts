@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
+import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
 import { buildPayslip, ensureAttendancePenalty, ensureRecurringCosts } from "@/lib/payslip";
 
 export async function GET(req: Request) {
@@ -38,6 +39,8 @@ export async function POST(req: Request) {
     const debit = Math.max(0, Math.round(Number(body?.debit) || 0));
     const credit = Math.max(0, Math.round(Number(body?.credit) || 0));
     const note = typeof body?.note === "string" ? body.note.trim() : "";
+    const catRaw = typeof body?.category === "string" ? body.category : "";
+    const category = (SHEET_BLOCK_CATEGORIES as readonly string[]).includes(catRaw) ? catRaw : null;
 
     if (!employeeId) return NextResponse.json({ error: "Pilih karyawan dulu." }, { status: 400 });
     if (!description) return NextResponse.json({ error: "Rincian wajib diisi." }, { status: 400 });
@@ -57,7 +60,7 @@ export async function POST(req: Request) {
     }
 
     await prisma.payslipItem.create({
-      data: { employeeId, month, date, description, qty: qty || null, debit, credit, note: note || null },
+      data: { employeeId, month, date, description, category, qty: qty || null, debit, credit, note: note || null },
     });
 
     const payslip = await buildPayslip(employeeId, month);

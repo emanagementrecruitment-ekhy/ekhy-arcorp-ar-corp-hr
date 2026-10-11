@@ -13,6 +13,7 @@ import {
   type EmployeeLevel,
 } from "./constants";
 import { getAttendanceDaysCount, daysInMonth } from "./attendance";
+import { buildSheet, sheetTotal, type SheetRow } from "./payslip-sheet";
 
 export interface PayslipRow {
   no: number;
@@ -40,6 +41,7 @@ export interface Payslip {
   month: string;
   monthLabel: string;
   rows: PayslipRow[];
+  sheet: SheetRow[]; // same data laid out like the Excel Rincian Payroll (see payslip-sheet.ts)
   total: number;
   savings: SavingRow[];
   attendance: { hariHadir: number; totalDays: number; persen: number; trackingStarted: boolean };
@@ -69,7 +71,10 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
 
   const vcr = usesVcr(employee.role);
   const vcrTotal = vouchers.reduce((s, v) => s + v.amount, 0);
-  const kasbonTotal = kasbonRows.reduce((s, k) => s + k.amount, 0);
+  // Tera: an approved kasbon is deducted in full the month it was taken. Karyawan: any instalment is agreed
+  // case by case, so nothing is auto-deducted — Admin enters each cicilan by hand (Masuk ke Blok: Kasbon Uang).
+  const autoKasbon = vcr ? kasbonRows : [];
+  const kasbonTotal = autoKasbon.reduce((s, k) => s + k.amount, 0);
 
   const draft: Array<Omit<PayslipRow, "no" | "balance">> = [];
   if (vcr && vcrTotal > 0) {
@@ -101,6 +106,28 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
     return { ...r, no: i + 1, balance };
   });
 
+  // Excel-style sheet: Kasbon (each approved one), Ambil Barang etc. land in their blocks automatically.
+  const amounts = new Set(vouchers.map((v) => v.amount));
+  const sheet = buildSheet({
+    vcr: vcr ? { count: vouchers.length, total: vcrTotal, unit: amounts.size === 1 ? vouchers[0].amount : null } : null,
+    salary: employee.salary,
+    kasbon: autoKasbon.map((k) => {
+      const d = k.decidedAt ?? k.createdAt;
+      return { id: null, date: dLabel(d), dateRaw: d.toISOString().slice(0, 10), description: k.reason || "Kasbon", category: "Kasbon Uang", qty: null, debit: 0, credit: k.amount, note: null };
+    }),
+    items: items.map((it) => ({
+      id: it.id,
+      date: it.date ? dLabel(it.date) : null,
+      dateRaw: it.date ? it.date.toISOString().slice(0, 10) : null,
+      description: it.description,
+      category: it.category,
+      qty: it.qty,
+      debit: it.debit,
+      credit: it.credit,
+      note: it.note,
+    })),
+  });
+
   const level = vcr ? (employee.level as EmployeeLevel) : null;
   return {
     employee: {
@@ -114,7 +141,8 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
     month,
     monthLabel: monthLabel(month),
     rows,
-    total: balance,
+    sheet,
+    total: sheetTotal(sheet),
     savings: savings.map((s) => ({ id: s.id, date: dLabel(s.date), amount: s.amount, note: s.note })),
     attendance: {
       hariHadir,

@@ -7,6 +7,11 @@ function fmtRp(n: number): string {
   return "Rp " + Math.round(n).toLocaleString("id-ID");
 }
 
+function fmtNum(n: number): string {
+  const v = Math.round(n);
+  return v < 0 ? `(${Math.abs(v).toLocaleString("id-ID")})` : v.toLocaleString("id-ID");
+}
+
 /**
  * Printable Slip Pay — shared by the admin Rincian Totalan page and the
  * karyawan self-service view so both produce the exact same document.
@@ -75,56 +80,80 @@ export default function PayslipDocument({
       <div className="overflow-x-auto">
         <table className="w-full text-[8px] leading-[1.15] border-collapse print:text-black">
           <thead>
-            <tr className="text-left text-[7px] tracking-[0.06em] uppercase text-ar-dim border-b border-ar-line print:text-black print:border-black">
-              <th className="py-1 pr-1.5 font-normal">No</th>
-              <th className="py-1 pr-1.5 font-normal">Tanggal</th>
-              <th className="py-1 pr-1.5 font-normal">Rincian</th>
-              <th className="py-1 pr-1.5 font-normal">Penambahan Biaya</th>
-              <th className="py-1 pr-1.5 font-normal">Qty</th>
-              <th className="py-1 pr-1.5 font-normal text-right">Debit</th>
-              <th className="py-1 pr-1.5 font-normal text-right">Kredit</th>
-              <th className="py-1 pr-1.5 font-normal text-right">Jumlah Totalan</th>
-              {onDeleteItem && <th className="py-1 font-normal print:hidden" />}
+            <tr className="text-center text-[7px] tracking-[0.06em] uppercase text-ar-dim print:text-black">
+              <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">No</th>
+              <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Tanggal</th>
+              <th rowSpan={2} colSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Rincian</th>
+              <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Qty</th>
+              <th colSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Debit</th>
+              <th colSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Kredit</th>
+              <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Jumlah Totalan</th>
+              <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Keterangan</th>
+              {onDeleteItem && <th rowSpan={2} className="print:hidden" />}
+            </tr>
+            <tr className="text-center text-[7px] tracking-[0.06em] uppercase text-ar-dim print:text-black">
+              <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Jumlah</th>
+              <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Total</th>
+              <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Jumlah</th>
+              <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Total</th>
             </tr>
           </thead>
           <tbody>
-            {payslip.rows.length === 0 && (
-              <tr>
-                <td colSpan={9} className="py-3 text-center text-ar-faint print:text-black/50">
-                  Belum ada rincian bulan ini.
-                </td>
-              </tr>
-            )}
-            {payslip.rows.map((r) => (
-              <tr key={r.id ?? `auto-${r.no}`} className="border-b border-ar-line/60 print:border-black/30">
-                <td className="py-0.5 pr-1.5">{r.no}</td>
-                <td className="py-0.5 pr-1.5">{r.date ?? "—"}</td>
-                <td className="py-0.5 pr-1.5">{r.description}</td>
-                <td className="py-0.5 pr-1.5">{r.category ?? "—"}</td>
-                <td className="py-0.5 pr-1.5">{r.qty ?? "—"}</td>
-                <td className="py-0.5 pr-1.5 text-right">{r.debit > 0 ? fmtRp(r.debit) : "—"}</td>
-                <td className="py-0.5 pr-1.5 text-right">{r.credit > 0 ? fmtRp(r.credit) : "—"}</td>
-                <td className="py-0.5 pr-1.5 text-right font-display text-[8px] text-ar-gold2 print:text-black">
-                  {fmtRp(r.balance)}
-                </td>
-                {onDeleteItem && (
-                  <td className="py-0.5 print:hidden whitespace-nowrap">
-                    {r.id && (
-                      <span className="flex gap-2.5">
-                        {onEditItem && (
-                          <button onClick={() => onEditItem(r.id!)} className="text-ar-gold text-[10.5px] cursor-pointer">
-                            Edit
+            {payslip.sheet.map((r) => {
+              const isTop = r.blockSpan === 1 && r.blockLabel === null;
+              const cell = "py-0.5 px-1 border border-ar-line print:border-black";
+              return (
+                <tr key={r.key}>
+                  <td className={`${cell} text-center`}>{r.no}</td>
+                  <td className={cell}>{r.date ?? ""}</td>
+                  {isTop ? (
+                    <td colSpan={2} className={`${cell} ${r.filler ? "text-ar-dim" : "text-ar-gold2"} print:text-black`}>
+                      {r.description}
+                    </td>
+                  ) : (
+                    <>
+                      {r.blockSpan > 0 && (
+                        <td rowSpan={r.blockSpan} className={`${cell} text-center font-bold align-middle`}>
+                          {r.blockLabel}
+                        </td>
+                      )}
+                      <td className={cell}>{r.description}</td>
+                    </>
+                  )}
+                  <td className={`${cell} text-center`}>{r.qty ?? ""}</td>
+                  <td className={`${cell} text-right`}>{r.debitUnit ? fmtNum(r.debitUnit) : ""}</td>
+                  <td className={`${cell} text-right`}>{r.debitTotal ? fmtNum(r.debitTotal) : ""}</td>
+                  <td className={`${cell} text-right`}>{r.creditUnit ? fmtNum(r.creditUnit) : ""}</td>
+                  {isTop ? (
+                    <td className={`${cell} text-right text-ar-red print:text-black`}>{r.creditTotal ? fmtNum(r.creditTotal) : ""}</td>
+                  ) : (
+                    r.blockSpan > 0 && (
+                      <td rowSpan={r.blockSpan} className={`${cell} text-right align-middle`}>
+                        {r.creditTotal ? fmtNum(r.creditTotal) : ""}
+                      </td>
+                    )
+                  )}
+                  <td className={`${cell} text-right font-display text-ar-gold2 print:text-black`}>{fmtNum(r.balance)}</td>
+                  <td className={cell}>{r.note ?? ""}</td>
+                  {onDeleteItem && (
+                    <td className="py-0.5 pl-1 print:hidden whitespace-nowrap">
+                      {r.id && (
+                        <span className="flex gap-2.5">
+                          {onEditItem && (
+                            <button onClick={() => onEditItem(r.id!)} className="text-ar-gold text-[10.5px] cursor-pointer">
+                              Edit
+                            </button>
+                          )}
+                          <button onClick={() => onDeleteItem(r.id!)} className="text-ar-red text-[10.5px] cursor-pointer">
+                            Hapus
                           </button>
-                        )}
-                        <button onClick={() => onDeleteItem(r.id!)} className="text-ar-red text-[10.5px] cursor-pointer">
-                          Hapus
-                        </button>
-                      </span>
-                    )}
-                  </td>
-                )}
-              </tr>
-            ))}
+                        </span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
