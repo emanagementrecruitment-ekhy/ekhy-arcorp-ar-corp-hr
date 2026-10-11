@@ -59,8 +59,12 @@ export default function ScreenshotButton() {
     setBusy(true);
     try {
       const { domToCanvas } = await import("modern-screenshot");
+      // Fill with the current theme's real page color (Siang is light, Malam is dark) instead of a fixed
+      // dark one, otherwise a Day-mode capture comes out with a night background.
+      const bg = getComputedStyle(document.documentElement).getPropertyValue("--ar-bg").trim();
+      const isLight = document.documentElement.getAttribute("data-mode") === "light";
       const fullCanvas = await domToCanvas(document.body, {
-        backgroundColor: "#0b0b0c",
+        backgroundColor: bg || (isLight ? "#f3f2ef" : "#0b0b0c"),
       });
       const scaleX = fullCanvas.width / document.body.scrollWidth;
       const scaleY = fullCanvas.height / document.body.scrollHeight;
