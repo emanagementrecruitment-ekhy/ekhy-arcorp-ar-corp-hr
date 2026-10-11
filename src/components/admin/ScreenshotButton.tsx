@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Icon from "@/components/ui/Icon";
 
 /**
  * Lets the admin pick any rectangular area on screen (drag to resize/move it)
@@ -100,16 +101,9 @@ export default function ScreenshotButton() {
         disabled={busy}
         title="Screenshot area layar"
         aria-label="Screenshot area layar"
-        className="fixed bottom-3 left-3 z-[90] w-9 h-9 shrink-0 grid place-items-center bg-ar-surface2 border border-ar-goldline rounded-[8px] text-ar-gold cursor-pointer disabled:opacity-60 shadow-lg"
+        className="fixed bottom-4 right-4 z-[90] w-10 h-10 shrink-0 grid place-items-center rounded-full bg-ar-surface/90 backdrop-blur border border-ar-line text-ar-dim cursor-pointer transition-colors hover:text-ar-text active:scale-95 disabled:opacity-60 shadow-lg"
       >
-        {busy ? (
-          <span className="text-[9px]">…</span>
-        ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 4h6l1.5 2H20a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h3.5L9 4z" />
-            <circle cx="12" cy="13" r="3.5" />
-          </svg>
-        )}
+        {busy ? <span className="text-[10px]">…</span> : <Icon name="scan" className="w-[19px] h-[19px]" />}
       </button>
 
       {selecting && (

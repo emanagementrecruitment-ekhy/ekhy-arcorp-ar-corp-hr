@@ -7,6 +7,11 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Changed
+- Admin: ikon Segarkan, Screenshot, dan Lonceng diganti ikon garis modern (tanpa emoji); tombol Segarkan dipindah ke samping lonceng di bagian atas (sidebar desktop dan bar atas HP); kartu "Masuk sebagai" hanya menampilkan jabatan, teks akses dihapus.
+- Karyawan/Tera: tidak ada lagi tulisan GPS di halaman login maupun di dalam aplikasi — langkah absensi saat login berjalan diam-diam lalu langsung masuk, dan indikator lokasi aktif hanya titik hijau kecil di pojok kanan atas.
+- Mode Siang: warna teks dipertegas (lebih hitam) dan bobot huruf dinaikkan sedikit agar mudah dibaca.
+
 ### Fixed
 - AR Corp Desktop: kalau Railway belum bisa dihubungi saat aplikasi dibuka, aplikasi mencoba 3x dulu, dan bila mode cadangan lokal juga gagal tampil halaman "menyambung ulang" yang otomatis masuk begitu server kembali (bukan kotak error di layar hitam).
 

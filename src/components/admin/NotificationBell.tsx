@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Icon from "@/components/ui/Icon";
 import { SOUNDS, playSound, unlockAudioOnFirstGesture, countNewUnread, type SoundId } from "@/lib/notif-sound";
 
 interface Notif {
@@ -101,12 +102,14 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
     <div className="relative" ref={boxRef}>
       <button
         onClick={toggle}
-        className="relative w-9 h-9 grid place-items-center rounded-full bg-ar-surface2 border border-ar-line cursor-pointer text-ar-dim"
+        className={`relative w-9 h-9 grid place-items-center rounded-full bg-ar-surface2 border border-ar-line cursor-pointer transition-colors hover:text-ar-text active:scale-95 ${
+          unreadCount > 0 ? "text-ar-text" : "text-ar-dim"
+        }`}
         aria-label="Notifikasi"
       >
-        🔔
+        <Icon name="bell" className="w-[18px] h-[18px]" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-ar-red text-white text-[9px] font-bold grid place-items-center">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-ar-red text-white text-[9px] font-bold grid place-items-center ring-2 ring-ar-bg">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -120,7 +123,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
               onClick={() => setShowSettings((v) => !v)}
               className="text-[10.5px] text-ar-gold cursor-pointer"
             >
-              🔊 Suara
+              Suara
             </button>
           </div>
 
