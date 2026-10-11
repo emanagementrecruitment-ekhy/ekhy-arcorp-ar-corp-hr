@@ -131,7 +131,7 @@ export default function AdminSidebar({
     <Link
       href="/admin/sistem"
       onClick={() => setMobileOpen(false)}
-      className={`text-[9.5px] px-1.5 -mt-3 ${pathname.startsWith("/admin/sistem") ? "text-ar-gold" : "text-ar-faint"}`}
+      className={`block w-full text-center text-[9.5px] ${pathname.startsWith("/admin/sistem") ? "text-ar-gold" : "text-ar-faint"}`}
     >
       Pusat Sistem
     </Link>
@@ -207,7 +207,7 @@ export default function AdminSidebar({
               <span>{roleLabel}</span>
               <LogoutButton className="text-ar-faint cursor-pointer" />
             </div>
-            <div className="-mt-3 flex">{systemLink}</div>
+            <div className="-mt-3">{systemLink}</div>
           </div>
         </div>
       )}
@@ -236,7 +236,7 @@ export default function AdminSidebar({
 
         {navLinks()}
         {accountCard}
-        {systemLink}
+        <div className="-mt-3">{systemLink}</div>
       </div>
     </>
   );

@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import SystemCenter from "@/components/admin/SystemCenter";
 import ResetAppearance from "@/components/admin/ResetAppearance";
@@ -11,7 +13,9 @@ import PackagePanel from "@/components/admin/PackagePanel";
  */
 export default async function PusatSistemPage() {
   const session = await getSession();
-  const role = session?.accessRole ?? "";
+  // Kepala Mess (SUPERVISOR) may open /admin but has no business here — the APIs would refuse them anyway.
+  if (!session || !OFFICE_ROLES.includes(session.accessRole as AccessRole)) redirect("/admin");
+  const role = session.accessRole;
   return (
     <div>
       <AdminPageHeader title="Pusat Sistem" subtitle="Lisensi, status sistem, pembaruan, riwayat aktivitas, dan bantuan" />
