@@ -8,11 +8,6 @@ import DesktopStatusBar from "@/components/DesktopStatusBar";
 type Portal = "karyawan" | "pusat";
 type Step = "id" | "otp" | "gps";
 
-interface GpsStep {
-  label: string;
-  value: string;
-}
-
 export default function LoginPage() {
   const router = useRouter();
   const [portal, setPortal] = useState<Portal>("karyawan");
@@ -24,8 +19,6 @@ export default function LoginPage() {
   const [isDemo, setIsDemo] = useState(false);
   const [delivered, setDelivered] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [gpsSteps, setGpsSteps] = useState<GpsStep[]>([]);
-  const [gpsReady, setGpsReady] = useState(false);
   const [desktopOffline, setDesktopOffline] = useState(false);
 
   useEffect(() => {
@@ -107,15 +100,10 @@ export default function LoginPage() {
     }
   }
 
+  // Silent check-in: the position is read and the attendance recorded in the background, then the
+  // employee goes straight into the app — no GPS wording is shown.
   function beginAttendance() {
     setStep("gps");
-    setGpsSteps([
-      { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
-      { label: "Lokasi", value: "Mencari lokasi…" },
-      { label: "Jarak dari kantor pusat", value: "Menghitung…" },
-      { label: "Status absensi", value: "Menunggu lokasi…" },
-      { label: "Notifikasi ke pusat", value: "Menunggu…" },
-    ]);
 
     const finish = (lat?: number, lng?: number) =>
       fetch("/api/attendance/checkin", {
@@ -123,17 +111,8 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lat, lng }),
       })
-        .then((r) => r.json())
-        .then((data) => {
-          setGpsSteps([
-            { label: "Perangkat", value: navigator.userAgent.includes("Mobile") ? "Mobile · AR Corp App 1.0" : "Desktop · AR Corp Web 1.0" },
-            { label: "Lokasi", value: data.usedFallbackLocation ? "Memakai lokasi terdaftar" : "GPS perangkat terdeteksi" },
-            { label: "Jarak dari kantor pusat", value: `${data.distanceKm} km · batas ${data.radiusKm} km` },
-            { label: "Status absensi", value: data.inRadius ? "Diterima — dalam radius" : "Ditandai — di luar radius" },
-            { label: "Notifikasi ke pusat", value: `Terkirim ${new Date(data.at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}` },
-          ]);
-          setGpsReady(true);
-        });
+        .catch(() => {})
+        .finally(() => router.push("/app"));
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -300,31 +279,8 @@ export default function LoginPage() {
           )}
 
           {step === "gps" && (
-            <div>
-              <div className="flex items-center gap-3 mb-[18px]">
-                <span className="w-[9px] h-[9px] rounded-full bg-ar-gold ar-pulse" />
-                <span className="text-xs tracking-[0.1em] uppercase text-ar-gold">
-                  Absensi otomatis berjalan
-                </span>
-              </div>
-              <div className="flex flex-col gap-2.5">
-                {gpsSteps.map((s) => (
-                  <div
-                    key={s.label}
-                    className="flex justify-between gap-3 py-3 px-3.5 bg-ar-surface2 border border-ar-line rounded-[10px] text-[12.5px]"
-                  >
-                    <span className="text-ar-dim">{s.label}</span>
-                    <span className="text-ar-gold text-right">{s.value}</span>
-                  </div>
-                ))}
-              </div>
-              <button
-                disabled={!gpsReady}
-                onClick={() => router.push("/app")}
-                className="w-full mt-4 py-[13px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer disabled:opacity-60"
-              >
-                Masuk ke Aplikasi
-              </button>
+            <div className="grid place-items-center py-6">
+              <span className="w-[9px] h-[9px] rounded-full bg-ar-gold ar-pulse" aria-label="Memproses masuk" />
             </div>
           )}
         </div>

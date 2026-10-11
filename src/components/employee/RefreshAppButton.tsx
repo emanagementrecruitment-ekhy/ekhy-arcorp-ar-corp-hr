@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "@/components/ui/Icon";
 
 /**
  * The Android app is a thin TWA wrapper around this live website — every
@@ -11,10 +12,13 @@ import { useState } from "react";
  */
 export default function RefreshAppButton({
   className,
-  label = "🔄 Segarkan Tampilan",
+  label = "Segarkan Tampilan",
+  iconOnly = false,
 }: {
   className?: string;
   label?: string;
+  /** Round icon button for headers (no text). */
+  iconOnly?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
 
@@ -31,6 +35,23 @@ export default function RefreshAppButton({
     const url = new URL(window.location.href);
     url.searchParams.set("_refresh", Date.now().toString());
     window.location.replace(url.toString());
+  }
+
+  if (iconOnly) {
+    return (
+      <button
+        onClick={refresh}
+        disabled={busy}
+        title="Segarkan tampilan"
+        aria-label="Segarkan tampilan"
+        className={
+          className ??
+          "w-9 h-9 grid place-items-center rounded-full bg-ar-surface2 border border-ar-line text-ar-dim cursor-pointer transition-colors hover:text-ar-text active:scale-95 disabled:opacity-60"
+        }
+      >
+        <Icon name="refresh" className={`w-[17px] h-[17px] ${busy ? "animate-spin" : ""}`} />
+      </button>
+    );
   }
 
   return (

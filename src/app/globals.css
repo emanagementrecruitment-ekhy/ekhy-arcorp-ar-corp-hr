@@ -102,11 +102,17 @@
   --ar-surface: #ffffff;
   --ar-surface2: rgba(0, 0, 0, 0.035);
   --ar-line: rgba(20, 25, 40, 0.11);
-  --ar-text: #1d1e22;
-  --ar-dim: rgba(29, 30, 34, 0.64);
-  --ar-faint: rgba(29, 30, 34, 0.42);
+  --ar-text: #07080a;
+  --ar-dim: rgba(7, 8, 10, 0.8);
+  --ar-faint: rgba(7, 8, 10, 0.62);
   --ar-input: rgba(0, 0, 0, 0.045);
   --ar-moonlight: rgba(0, 0, 0, 0.035);
+}
+
+/* Day mode: slightly heavier body text so it reads as true black on the white surfaces. */
+[data-mode="light"] body {
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
 }
 
 [data-font="modern"] {

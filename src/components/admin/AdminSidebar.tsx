@@ -55,12 +55,11 @@ const DESKS: readonly Desk[] = [
 
 export default function AdminSidebar({
   roleLabel,
-  canApprove,
   accessRole,
   supervisorOnly,
 }: {
   roleLabel: string;
-  canApprove: boolean;
+  canApprove?: boolean;
   accessRole: string;
   supervisorOnly?: boolean;
 }) {
@@ -127,18 +126,17 @@ export default function AdminSidebar({
   );
 
   const accountCard = (
-    <div className="mt-auto p-3.5 bg-ar-surface2 border border-ar-line rounded-xl">
-      <div className="text-[10px] tracking-[0.14em] uppercase text-ar-dim">Masuk sebagai</div>
-      <div className="text-[13px] mt-1.5">{roleLabel}</div>
-      <div className="text-[10.5px] text-ar-gold mt-1">
-        {supervisorOnly
-          ? "Akses absensi & laporan lapangan saja"
-          : canApprove
-            ? "Akses penuh · dapat approve"
-            : "Akses lihat & unduh laporan"}
+    <div className="mt-auto p-3 bg-ar-surface2 border border-ar-line rounded-2xl">
+      <div className="flex items-center gap-2.5">
+        <span className="w-9 h-9 shrink-0 grid place-items-center rounded-full bg-ar-goldfill text-ar-gold2">
+          <Icon name="id-card" className="w-[17px] h-[17px]" />
+        </span>
+        <div className="min-w-0">
+          <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-dim">Masuk sebagai</div>
+          <div className="text-[12.5px] mt-0.5 truncate">{roleLabel}</div>
+        </div>
       </div>
-      <RefreshAppButton className="w-full mt-2.5 py-2 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer disabled:opacity-60" />
-      <LogoutButton className="w-full mt-1.5 py-2 bg-transparent border border-ar-line rounded-[9px] text-ar-dim text-[10.5px] cursor-pointer" />
+      <LogoutButton className="w-full mt-3 py-2 bg-transparent border border-ar-line rounded-[10px] text-ar-dim text-[11px] cursor-pointer" />
     </div>
   );
 
@@ -157,6 +155,7 @@ export default function AdminSidebar({
           className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
         <span className="flex items-center gap-1.5">
+        <RefreshAppButton iconOnly />
         {!isDesktop && <NotificationBell align="right" />}
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" className="p-2 text-ar-dim cursor-pointer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -193,10 +192,7 @@ export default function AdminSidebar({
             {navLinks(() => setMobileOpen(false), true)}
             <div className="mt-auto pt-3 border-t border-ar-line text-[11px] text-ar-dim flex items-center justify-between">
               <span>{roleLabel}</span>
-              <div className="flex items-center gap-3">
-                <RefreshAppButton label="🔄 Segarkan" className="text-ar-faint cursor-pointer disabled:opacity-60" />
-                <LogoutButton className="text-ar-faint cursor-pointer" />
-              </div>
+              <LogoutButton className="text-ar-faint cursor-pointer" />
             </div>
           </div>
         </div>
@@ -217,7 +213,10 @@ export default function AdminSidebar({
             <div className="font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">AR Corp</div>
             <div className="text-[9.5px] tracking-[0.08em] text-ar-dim mt-1 uppercase whitespace-nowrap">Kantor Pusat</div>
           </div>
-          <span className="ml-auto">{isDesktop && <NotificationBell align="left" />}</span>
+        </div>
+        <div className="flex items-center justify-end gap-1.5 px-1.5 -mt-3">
+          <RefreshAppButton iconOnly />
+          {isDesktop && <NotificationBell align="left" />}
         </div>
 
         {navLinks()}
