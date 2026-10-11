@@ -57,10 +57,9 @@ export async function POST(req: Request) {
     await logAudit({ employeeId: employee.id, name: employee.name, accessRole: employee.accessRole as AccessRole }, "LOGIN", `${employee.name} (${employee.code})`, `Login ke Office sebagai ${employee.role}`);
     reportCheckin();
     await notifyOffice(`${employee.name} (${employee.role}) login ke Office.`);
-  } else if (usesVcr(employee.role)) {
-    await notifyOffice(`${employee.name} (Tera) login.`);
   } else {
-    await notifyOffice(`${employee.name} (${employee.role}) login.`);
+    await logAudit({ employeeId: employee.id, name: employee.name, accessRole: employee.accessRole as AccessRole }, "LOGIN", `${employee.name} (${employee.code})`, `Login sebagai ${employee.role}`);
+    await notifyOffice(usesVcr(employee.role) ? `${employee.name} (Tera) login.` : `${employee.name} (${employee.role}) login.`);
   }
 
   return NextResponse.json({

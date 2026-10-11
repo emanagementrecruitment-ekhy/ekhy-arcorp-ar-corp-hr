@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { isLogoLocked, logoUnlockDate } from "@/lib/settings";
@@ -59,6 +60,7 @@ export async function POST(req: Request) {
       data: { photoDataUrl: dataUrl, photoUpdatedAt: new Date() },
     });
 
+    await logAudit(session, "PHOTO_CHANGE", `${session.name} (${session.code})`, "Foto profil diganti sendiri");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

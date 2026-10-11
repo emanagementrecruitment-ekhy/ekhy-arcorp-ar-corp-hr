@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { fmtRp, dLabel } from "@/lib/format";
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await logAudit(session, "KASBON_REQUEST", `${session.name} (${session.code})`, `Rp ${amount.toLocaleString("id-ID")} · ${reason.slice(0, 100)}`);
     return NextResponse.json({ ok: true, id: kasbon.id });
   } catch (e) {
     return apiError(e);

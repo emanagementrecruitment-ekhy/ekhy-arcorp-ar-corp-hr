@@ -11,6 +11,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Pusat Sistem kini terkunci untuk selain Owner: tulisan kecil di bawah Keluar tetap ada, tetapi Manager dan Admin Pusat hanya melihat "Halaman ini terkunci"; API sistem, Riwayat Aktivitas, dan unduh backup hanya untuk Owner. Log tidak bisa dihapus siapa pun.
 
 ### Added
+- Riwayat Aktivitas juga mencatat kegiatan karyawan/Tera: login, absen/check-in lokasi, chat laporan, pengajuan kasbon, input pendapatan sendiri, dan ganti foto profil; serta perubahan foto karyawan dan identitas Owner oleh kantor.
 - Riwayat Aktivitas kini mencatat semua kegiatan Manager/Admin/Supervisor: login ke Office, chat Laporan Lapangan (cuplikan pesan), edit absensi dan jabatan, pengumuman, pengingat, pengaturan, tabungan, biaya rutin, tambah karyawan, impor data, kirim slip, dan upgrade lisensi.
 
 ### Changed

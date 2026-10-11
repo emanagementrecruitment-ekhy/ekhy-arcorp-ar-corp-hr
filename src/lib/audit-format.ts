@@ -27,6 +27,11 @@ export const AUDIT_ACTIONS = {
   RECURRING_COST: "Biaya rutin diubah",
   PAYSLIP_SEND: "Slip pay dikirim",
   LICENSE_UPGRADE: "Kode upgrade paket ditukar",
+  ABSEN_SELF: "Absen / check-in lokasi",
+  KASBON_REQUEST: "Pengajuan kasbon",
+  VOUCHER_SELF: "Input pendapatan sendiri",
+  PHOTO_CHANGE: "Foto profil diubah",
+  IDENTITY_CHANGE: "Identitas Owner diubah",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

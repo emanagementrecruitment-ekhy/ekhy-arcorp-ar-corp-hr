@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { SETTING_ID } from "@/lib/settings";
@@ -13,7 +14,7 @@ const MAX_BYTES = 1_500_000;
 
 export async function POST(req: Request) {
   try {
-    await requireSession(["OWNER", "CONSULTANT"]);
+    const session = await requireSession(["OWNER", "CONSULTANT"]);
     const body = await req.json().catch(() => null);
     const dataUrl = typeof body?.dataUrl === "string" ? body.dataUrl : "";
     const match = dataUrl.match(/^data:([^;]+);base64,([A-Za-z0-9+/=]+)$/);
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
       create: { id: SETTING_ID, ownerLogoDataUrl: dataUrl },
     });
 
+    await logAudit(session, "IDENTITY_CHANGE", "Logo Owner", "Logo dekoratif Owner diganti");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);
