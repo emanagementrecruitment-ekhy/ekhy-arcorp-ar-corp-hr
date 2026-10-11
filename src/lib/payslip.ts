@@ -71,7 +71,10 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
 
   const vcr = usesVcr(employee.role);
   const vcrTotal = vouchers.reduce((s, v) => s + v.amount, 0);
-  const kasbonTotal = kasbonRows.reduce((s, k) => s + k.amount, 0);
+  // Tera: an approved kasbon is deducted in full the month it was taken. Karyawan: any instalment is agreed
+  // case by case, so nothing is auto-deducted — Admin enters each cicilan by hand (Masuk ke Blok: Kasbon Uang).
+  const autoKasbon = vcr ? kasbonRows : [];
+  const kasbonTotal = autoKasbon.reduce((s, k) => s + k.amount, 0);
 
   const draft: Array<Omit<PayslipRow, "no" | "balance">> = [];
   if (vcr && vcrTotal > 0) {
@@ -108,7 +111,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   const sheet = buildSheet({
     vcr: vcr ? { count: vouchers.length, total: vcrTotal, unit: amounts.size === 1 ? vouchers[0].amount : null } : null,
     salary: employee.salary,
-    kasbon: kasbonRows.map((k) => {
+    kasbon: autoKasbon.map((k) => {
       const d = k.decidedAt ?? k.createdAt;
       return { id: null, date: dLabel(d), dateRaw: d.toISOString().slice(0, 10), description: k.reason || "Kasbon", category: "Kasbon Uang", qty: null, debit: 0, credit: k.amount, note: null };
     }),
