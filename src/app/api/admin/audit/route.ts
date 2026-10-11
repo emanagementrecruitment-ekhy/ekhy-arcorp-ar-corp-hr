@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { auditActionLabel, auditRoleLabel, AUDIT_ACTIONS } from "@/lib/audit-format";
 
-const VIEWERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
+// Owner only (CONSULTANT is the vendor tier shown as Owner) — Manager and everyone else are refused.
+const VIEWERS = ["OWNER", "CONSULTANT"] as const;
 const PAGE_SIZE = 25;
 
-/** Riwayat Aktivitas — newest first, optional ?action= filter and ?page=. Owner/Manager only. */
+/** Riwayat Aktivitas — newest first, optional ?action= filter and ?page=. Owner only. */
 export async function GET(req: Request) {
   try {
     await requireSession([...VIEWERS]);

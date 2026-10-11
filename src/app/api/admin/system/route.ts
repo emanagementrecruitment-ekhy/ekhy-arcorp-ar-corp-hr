@@ -10,6 +10,7 @@ import { parseChangelog } from "@/lib/changelog";
 import { SETTING_ID } from "@/lib/settings";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"];
+const AUDIT_VIEWERS = ["OWNER", "CONSULTANT"]; // Riwayat Aktivitas is for the Owner only
 
 const SUPPORT_PHONE_DISPLAY = "0881-02545-8888";
 const SUPPORT_WA = "62881025458888";
@@ -78,7 +79,7 @@ export async function GET() {
         now: new Date().toISOString(),
       },
       changelog: parseChangelog(changelogText, 12),
-      viewer: { role: session.accessRole, canSeeAudit: isManager },
+      viewer: { role: session.accessRole, canSeeAudit: AUDIT_VIEWERS.includes(session.accessRole) },
     });
   } catch (e) {
     return apiError(e);
