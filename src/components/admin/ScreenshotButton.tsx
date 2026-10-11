@@ -16,9 +16,8 @@ import Icon from "@/components/ui/Icon";
  * bg-ar-red/25), while modern-screenshot renders via an SVG <foreignObject>
  * so the browser itself does the styling — it handles color-mix/oklch fine.
  *
- * Rendered once from admin/layout.tsx (not per-page) as a fixed-position
- * button so it stays put across every admin menu instead of disappearing
- * when navigating away from whichever page happened to render it.
+ * Rendered from AdminSidebar next to the Segarkan and Notifikasi buttons, so it stays
+ * put across every admin menu instead of disappearing when navigating away.
  */
 export default function ScreenshotButton() {
   const [selecting, setSelecting] = useState(false);
@@ -59,8 +58,12 @@ export default function ScreenshotButton() {
     setBusy(true);
     try {
       const { domToCanvas } = await import("modern-screenshot");
+      // Fill with the current theme's real page color (Siang is light, Malam is dark) instead of a fixed
+      // dark one, otherwise a Day-mode capture comes out with a night background.
+      const bg = getComputedStyle(document.documentElement).getPropertyValue("--ar-bg").trim();
+      const isLight = document.documentElement.getAttribute("data-mode") === "light";
       const fullCanvas = await domToCanvas(document.body, {
-        backgroundColor: "#0b0b0c",
+        backgroundColor: bg || (isLight ? "#f3f2ef" : "#0b0b0c"),
       });
       const scaleX = fullCanvas.width / document.body.scrollWidth;
       const scaleY = fullCanvas.height / document.body.scrollHeight;
@@ -101,7 +104,7 @@ export default function ScreenshotButton() {
         disabled={busy}
         title="Screenshot area layar"
         aria-label="Screenshot area layar"
-        className="fixed bottom-4 right-4 z-[90] w-10 h-10 shrink-0 grid place-items-center rounded-full bg-ar-surface/90 backdrop-blur border border-ar-line text-ar-dim cursor-pointer transition-colors hover:text-ar-text active:scale-95 disabled:opacity-60 shadow-lg"
+        className="w-9 h-9 shrink-0 grid place-items-center rounded-full bg-ar-surface2 border border-ar-line text-ar-dim cursor-pointer transition-colors hover:text-ar-text active:scale-95 disabled:opacity-60"
       >
         {busy ? <span className="text-[10px]">…</span> : <Icon name="scan" className="w-[19px] h-[19px]" />}
       </button>

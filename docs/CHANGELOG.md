@@ -8,6 +8,12 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [Unreleased]
 
 ### Changed
+- Tombol Screenshot dipindah dari pojok kanan bawah ke deretan atas, sejajar dengan tombol Segarkan dan Lonceng (tidak lagi tertutup pemberitahuan Railway).
+
+### Fixed
+- Screenshot: hasil tangkapan di Mode Siang kini berlatar terang (sebelumnya selalu berlatar malam); latar mengikuti tema yang sedang aktif.
+
+### Changed
 - Admin: ikon Segarkan, Screenshot, dan Lonceng diganti ikon garis modern (tanpa emoji); tombol Segarkan dipindah ke samping lonceng di bagian atas (sidebar desktop dan bar atas HP); kartu "Masuk sebagai" hanya menampilkan jabatan, teks akses dihapus.
 - Karyawan/Tera: tidak ada lagi tulisan GPS di halaman login maupun di dalam aplikasi — langkah absensi saat login berjalan diam-diam lalu langsung masuk, dan indikator lokasi aktif hanya titik hijau kecil di pojok kanan atas.
 - Mode Siang: warna teks dipertegas (lebih hitam) dan bobot huruf dinaikkan sedikit agar mudah dibaca.

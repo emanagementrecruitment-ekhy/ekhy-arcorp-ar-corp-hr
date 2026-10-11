@@ -8,6 +8,7 @@ import Icon, { type IconName } from "@/components/ui/Icon";
 import LogoutButton from "@/components/LogoutButton";
 import RefreshAppButton from "@/components/employee/RefreshAppButton";
 import NotificationBell from "@/components/admin/NotificationBell";
+import ScreenshotButton from "@/components/admin/ScreenshotButton";
 
 /** True at the lg breakpoint and up. The bell must exist exactly once (it polls and plays the chime), so we pick the layout in JS instead of rendering it in both. */
 function useIsDesktop() {
@@ -155,6 +156,7 @@ export default function AdminSidebar({
           className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
         <span className="flex items-center gap-1.5">
+        <ScreenshotButton />
         <RefreshAppButton iconOnly />
         {!isDesktop && <NotificationBell align="right" />}
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" className="p-2 text-ar-dim cursor-pointer">
@@ -215,6 +217,7 @@ export default function AdminSidebar({
           </div>
         </div>
         <div className="flex items-center justify-end gap-1.5 px-1.5 -mt-3">
+          <ScreenshotButton />
           <RefreshAppButton iconOnly />
           {isDesktop && <NotificationBell align="left" />}
         </div>
