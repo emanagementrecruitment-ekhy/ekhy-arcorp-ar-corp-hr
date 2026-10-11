@@ -16,6 +16,10 @@ export async function register() {
   const { setDefaultResultOrder } = await import("node:dns");
   setDefaultResultOrder("ipv4first");
 
+  // Log requests slower than SLOW_REQUEST_MS (default 500) as "[slow] METHOD /path status ms".
+  const { installSlowRequestLogger } = await import("./lib/slow-log");
+  await installSlowRequestLogger();
+
   // Next's dev server can call register() more than once across Fast
   // Refresh reloads — a module-scoped flag alone gets reset on each reload,
   // so a global is used to survive that and avoid stacking up intervals.
