@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Changed
+- Tombol Screenshot dipindah dari pojok kanan bawah ke deretan atas, sejajar dengan tombol Segarkan dan Lonceng (tidak lagi tertutup pemberitahuan Railway).
+
 ### Fixed
 - Screenshot: hasil tangkapan di Mode Siang kini berlatar terang (sebelumnya selalu berlatar malam); latar mengikuti tema yang sedang aktif.
 
