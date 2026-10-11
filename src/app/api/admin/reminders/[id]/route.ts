@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const { id } = await params;
 
     const reminder = await prisma.reminder.findUnique({ where: { id } });
@@ -18,6 +19,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     await prisma.reminder.delete({ where: { id } });
+    await logAudit(session, "REMINDER_DELETE", "Pengingat", "Satu pengingat dihapus");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

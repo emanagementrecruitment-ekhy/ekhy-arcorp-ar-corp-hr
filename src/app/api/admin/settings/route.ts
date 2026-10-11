@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, THEME_COLOR_IDS, THEME_FONT_IDS, THEME_COLORS, THEME_FONTS, LIGHT_MODE_IDS, LIGHT_MODES } from "@/lib/constants";
 import { SETTING_ID, getAppearanceSetting, logoUnlockDate, isLogoLocked } from "@/lib/settings";
@@ -34,7 +35,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const body = await req.json().catch(() => null);
     const themeColor = typeof body?.themeColor === "string" ? body.themeColor : undefined;
     const themeFont = typeof body?.themeFont === "string" ? body.themeFont : undefined;
@@ -61,6 +62,7 @@ export async function PATCH(req: Request) {
       },
     });
 
+    await logAudit(session, "SETTINGS_CHANGE", "Tampilan aplikasi", "Tema/font/mode diubah");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

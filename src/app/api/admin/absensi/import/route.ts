@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { readTabularFile, pickField } from "@/lib/import-file";
 
@@ -56,7 +57,7 @@ export async function GET() {
  */
 export async function POST(req: Request) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
 
     const form = await req.formData().catch(() => null);
     const file = form?.get("file");
@@ -127,6 +128,7 @@ export async function POST(req: Request) {
       }
     }
 
+    await logAudit(session, "IMPORT_DATA", "Absensi", "Impor file absensi");
     return NextResponse.json({ ok: true, created, alreadyMarked, errors });
   } catch (e) {
     return apiError(e);

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES, PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
@@ -31,7 +32,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const body = await req.json().catch(() => null);
 
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
       data: { employeeId, category, amount, note: note || null, startMonth },
     });
 
+    await logAudit(session, "RECURRING_COST", `${employee.name} (${employee.code})`, `${category} · Rp ${amount.toLocaleString("id-ID")}/bulan ditambah`);
     await ensureRecurringCosts(employeeId, startMonth);
     const payslip = await buildPayslip(employeeId, startMonth);
     return NextResponse.json({ ok: true, payslip });

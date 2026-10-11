@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
@@ -7,7 +8,7 @@ import { buildPayslip } from "@/lib/payslip";
 
 export async function POST(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const body = await req.json().catch(() => null);
 
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
     await prisma.savingEntry.create({ data: { employeeId, date, amount, note: note || null } });
 
     const payslip = await buildPayslip(employeeId, month);
+    await logAudit(session, "SAVING_ADD", await employeeLabel(employeeId), `Rp ${Math.round(amount).toLocaleString("id-ID")}`);
     return NextResponse.json({ ok: true, payslip });
   } catch (e) {
     return apiError(e);

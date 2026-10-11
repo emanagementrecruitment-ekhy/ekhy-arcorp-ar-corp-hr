@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { SETTING_ID } from "@/lib/settings";
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
       create: { id: SETTING_ID },
     });
 
+    await logAudit(session, "SETTINGS_CHANGE", "Tampilan aplikasi", "Direset ke bawaan");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

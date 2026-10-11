@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 
 /**
@@ -15,7 +16,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
  */
 export async function POST(req: Request) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const body = await req.json().catch(() => null);
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
     const dateKey = typeof body?.dateKey === "string" ? body.dateKey : "";
@@ -39,9 +40,11 @@ export async function POST(req: Request) {
 
     try {
       await prisma.attendance.create({ data: { employeeId, dateKey, month: dateKey.slice(0, 7), manual: true } });
+      await logAudit(session, "ABSENSI_EDIT", await employeeLabel(employeeId), `Absen manual ${dateKey}`);
       return NextResponse.json({ ok: true, alreadyMarked: false });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        await logAudit(session, "ABSENSI_EDIT", await employeeLabel(employeeId), `Absen manual ${dateKey}`);
         return NextResponse.json({ ok: true, alreadyMarked: true });
       }
       throw e;

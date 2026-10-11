@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { APPOINTABLE_ROLES } from "@/lib/constants";
 
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
       prisma.employee.update({ where: { id: employee.id }, data: { accessRole: seat.accessRole } }),
     ]);
 
+    await logAudit(session, "JABATAN_CHANGE", `${employee.name} (${employee.code})`, `Jabatan → ${seat.accessRole}`);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

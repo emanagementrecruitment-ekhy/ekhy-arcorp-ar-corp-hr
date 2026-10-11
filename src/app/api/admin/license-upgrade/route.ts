@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { licensingConfigured, getEmployeeLimit, validateUpgradeCode } from "@/lib/license";
@@ -25,7 +26,7 @@ export async function GET() {
 /** Owner/Consultant/Manager redeem a one-time upgrade code from the vendor to raise this deployment's employee/Tera cap — see src/lib/license.ts. */
 export async function POST(req: Request) {
   try {
-    await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
+    const session = await requireSession(["OWNER", "CONSULTANT", "MANAGER"]);
     const body = await req.json().catch(() => null);
     const code = typeof body?.code === "string" ? body.code.trim() : "";
     if (!code) return NextResponse.json({ error: "Kode upgrade wajib diisi." }, { status: 400 });
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
     const result = await validateUpgradeCode(code);
     if (!result.ok) return NextResponse.json({ error: result.error ?? "Kode upgrade tidak valid." }, { status: 403 });
 
+    await logAudit(session, "LICENSE_UPGRADE", "Paket", "Kode upgrade berhasil ditukar");
     return NextResponse.json({ ok: true, employeeLimit: result.employeeLimit });
   } catch (e) {
     return apiError(e);

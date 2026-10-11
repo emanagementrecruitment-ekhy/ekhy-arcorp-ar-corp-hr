@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
@@ -7,7 +8,7 @@ import { deliverPayslip } from "@/lib/payslip-delivery";
 
 export async function POST(req: Request) {
   try {
-    await requireSession(OFFICE_ROLES);
+    const session = await requireSession(OFFICE_ROLES);
     const body = await req.json().catch(() => null);
     const employeeId = typeof body?.employeeId === "string" ? body.employeeId : "";
     const month = parseMonth(typeof body?.month === "string" ? body.month : null);
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
 
     await ensureAttendancePenalty(employeeId, month);
     const result = await deliverPayslip(employeeId, month);
+    await logAudit(session, "PAYSLIP_SEND", await employeeLabel(employeeId), `Slip pay ${month}`);
     return NextResponse.json(result);
   } catch (e) {
     return apiError(e);

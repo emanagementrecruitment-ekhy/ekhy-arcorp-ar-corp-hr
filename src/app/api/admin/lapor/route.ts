@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
+import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { OFFICE_ROLES } from "@/lib/constants";
 import { timeLabel, dLabel } from "@/lib/format";
@@ -71,6 +72,7 @@ export async function POST(req: Request) {
       data: { employeeId, senderId: session.employeeId, fromSupervisor: true, text },
     });
 
+    await logAudit(session, "CHAT_SEND", await employeeLabel(employeeId), text.length > 140 ? `${text.slice(0, 140)}…` : text);
     return NextResponse.json({
       ok: true,
       message: {

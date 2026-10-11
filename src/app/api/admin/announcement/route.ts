@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { getAnnouncement, SETTING_ID } from "@/lib/settings";
 import { notifyOffice } from "@/lib/notify";
@@ -67,6 +68,7 @@ export async function PUT(req: Request) {
       );
     }
 
+    await logAudit(session, "ANNOUNCEMENT_SET", "Pengumuman", "Teks/jadwal pengumuman diperbarui");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);

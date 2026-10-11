@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { STAFF_CODE_PREFIX, TERA_CODE_PREFIX, codePrefixForRole, formatCode, nextCodeNumber } from "@/lib/employee-code";
 import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, FIELD_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
@@ -117,7 +118,7 @@ function toIntOrNull(raw: string): number | null {
  */
 export async function POST(req: Request) {
   try {
-    await requireSession([...MANAGERS]);
+    const session = await requireSession([...MANAGERS]);
 
     const form = await req.formData().catch(() => null);
     const file = form?.get("file");
@@ -255,6 +256,7 @@ export async function POST(req: Request) {
       slotsLeft--;
     }
 
+    await logAudit(session, "IMPORT_DATA", "Karyawan/Tera", `${created} baris dibuat`);
     return NextResponse.json({ ok: true, created, skippedLimit, errors });
   } catch (e) {
     return apiError(e);

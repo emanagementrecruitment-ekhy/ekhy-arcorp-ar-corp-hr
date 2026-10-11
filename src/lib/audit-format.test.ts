@@ -5,6 +5,9 @@ import { auditActionLabel, auditRoleLabel, describeEmployeeChange } from "./audi
 test("action and role labels", () => {
   assert.equal(auditActionLabel("KASBON_DECIDE"), "Keputusan kasbon");
   assert.equal(auditActionLabel("UNKNOWN_X"), "UNKNOWN_X");
+  for (const a of ["LOGIN", "CHAT_SEND", "ABSENSI_EDIT", "JABATAN_CHANGE", "SETTINGS_CHANGE", "PAYSLIP_SEND"]) {
+    assert.notEqual(auditActionLabel(a), a, `${a} needs a label`);
+  }
   assert.equal(auditRoleLabel("CONSULTANT"), "Owner");
   assert.equal(auditRoleLabel("ADMIN_PUSAT"), "Admin Pusat");
 });

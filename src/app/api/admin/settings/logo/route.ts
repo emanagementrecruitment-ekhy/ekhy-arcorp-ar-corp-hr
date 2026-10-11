@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { requireSession, apiError, ApiAuthError } from "@/lib/api-auth";
 import { SETTING_ID, getAppearanceSetting, isLogoLocked, logoUnlockDate } from "@/lib/settings";
 
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
       create: { id: SETTING_ID, logoDataUrl: dataUrl, logoUpdatedAt: now, logoUpdatedById: session.employeeId },
     });
 
+    await logAudit(session, "SETTINGS_CHANGE", "Logo aplikasi", "Logo diganti");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return apiError(e);
