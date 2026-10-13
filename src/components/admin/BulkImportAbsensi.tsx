@@ -7,6 +7,10 @@ interface ImportResult {
   created: number;
   alreadyMarked: number;
   errors: { row: number; info: string; error: string }[];
+  // Only for the monthly report format (one sheet per month).
+  format?: "laporan-bulanan";
+  skippedFuture?: number;
+  sheets?: { sheet: string; label: string; people: number; created: number; alreadyMarked: number }[];
 }
 
 /**
@@ -58,7 +62,8 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
         <div className="mt-2.5 p-4 bg-ar-surface border border-ar-goldline rounded-2xl">
           <div className="text-[11px] text-ar-dim mb-3 leading-[1.6]">
             Untuk backfill absen yang lupa di-tap, atau catatan kehadiran dari kertas — satu baris per karyawan/Tera
-            per tanggal.{" "}
+            per tanggal. Laporan bulanan Excel (satu sheet per bulan, kolom tanggal 1–31, angka = hadir) juga bisa
+            diupload apa adanya.{" "}
             {/* File download from a route handler, not a page: next/link would client-navigate to it. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/admin/absensi/import" className="text-ar-gold underline">
@@ -94,14 +99,25 @@ export default function BulkImportAbsensi({ onImported }: { onImported: () => vo
           {result && (
             <div className="mt-3.5 p-3.5 bg-[rgba(127,209,168,.1)] border border-[rgba(127,209,168,.3)] rounded-xl text-[11.5px] text-ar-green leading-[1.7]">
               ✓ {result.created} absen baru tercatat
-              {result.alreadyMarked > 0 && ` · ${result.alreadyMarked} sudah tercatat sebelumnya`}.
+              {result.alreadyMarked > 0 && ` · ${result.alreadyMarked} sudah tercatat sebelumnya`}
+              {!!result.skippedFuture && ` · ${result.skippedFuture} tanggal belum terjadi dilewati`}.
+              {result.sheets && result.sheets.length > 0 && (
+                <ul className="mt-1.5 list-disc list-inside text-ar-dim">
+                  {result.sheets.map((sh) => (
+                    <li key={sh.sheet}>
+                      {sh.sheet} ({sh.label}): {sh.people} orang · {sh.created} baru
+                      {sh.alreadyMarked > 0 && ` · ${sh.alreadyMarked} sudah ada`}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {result.errors.length > 0 && (
                 <div className="text-ar-faint mt-2">
-                  {result.errors.length} baris dilewati karena error:
+                  {result.errors.length} {result.format ? "nama" : "baris"} dilewati karena error:
                   <ul className="mt-1 list-disc list-inside">
                     {result.errors.map((e, i) => (
                       <li key={i}>
-                        Baris {e.row} ({e.info}): {e.error}
+                        {result.format ? e.error : `Baris ${e.row} (${e.info}): ${e.error}`}
                       </li>
                     ))}
                   </ul>
