@@ -6,6 +6,7 @@ import { monthLabel } from "./format";
 import { getActiveAnnouncementText } from "./settings";
 import { tryConsumeAi } from "./ai-usage";
 import { limitNotice } from "./ai-limits";
+import { anthropicHeadersFromEnv } from "./ai-client-config";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import {
   ATTENDANCE_MIN_DAYS,
@@ -127,7 +128,7 @@ export interface AssistantReply {
 
 let client: Anthropic | null = null;
 function anthropic(): Anthropic {
-  client ??= new Anthropic({ timeout: 45_000, maxRetries: 1 });
+  client ??= new Anthropic({ timeout: 45_000, maxRetries: 1, defaultHeaders: anthropicHeadersFromEnv(process.env) });
   return client;
 }
 

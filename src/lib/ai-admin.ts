@@ -6,6 +6,7 @@ import { getAssistantSnapshot } from "./assistant";
 import { aiConfigured } from "./ai-assistant";
 import { tryConsumeAi } from "./ai-usage";
 import { limitNotice } from "./ai-limits";
+import { anthropicHeadersFromEnv } from "./ai-client-config";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import { monthLabel } from "./format";
 import { ATTENDANCE_MIN_DAYS, DEMO_TERA_CODE, STAFF_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "./constants";
@@ -187,7 +188,7 @@ async function ruleAnswerAdmin(intent: AdminIntent, message: string, adminName: 
 
 let client: Anthropic | null = null;
 function anthropic(): Anthropic {
-  client ??= new Anthropic({ timeout: 60_000, maxRetries: 1 });
+  client ??= new Anthropic({ timeout: 60_000, maxRetries: 1, defaultHeaders: anthropicHeadersFromEnv(process.env) });
   return client;
 }
 
