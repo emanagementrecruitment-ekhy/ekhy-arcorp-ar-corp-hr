@@ -642,3 +642,19 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .ar-copyright-gold { animation: none; background-position: 40% 0; }
 }
+
+/* ---- Ara, the AR Corp doll mascot (src/components/employee/ArMascot.tsx) ---- */
+.arc-mascot { display: block; overflow: visible; }
+.arc-mascot-dots { opacity: 0; }
+.arc-mascot-eyes { transform-box: fill-box; transform-origin: center; animation: arcMascotBlink 4.6s infinite; }
+.arc-mascot-thinking .arc-mascot-dots { opacity: 1; animation: arcMascotDots 1.2s infinite; }
+.arc-mascot-thinking .arc-mascot-eyes { animation: none; transform: translateY(-2px); }
+.arc-mascot-talking .arc-mascot-mouth { transform-box: fill-box; transform-origin: center; animation: arcMascotTalk 0.5s infinite; }
+@keyframes arcMascotBlink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+@keyframes arcMascotDots { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes arcMascotTalk { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.9) translateY(1px); } }
+@keyframes arcAraFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.arc-ara-fab { animation: arcAraFloat 3.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .arc-mascot-eyes, .arc-mascot-dots, .arc-mascot-mouth, .arc-ara-fab { animation: none !important; }
+}

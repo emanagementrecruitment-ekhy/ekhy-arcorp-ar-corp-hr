@@ -5,6 +5,7 @@ import AppHeader from "@/components/employee/AppHeader";
 import BottomNav from "@/components/employee/BottomNav";
 import PushSubscribe from "@/components/employee/PushSubscribe";
 import LiveLocationPing from "@/components/employee/LiveLocationPing";
+import AssistantChat from "@/components/employee/AssistantChat";
 
 export default async function EmployeeLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -25,6 +26,7 @@ export default async function EmployeeLayout({ children }: { children: React.Rea
         <LiveLocationPing />
         {children}
       </main>
+      <AssistantChat />
       <BottomNav />
     </div>
   );

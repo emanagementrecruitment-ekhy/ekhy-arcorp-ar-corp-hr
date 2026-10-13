@@ -35,6 +35,8 @@ export const AUDIT_ACTIONS = {
   DATA_RESET: "Data direset ke nol",
   ASSISTANT_REMIND: "Asisten: pengingat absen manual",
   ASSISTANT_TOGGLE: "Asisten Harian dinyalakan/dijeda",
+  ASSISTANT_ASK: "Pertanyaan karyawan ke asisten AI",
+  ASSISTANT_FORWARD: "Permintaan karyawan diteruskan ke kantor",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
