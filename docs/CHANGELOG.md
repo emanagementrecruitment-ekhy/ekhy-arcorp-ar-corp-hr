@@ -7,6 +7,8 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Ara (Claude): variabel opsional `ANTHROPIC_WORKSPACE_ID` untuk kunci API yang tidak terikat ke satu workspace Anthropic. Tanpa ini kunci seperti itu ditolak (HTTP 400) dan Ara jatuh ke jawaban berbasis aturan.
+
 ### Added
 - Batas harian untuk pertanyaan bebas Ara ke Claude, supaya biaya ANTHROPIC_API_KEY terkendali: total seluruh aplikasi per hari (`ASSISTANT_AI_DAILY_LIMIT`, default 300, 0 = matikan Claude) dan per orang per hari (`ASSISTANT_AI_PER_USER_LIMIT`, default 20; kantor mendapat 3x lipat). Hanya pertanyaan yang benar-benar dikirim ke Claude yang dihitung; pertanyaan umum (absen, VCR, Slip Pay, kasbon) dijawab aturan dan tidak dihitung. Hitungan tersimpan di database sehingga tidak reset saat server restart dan tidak bisa dilampaui oleh permintaan bersamaan. Saat batas tercapai, Ara tetap menjawab pertanyaan umum dan memberi tahu bahwa pertanyaan bebas bisa dicoba lagi besok. Pemakaian hari ini tampil di halaman Asisten Harian.
 - Menu baru "Import Data" (Owner, Konsultan, Admin Pusat, Manager): satu halaman untuk mengunduh template Excel siap isi dan mengupload file yang sudah diisi, sehingga data masuk otomatis tanpa input satu per satu. Tersedia untuk Karyawan & Tera baru, Absensi (daftar per tanggal atau laporan bulanan), Pendapatan VCR, Kasbon, dan Rincian Slip Pay. Sheet Data pada template baru sengaja kosong (contoh ada di sheet "Contoh & Panduan") sehingga template yang terupload apa adanya tidak memasukkan data palsu. Baris yang salah dilewati dengan alasan, dan upload ulang file yang sama aman (tidak dobel).
