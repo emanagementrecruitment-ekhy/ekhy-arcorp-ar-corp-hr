@@ -33,6 +33,8 @@ export const AUDIT_ACTIONS = {
   PHOTO_CHANGE: "Foto profil diubah",
   IDENTITY_CHANGE: "Identitas Owner diubah",
   DATA_RESET: "Data direset ke nol",
+  ASSISTANT_REMIND: "Asisten: pengingat absen manual",
+  ASSISTANT_TOGGLE: "Asisten Harian dinyalakan/dijeda",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
