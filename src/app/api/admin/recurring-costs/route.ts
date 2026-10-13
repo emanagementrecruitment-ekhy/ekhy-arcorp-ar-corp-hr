@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
+import { OFFICE_ROLES, PAYSLIP_COST_CATEGORIES, usesVcr, isStaffRole } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
 import { monthLabel } from "@/lib/format";
 import { ensureRecurringCosts, buildPayslip } from "@/lib/payslip";
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     if (amount <= 0) return NextResponse.json({ error: "Isi nominal." }, { status: 400 });
 
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-    if (!employee || employee.accessRole !== "KARYAWAN") {
+    if (!employee || !isStaffRole(employee.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
     if (!usesVcr(employee.role)) {

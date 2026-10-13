@@ -1,3 +1,4 @@
+import { isStaffRole } from "@/lib/constants";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAudit, employeeLabel } from "@/lib/audit";
@@ -26,7 +27,7 @@ export async function PUT(req: Request) {
     }
 
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-    if (!employee || employee.accessRole !== "KARYAWAN") return NextResponse.json({ error: "Karyawan/Tera tidak ditemukan." }, { status: 404 });
+    if (!employee || !isStaffRole(employee.accessRole)) return NextResponse.json({ error: "Karyawan/Tera tidak ditemukan." }, { status: 404 });
     if (employee.status !== "AKTIF") return NextResponse.json({ error: "Karyawan/Tera ini berstatus Resign." }, { status: 400 });
 
     if (code === null) {

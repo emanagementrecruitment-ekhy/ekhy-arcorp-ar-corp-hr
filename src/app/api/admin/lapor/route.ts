@@ -3,7 +3,7 @@ import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { logAudit, employeeLabel } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES } from "@/lib/constants";
+import { OFFICE_ROLES, STAFF_ROLES } from "@/lib/constants";
 import { timeLabel, dLabel } from "@/lib/format";
 
 // Admin Pusat can only view (per its scoped duties); replying is Kepala
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
     }
 
     const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN", chatsAsEmployee: { some: {} } },
+      where: { accessRole: { in: [...STAFF_ROLES] }, chatsAsEmployee: { some: {} } },
       select: { ...EMPLOYEE_NO_PHOTO, chatsAsEmployee: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 

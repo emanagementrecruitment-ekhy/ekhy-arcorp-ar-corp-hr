@@ -3,15 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
 import { dLabel, monthLabel } from "./format";
-import {
-  VOUCHER_LABEL,
-  usesVcr,
-  ATTENDANCE_MIN_DAYS,
-  ATTENDANCE_PENALTY_AMOUNT,
-  ATTENDANCE_PENALTY_CATEGORY,
-  ATTENDANCE_CHECKIN_START_MONTH,
-  type EmployeeLevel,
-} from "./constants";
+import { VOUCHER_LABEL, usesVcr, ATTENDANCE_MIN_DAYS, ATTENDANCE_PENALTY_AMOUNT, ATTENDANCE_PENALTY_CATEGORY, ATTENDANCE_CHECKIN_START_MONTH, type EmployeeLevel, isStaffRole } from "./constants";
 import { getAttendanceDaysCount, daysInMonth } from "./attendance";
 import { buildSheet, sheetTotal, type SheetRow } from "./payslip-sheet";
 
@@ -59,7 +51,7 @@ export interface Payslip {
 export async function buildPayslip(employeeId: string, month: string): Promise<Payslip | null> {
   const { start, end } = monthRange(month);
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-  if (!employee || employee.accessRole !== "KARYAWAN") return null;
+  if (!employee || !isStaffRole(employee.accessRole)) return null;
 
   const [vouchers, kasbonRows, items, savings, hariHadir] = await Promise.all([
     prisma.voucher.findMany({ where: { employeeId, occurredAt: { gte: start, lt: end } } }),

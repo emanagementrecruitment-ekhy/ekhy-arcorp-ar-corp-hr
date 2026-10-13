@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkOwnerCode } from "@/lib/owner-confirm";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel, isStaffRole } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { parseBirthDate } from "@/lib/birthday";
 import { logAudit } from "@/lib/audit";
@@ -15,7 +15,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json().catch(() => null);
 
     const existing = await prisma.employee.findUnique({ where: { id } });
-    if (!existing || existing.accessRole !== "KARYAWAN") {
+    if (!existing || !isStaffRole(existing.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
 
@@ -80,7 +80,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     if (supervisorId) {
       const supervisor = await prisma.employee.findUnique({ where: { id: supervisorId } });
-      if (!supervisor || supervisor.accessRole !== "KARYAWAN" || supervisor.role !== "Kepala Mess") {
+      if (!supervisor || !isStaffRole(supervisor.accessRole) || supervisor.role !== "Kepala Mess") {
         return NextResponse.json({ error: "Supervisor harus karyawan berperan Kepala Mess." }, { status: 400 });
       }
     }
@@ -155,7 +155,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const existing = await prisma.employee.findUnique({ where: { id } });
-    if (!existing || existing.accessRole !== "KARYAWAN") {
+    if (!existing || !isStaffRole(existing.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
 

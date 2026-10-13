@@ -1,3 +1,4 @@
+import { isStaffRole } from "@/lib/constants";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-    if (!employee || employee.accessRole !== "KARYAWAN") {
+    if (!employee || !isStaffRole(employee.accessRole)) {
       return NextResponse.json({ error: "Karyawan/Tera tidak ditemukan." }, { status: 404 });
     }
     if (employee.status !== "AKTIF") {

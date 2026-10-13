@@ -1,3 +1,4 @@
+import { STAFF_ROLES } from "@/lib/constants";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
@@ -42,7 +43,7 @@ export async function GET() {
 
     const [employeeLimit, employeeCount, setting, lastBackup, changelogText, dbKb] = await Promise.all([
       getEmployeeLimit(),
-      prisma.employee.count({ where: { accessRole: "KARYAWAN", status: "AKTIF" } }),
+      prisma.employee.count({ where: { accessRole: { in: [...STAFF_ROLES] }, status: "AKTIF" } }),
       prisma.appSetting.findUnique({ where: { id: SETTING_ID }, select: { ownerGeneratedAt: true } }),
       prisma.auditLog.findFirst({ where: { action: "BACKUP_DOWNLOAD" }, orderBy: { at: "desc" }, select: { at: true, actorName: true } }),
       readFile(path.join(process.cwd(), "docs", "CHANGELOG.md"), "utf8").catch(() => ""),

@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Fixed
+- Karyawan yang diangkat menjadi Admin Pusat, Kepala Mess, atau Manager tidak lagi hilang dari Data Karyawan: tetap tampil di daftar, slip pay, Laporan Totalan (total gaji), Absensi Harian, rekap pendapatan, dan hitungan batas karyawan. Kepala Mess yang diangkat juga tetap bisa dipilih sebagai pengawas. Akun Owner/Konsultan tetap tidak masuk daftar karyawan.
+
 ### Changed
 - Titik Kantor Pusat dipindah ke alamat office: Jl. Mangga Besar IX No.1 Blok B2, Pinangsia, Taman Sari, Jakarta Barat. Alamat tampil di popup peta; lokasi terdaftar karyawan yang masih memakai titik lama ikut dipindah. Radius absensi tetap 1.000 km.
 

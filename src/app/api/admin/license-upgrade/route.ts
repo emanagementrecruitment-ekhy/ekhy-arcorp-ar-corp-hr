@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES } from "@/lib/constants";
+import { OFFICE_ROLES, STAFF_ROLES } from "@/lib/constants";
 import { licensingConfigured, getEmployeeLimit, validateUpgradeCode } from "@/lib/license";
 
 export async function GET() {
@@ -10,7 +10,7 @@ export async function GET() {
     await requireSession(OFFICE_ROLES);
     const [employeeLimit, currentCount] = await Promise.all([
       getEmployeeLimit(),
-      prisma.employee.count({ where: { accessRole: "KARYAWAN" } }),
+      prisma.employee.count({ where: { accessRole: { in: [...STAFF_ROLES] } } }),
     ]);
 
     return NextResponse.json({

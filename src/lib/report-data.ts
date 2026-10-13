@@ -1,7 +1,7 @@
 import "server-only";
 import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
-import { VCR_ROLE, employeeRate, type EmployeeLevel } from "@/lib/constants";
+import { VCR_ROLE, employeeRate, type EmployeeLevel, STAFF_ROLES } from "@/lib/constants";
 import { periodStart, PERIOD_LABEL, type Period } from "@/lib/period";
 import { salaryForPeriod } from "@/lib/report-calc";
 
@@ -14,7 +14,7 @@ export async function buildOperationalReport(period: Period, now = new Date()) {
 
   const [teraList, staffList] = await Promise.all([
     prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN", role: VCR_ROLE },
+      where: { accessRole: { in: [...STAFF_ROLES] }, role: VCR_ROLE },
       select: {
         ...EMPLOYEE_NO_PHOTO,
         vouchers: { where: { occurredAt: { gte: start } } },
@@ -23,7 +23,7 @@ export async function buildOperationalReport(period: Period, now = new Date()) {
       orderBy: { code: "asc" },
     }),
     prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN", role: { not: VCR_ROLE }, status: "AKTIF" },
+      where: { accessRole: { in: [...STAFF_ROLES] }, role: { not: VCR_ROLE }, status: "AKTIF" },
       select: {
         ...EMPLOYEE_NO_PHOTO,
         kasbonRequests: { where: { status: "DISETUJUI", createdAt: { gte: start } } },

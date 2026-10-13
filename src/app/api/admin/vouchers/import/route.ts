@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { FIELD_CITIES, HQ, type EmployeeLevel } from "@/lib/constants";
+import { FIELD_CITIES, HQ, type EmployeeLevel, STAFF_ROLES } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
 import { fmtRp } from "@/lib/format";
 import { getEmployeeLimit } from "@/lib/license";
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
     const buf = Buffer.from(await (file as File).arrayBuffer());
 
     const [existingEmployees, existingEmails, existingPhones] = await Promise.all([
-      prisma.employee.findMany({ where: { accessRole: "KARYAWAN" }, select: { id: true, name: true, homePlace: true } }),
+      prisma.employee.findMany({ where: { accessRole: { in: [...STAFF_ROLES] } }, select: { id: true, name: true, homePlace: true } }),
       prisma.employee.findMany({ select: { email: true } }),
       prisma.employee.findMany({ select: { phone: true } }),
     ]);

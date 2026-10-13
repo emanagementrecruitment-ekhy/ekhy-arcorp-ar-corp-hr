@@ -6,7 +6,7 @@ import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { OFFICE_ROLES, EMPLOYEE_LEVELS, FIELD_CITIES, VCR_ROLE, usesVcr, type EmployeeLevel, STAFF_ROLES, isStaffRole } from "@/lib/constants";
 import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { getEmployeeLimit } from "@/lib/license";
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     // list (see EMPLOYEE_STATUSES) so an admin can review or reactivate them.
     const status = searchParams.get("status") === "RESIGN" ? "RESIGN" : "AKTIF";
     const where = {
-      accessRole: "KARYAWAN" as const,
+      accessRole: { in: [...STAFF_ROLES] },
       status,
       ...(type === "tera" ? { role: VCR_ROLE } : type === "staff" ? { role: { not: VCR_ROLE } } : {}),
       ...(q
@@ -179,7 +179,7 @@ export async function POST(req: Request) {
 
     const employeeLimit = await getEmployeeLimit();
     if (employeeLimit !== null) {
-      const currentCount = await prisma.employee.count({ where: { accessRole: "KARYAWAN", status: "AKTIF" } });
+      const currentCount = await prisma.employee.count({ where: { accessRole: { in: [...STAFF_ROLES] }, status: "AKTIF" } });
       if (currentCount >= employeeLimit) {
         return NextResponse.json(
           { error: `Batas paket (${employeeLimit} karyawan/Tera) sudah tercapai. Hubungi vendor untuk upgrade paket.` },
@@ -238,7 +238,7 @@ export async function POST(req: Request) {
 
     if (supervisorId) {
       const supervisor = await prisma.employee.findUnique({ where: { id: supervisorId } });
-      if (!supervisor || supervisor.accessRole !== "KARYAWAN" || supervisor.role !== "Kepala Mess") {
+      if (!supervisor || !isStaffRole(supervisor.accessRole) || supervisor.role !== "Kepala Mess") {
         return NextResponse.json({ error: "Supervisor harus karyawan berperan Kepala Mess." }, { status: 400 });
       }
     }

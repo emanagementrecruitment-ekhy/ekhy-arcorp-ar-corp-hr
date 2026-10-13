@@ -15,7 +15,7 @@ export async function GET() {
     const restricted = session.accessRole === "SUPERVISOR";
 
     const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN" },
+      where: { accessRole: { in: ["KARYAWAN", "SUPERVISOR"] } },
       select: { ...EMPLOYEE_NO_PHOTO, loginEvents: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 

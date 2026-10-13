@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM, ATTENDANCE_MIN_DAYS, usesVcr } from "@/lib/constants";
+import { OFFICE_ROLES, HQ, ATTENDANCE_RADIUS_KM, ATTENDANCE_MIN_DAYS, usesVcr, STAFF_ROLES } from "@/lib/constants";
 import { shortRp, dLabel, dayKey, timeLabel, monthLabel } from "@/lib/format";
 import { parseMonth } from "@/lib/period";
 import { distanceKm } from "@/lib/geo";
@@ -24,7 +24,7 @@ export async function GET() {
 
     const [employees, vouchers14, todayVouchers, monthVouchers, pendingKasbon, latestLoginPerEmployee, monthAttendance] =
       await Promise.all([
-        prisma.employee.findMany({ where: { accessRole: "KARYAWAN" }, select: EMPLOYEE_NO_PHOTO }),
+        prisma.employee.findMany({ where: { accessRole: { in: [...STAFF_ROLES] } }, select: EMPLOYEE_NO_PHOTO }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: start14 } } }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: startToday } } }),
         prisma.voucher.findMany({ where: { occurredAt: { gte: start30 } } }),
