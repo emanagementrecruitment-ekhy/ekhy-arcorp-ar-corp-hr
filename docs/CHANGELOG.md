@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Fixed
+- Peta Lokasi & Absensi: titik karyawan yang koordinatnya sama (mis. lokasi terdaftar di kantor pusat, belum ada GPS) tidak lagi menumpuk jadi satu titik "macet"; titik menyebar melingkar di sekitar lokasi aslinya dan tidak menutupi penanda Kantor pusat.
+
 ### Changed
 - Pusat Sistem kini terkunci untuk selain Owner: tulisan kecil di bawah Keluar tetap ada, tetapi Manager dan Admin Pusat hanya melihat "Halaman ini terkunci"; API sistem, Riwayat Aktivitas, dan unduh backup hanya untuk Owner. Log tidak bisa dihapus siapa pun.
 
