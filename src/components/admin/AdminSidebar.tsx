@@ -29,6 +29,7 @@ type Desk = Link_ | Group;
 
 const DESKS: readonly Desk[] = [
   { href: "/admin", icon: "home", label: "Ringkasan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+  { href: "/admin/asisten", icon: "sparkle", label: "Asisten Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   { href: "/admin/lokasi", icon: "pin", label: "Lokasi, Absensi & Kalender", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] },
   { href: "/admin/absensi-harian", icon: "calendar-check", label: "Absensi Harian", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
   {

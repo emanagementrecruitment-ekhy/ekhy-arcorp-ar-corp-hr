@@ -29,9 +29,11 @@ export async function register() {
 
   const { processDueReminders } = await import("./lib/reminder-scheduler");
   const { checkBirthdaysToday } = await import("./lib/birthday-scheduler");
+  const { runDueTasks } = await import("./lib/assistant");
   const CHECK_INTERVAL_MS = 60_000;
   setInterval(() => {
     processDueReminders().catch((err) => console.error("[instrumentation] reminder check failed:", err));
     checkBirthdaysToday().catch((err) => console.error("[instrumentation] birthday check failed:", err));
+    runDueTasks().catch((err) => console.error("[instrumentation] assistant tasks failed:", err));
   }, CHECK_INTERVAL_MS);
 }

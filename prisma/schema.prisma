@@ -359,6 +359,9 @@ model AppSetting {
   // licensing not configured for this deployment — either way, no cap.
   employeeLimit Int?
 
+  // Asisten Harian (src/lib/assistant.ts): automatic attendance + VCR reminders. false pauses every automatic task.
+  assistantEnabled Boolean @default(true)
+
   // Single running-text announcement shown to karyawan/Tera below the logo
   // on every /app/* page (see AppHeader.tsx and /api/announcement) — set
   // from the Kalender Pengingat admin page by
@@ -410,4 +413,21 @@ model AuditLog {
 
   @@index([at])
   @@index([action, at])
+}
+
+// One row per Asisten Harian task that actually ran. The unique (dateKey, task) pair is what makes every
+// scheduled task fire at most once a day, even across restarts or two overlapping ticks — the row is
+// claimed first, the work (pushes, office notification) happens after, and the counts are filled in last.
+model AssistantRun {
+  id        String   @id @default(cuid())
+  dateKey   String   // "YYYY-MM-DD" in Asia/Jakarta
+  task      String   // see ASSISTANT_TASKS in src/lib/assistant-rules.ts, or "manual-<timestamp>"
+  ranAt     DateTime @default(now())
+  targets   Int      @default(0) // people the task wanted to reach
+  delivered Int      @default(0) // people who actually got a push on at least one device
+  summary   String   @default("")
+  manual    Boolean  @default(false)
+
+  @@unique([dateKey, task])
+  @@index([ranAt])
 }

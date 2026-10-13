@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Added
+- Menu baru "Asisten Harian" (Owner, Admin Pusat, Manager) — asisten otomatis berbasis aturan, tanpa layanan AI luar sehingga data karyawan tidak keluar dari server. Setiap hari (WIB): 08.00 pengingat absen ke yang belum absen, 11.15 pengingat terakhir sebelum batas absen (12.00 + toleransi 15 menit, pinalty Rp200.000 untuk karyawan), 12.30 laporan ke kantor siapa yang belum absen, 19.30 pengingat input VCR ke Tera yang sudah masuk tapi belum ada VCR, dan 21.00 laporan total VCR hari ini ke kantor beserta temuan (total kurang dari separuh rata-rata 7 hari, atau lonjakan tak wajar per Tera). Tiap tugas hanya jalan sekali per hari. Dashboard menampilkan yang sudah/belum absen, VCR hari ini/rata-rata/bulan ini, VCR per Tera, jadwal beserta statusnya, riwayat kerja asisten, tombol "Ingatkan sekarang", dan tombol Jeda/Nyalakan. Pengingat ke HP butuh karyawan mengaktifkan notifikasi dan kunci VAPID di server; dashboard menunjukkan siapa yang belum.
+
 ### Fixed
 - Popup di peta Lokasi & Absensi kini terbaca jelas di Mode Malam maupun Siang (sebelumnya teks pucat di atas latar putih hampir tak terlihat); huruf lebih besar dan tebal, status "GPS langsung"/peringatan berwarna kontras, serta tombol Edit karyawan yang jelas.
 
