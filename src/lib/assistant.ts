@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import { SETTING_ID } from "./settings";
 import { notifyOffice } from "./notify";
 import { sendPushToEmployee, pushConfigured } from "./push";
+import { getAiUsageToday } from "./ai-usage";
 import { DEMO_TERA_CODE, VCR_ROLE, LATE_CHECKIN_DEADLINE_HOUR, LATE_CHECKIN_GRACE_MINUTES, LATE_CHECKIN_PENALTY_AMOUNT } from "./constants";
 import { fmtRp } from "./format";
 import {
@@ -313,6 +314,7 @@ export interface AssistantSnapshot {
   now: { dateKey: string; time: string };
   enabled: boolean;
   pushReady: boolean;
+  ai: { configured: boolean; used: number; limit: number };
   coverage: { total: number; withPush: number };
   attendance: {
     expected: number;
@@ -336,7 +338,7 @@ const TASK_LABEL = new Map<string, string>(ASSISTANT_TASKS.map((t) => [t.id, t.l
 
 export async function getAssistantSnapshot(now: Date = new Date()): Promise<AssistantSnapshot> {
   const clock = jakartaClock(now);
-  const [enabled, roster, checked, withPush, vcr, runsToday, recent] = await Promise.all([
+  const [enabled, roster, checked, withPush, vcr, runsToday, recent, aiUsage] = await Promise.all([
     isAssistantEnabled(),
     rosterToday(),
     checkedInIds(clock.dateKey),
@@ -344,6 +346,7 @@ export async function getAssistantSnapshot(now: Date = new Date()): Promise<Assi
     vcrOverview(clock),
     prisma.assistantRun.findMany({ where: { dateKey: clock.dateKey } }),
     prisma.assistantRun.findMany({ orderBy: { ranAt: "desc" }, take: 25 }),
+    getAiUsageToday(now),
   ]);
 
   const unchecked = roster.filter((p) => !checked.has(p.id));
@@ -353,6 +356,7 @@ export async function getAssistantSnapshot(now: Date = new Date()): Promise<Assi
     now: { dateKey: clock.dateKey, time: hhmm(clock.minutes) },
     enabled,
     pushReady: pushConfigured(),
+    ai: { configured: !!process.env.ANTHROPIC_API_KEY?.trim(), ...aiUsage },
     coverage: { total: roster.length, withPush: roster.filter((p) => withPush.has(p.id)).length },
     attendance: {
       expected: roster.length,

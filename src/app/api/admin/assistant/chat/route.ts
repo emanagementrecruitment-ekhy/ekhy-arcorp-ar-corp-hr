@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Batas tanya hari ini sudah tercapai." }, { status: 429 });
     }
 
-    const reply = await answerAdmin(session.name, message, sanitizeHistory(body?.history));
+    const reply = await answerAdmin(session.employeeId, session.name, message, sanitizeHistory(body?.history));
     // Questions handed to Claude leave the server, so they are logged for the Owner (rule answers are not).
     if (reply.source === "ai") await logAudit(session, "ASSISTANT_ADMIN_ASK", session.name, message.slice(0, 160));
     return NextResponse.json({ text: reply.text, source: reply.source, links: reply.links, canForward: false, aiConfigured: aiConfigured() });

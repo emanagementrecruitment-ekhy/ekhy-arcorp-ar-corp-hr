@@ -4,6 +4,8 @@ import { prisma } from "./prisma";
 import { buildPayslip, ensureRecurringCosts } from "./payslip";
 import { monthLabel } from "./format";
 import { getActiveAnnouncementText } from "./settings";
+import { tryConsumeAi } from "./ai-usage";
+import { limitNotice } from "./ai-limits";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import {
   ATTENDANCE_MIN_DAYS,
@@ -174,6 +176,13 @@ export async function answerEmployee(employeeId: string, message: string, histor
 
   if (!useAi) {
     return { text: unknownAnswer(facts), source: "rules", intent: null, links: [], canForward: true };
+  }
+
+  // Claude costs money: spend one slot of today's allowance (per person and app-wide) or stay rule-based.
+  const gate = await tryConsumeAi(employeeId, false);
+  if (!gate.ok) {
+    const base = intent ? ruleAnswer(intent, facts) : unknownAnswer(facts);
+    return { text: `${base}\n\n${limitNotice(gate.reason)}`, source: "rules", intent, links: suggestLinks(message), canForward: true };
   }
 
   try {
