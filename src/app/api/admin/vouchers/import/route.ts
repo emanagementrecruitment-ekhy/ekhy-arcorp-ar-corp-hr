@@ -8,6 +8,7 @@ import { notifyOffice } from "@/lib/notify";
 import { fmtRp } from "@/lib/format";
 import { getEmployeeLimit } from "@/lib/license";
 import { readTabularFile, pickField } from "@/lib/import-file";
+import { pendapatanTemplate, xlsxResponse } from "@/lib/import-templates";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] as const;
 // The xlsx parser has known ReDoS/resource-exhaustion issues on maliciously
@@ -55,6 +56,16 @@ async function uniquePhone(taken: Set<string>) {
   let n = 890000001;
   while (taken.has(`08${n}`)) n++;
   return `08${n}`;
+}
+
+/** Fill-in-the-blanks template for the monthly Pendapatan (VCR) report. */
+export async function GET() {
+  try {
+    await requireSession([...MANAGERS]);
+    return xlsxResponse(pendapatanTemplate(), "Template Pendapatan VCR.xlsx");
+  } catch (e) {
+    return apiError(e);
+  }
 }
 
 export async function POST(req: Request) {

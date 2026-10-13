@@ -48,6 +48,7 @@ const DESKS: readonly Desk[] = [
       { href: "/admin/pendapatan", icon: "tray-in", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/kasbon", icon: "banknote", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/payslip", icon: "receipt", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/import", icon: "archive", label: "Import Data", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
     ],
   },
   { href: "/admin/pengumuman", icon: "bell", label: "Pengumuman", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
