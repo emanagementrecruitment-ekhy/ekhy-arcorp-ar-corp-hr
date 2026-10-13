@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Added
+- Pusat Sistem (Owner): "Reset Data ke Nol". Dengan kode reset dari vendor dan ketikan RESET, semua Tera dan karyawan dihapus kecuali Grace (demo) beserta seluruh pendapatan, kasbon, absensi, chat, slip pay, tabungan, biaya rutin, arsip resign, notifikasi, dan pengingat. Akun Owner, tampilan, paket, dan Riwayat Aktivitas tetap; pemegang jabatan (Admin/Kepala Mess/Manager) dipertahankan kecuali dicentang untuk ikut dihapus. Tercatat di Riwayat Aktivitas.
+
 ### Fixed
 - Karyawan yang diangkat menjadi Admin Pusat, Kepala Mess, atau Manager tidak lagi hilang dari Data Karyawan: tetap tampil di daftar, slip pay, Laporan Totalan (total gaji), Absensi Harian, rekap pendapatan, dan hitungan batas karyawan. Kepala Mess yang diangkat juga tetap bisa dipilih sebagai pengawas. Akun Owner/Konsultan tetap tidak masuk daftar karyawan.
 
