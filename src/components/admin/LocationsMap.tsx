@@ -169,7 +169,7 @@ export default function LocationsMap({
     drawRadius();
 
     const hqPopup = new maplibregl.Popup({ offset: 14 }).setHTML(
-      `<strong>${esc(hq.label)}</strong>${hq.address ? `<br/>${esc(hq.address)}` : ""}<br/>Radius absensi ${radiusKm.toLocaleString("id-ID")} km`,
+      `<div class="arc-pop-name">${esc(hq.label)}</div>${hq.address ? `<div class="arc-pop-row">${esc(hq.address)}</div>` : ""}<div class="arc-pop-muted">Radius absensi ${radiusKm.toLocaleString("id-ID")} km</div>`,
     );
     overlaysRef.current.push(
       new maplibregl.Marker({ element: dotEl(COLOR_HQ, 20, false, true, "Kantor pusat") })
@@ -189,11 +189,15 @@ export default function LocationsMap({
       // registered outlet address was used instead).
       const color = p.isFallbackLocation ? COLOR_REGISTERED : ok ? COLOR_LIVE : COLOR_OUT;
       const freshness = relativeTimeLabel(p.lastSeenAt);
-      const html = `<strong>${esc(p.name)}</strong><br/>${esc(p.place)} · ${esc(p.km)}<br/>${esc(p.status)} · ${esc(freshness)}${
-        live ? `<br/><span style="color:#15803d">● GPS langsung</span>` : ""
-      }${
-        p.isFallbackLocation ? `<br/><span style="color:#b45309">⚠ Lokasi terdaftar — belum ada GPS langsung</span>` : ""
-      }${(offsets.get(p.id) ?? [0, 0]).some((v) => v !== 0) ? `<br/><span style="opacity:.7">Titik digeser sedikit agar tidak menumpuk</span>` : ""}${canEdit ? `<br/><button data-edit-id="${esc(p.id)}" style="margin-top:6px;cursor:pointer">Edit karyawan</button>` : ""}`;
+      const moved = (offsets.get(p.id) ?? [0, 0]).some((v) => v !== 0);
+      const html =
+        `<div class="arc-pop-name">${esc(p.name)}</div>` +
+        `<div class="arc-pop-row">${esc(p.place)} · ${esc(p.km)}</div>` +
+        `<div class="arc-pop-row">${esc(p.status)} · ${esc(freshness)}</div>` +
+        (live ? `<div class="arc-pop-live">● GPS langsung</div>` : "") +
+        (p.isFallbackLocation ? `<div class="arc-pop-warn">⚠ Lokasi terdaftar — belum ada GPS langsung</div>` : "") +
+        (moved ? `<div class="arc-pop-muted">Titik digeser sedikit agar tidak menumpuk</div>` : "") +
+        (canEdit ? `<button class="arc-pop-btn" data-edit-id="${esc(p.id)}">Edit karyawan</button>` : "");
       const popup = new maplibregl.Popup({ offset: 12 }).setHTML(html);
       if (canEdit) {
         popup.on("open", () => {

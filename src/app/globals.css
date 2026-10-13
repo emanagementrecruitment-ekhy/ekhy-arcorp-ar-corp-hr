@@ -539,6 +539,83 @@ button {
 [data-mode="dark"] .arc-map {
   background: #0b0d12;
 }
+/* Map popups: explicit colours per mode so the text never inherits a pale app colour onto the popup surface. */
+.arc-map .maplibregl-popup-content {
+  background: #ffffff;
+  color: #1b1f27;
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-width: 190px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.arc-map .maplibregl-popup-tip {
+  border-top-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+.arc-map .maplibregl-popup-close-button {
+  color: #5b6472;
+  font-size: 18px;
+  padding: 2px 8px;
+}
+[data-mode="dark"] .arc-map .maplibregl-popup-content {
+  background: #171a21;
+  color: #f2f4f8;
+  border: 1px solid rgba(224, 184, 104, 0.35);
+}
+[data-mode="dark"] .arc-map .maplibregl-popup-tip {
+  border-top-color: #171a21;
+  border-bottom-color: #171a21;
+}
+[data-mode="dark"] .arc-map .maplibregl-popup-close-button {
+  color: #c4cad6;
+}
+.arc-pop-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  padding-right: 14px;
+}
+.arc-pop-row {
+  font-size: 13px;
+  font-weight: 500;
+}
+.arc-pop-muted {
+  font-size: 12px;
+  color: #5b6472;
+  margin-top: 2px;
+}
+[data-mode="dark"] .arc-pop-muted {
+  color: #b4bcc9;
+}
+.arc-pop-live {
+  color: #0f7a3c;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.arc-pop-warn {
+  color: #9a5200;
+  font-weight: 600;
+  margin-top: 4px;
+}
+[data-mode="dark"] .arc-pop-live {
+  color: #6fe0a2;
+}
+[data-mode="dark"] .arc-pop-warn {
+  color: #f6b45a;
+}
+.arc-pop-btn {
+  margin-top: 8px;
+  cursor: pointer;
+  background: #d6ae5f;
+  color: #1b1304;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
 @media (prefers-reduced-motion: reduce) {
   .arc-map-dot-live {
     animation: none;

@@ -8,6 +8,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [Unreleased]
 
 ### Fixed
+- Popup di peta Lokasi & Absensi kini terbaca jelas di Mode Malam maupun Siang (sebelumnya teks pucat di atas latar putih hampir tak terlihat); huruf lebih besar dan tebal, status "GPS langsung"/peringatan berwarna kontras, serta tombol Edit karyawan yang jelas.
+
+### Fixed
 - Deploy Railway gagal saat build karena font Google gagal diunduh. Font (Cormorant Garamond, Manrope, Playfair Display, Inter, Montserrat, Work Sans) kini disimpan di dalam proyek, sehingga build tidak lagi bergantung pada internet. Tampilan tidak berubah.
 
 ### Added
