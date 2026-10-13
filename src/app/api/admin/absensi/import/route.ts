@@ -8,6 +8,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { readTabularFile, pickField } from "@/lib/import-file";
 import { matchEmployeeByName, parseMatrixSheet } from "@/lib/attendance-matrix";
 import { jakartaClock } from "@/lib/assistant-rules";
+import { absensiBulananTemplate, xlsxResponse } from "@/lib/import-templates";
 
 const MANAGERS = ["OWNER", "CONSULTANT", "MANAGER"] as const;
 const MAX_IMPORT_BYTES = 5_000_000;
@@ -130,9 +131,13 @@ async function importMatrixWorkbook(buf: Buffer) {
 }
 
 /** Fill-in-the-blanks template — same pattern as /api/admin/employees/import. */
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await requireSession([...MANAGERS]);
+    // ?format=bulanan → the monthly calendar report layout (one column per day) instead of the Kode/Tanggal list.
+    if (new URL(req.url).searchParams.get("format") === "bulanan") {
+      return xlsxResponse(absensiBulananTemplate(), "Template Absensi Laporan Bulanan.xlsx");
+    }
     const today = new Date().toISOString().slice(0, 10);
     const dataSheet = XLSX.utils.aoa_to_sheet([
       TEMPLATE_HEADERS,
