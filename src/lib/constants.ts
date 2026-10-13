@@ -83,8 +83,11 @@ export const VOUCHER_STATUS_LABEL: Record<VoucherStatus, string> = {
 };
 
 // AR Corp head office — Jakarta.
-export const HQ = { lat: -6.2088, lng: 106.8456 };
-export const HQ_NAME = "Kantor Pusat — Jakarta";
+// Kantor pusat: Jl. Mangga Besar IX No.1 Blok B2, Pinangsia, Taman Sari, Jakarta Barat 11110.
+// Koordinat dipasang dari alamat itu (perkiraan, belum dari pin Google Maps) — ganti di sini bila titiknya perlu digeser.
+export const HQ = { lat: -6.148, lng: 106.8205 };
+export const HQ_NAME = "Kantor Pusat — Jakarta Barat";
+export const HQ_ADDRESS = "Jl. Mangga Besar IX No.1 Blok B2, RT.7/RW.1, Pinangsia, Kec. Taman Sari, Kota Jakarta Barat, DKI Jakarta 11110";
 export const ATTENDANCE_RADIUS_KM = 1000;
 
 export const SESSION_COOKIE = "arcorp_session";

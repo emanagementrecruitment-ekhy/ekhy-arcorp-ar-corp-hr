@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { EMPLOYEE_NO_PHOTO } from "@/lib/employee-select";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { OFFICE_ROLES, HQ, HQ_NAME, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
+import { OFFICE_ROLES, HQ, HQ_NAME, HQ_ADDRESS, ATTENDANCE_RADIUS_KM } from "@/lib/constants";
 import { timeLabel } from "@/lib/format";
 import { distanceKm } from "@/lib/geo";
 import { newestFix } from "@/lib/live-location";
@@ -66,7 +66,7 @@ export async function GET() {
 
     return NextResponse.json({
       restricted,
-      hq: { lat: HQ.lat, lng: HQ.lng, label: HQ_NAME },
+      hq: { lat: HQ.lat, lng: HQ.lng, label: HQ_NAME, address: HQ_ADDRESS },
       radiusKm: ATTENDANCE_RADIUS_KM,
       presence,
     });

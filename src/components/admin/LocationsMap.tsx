@@ -83,7 +83,7 @@ export default function LocationsMap({
   onSelect,
   focusId,
 }: {
-  hq: { lat: number; lng: number; label: string };
+  hq: { lat: number; lng: number; label: string; address?: string };
   radiusKm: number;
   presence: MapPresence[];
   canEdit: boolean;
@@ -169,7 +169,7 @@ export default function LocationsMap({
     drawRadius();
 
     const hqPopup = new maplibregl.Popup({ offset: 14 }).setHTML(
-      `<strong>${esc(hq.label)}</strong><br/>Radius absensi ${radiusKm.toLocaleString("id-ID")} km`,
+      `<strong>${esc(hq.label)}</strong>${hq.address ? `<br/>${esc(hq.address)}` : ""}<br/>Radius absensi ${radiusKm.toLocaleString("id-ID")} km`,
     );
     overlaysRef.current.push(
       new maplibregl.Marker({ element: dotEl(COLOR_HQ, 20, false, true, "Kantor pusat") })

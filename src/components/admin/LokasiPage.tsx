@@ -33,7 +33,7 @@ interface Presence extends MapPresence {
 
 interface Locations {
   restricted: boolean;
-  hq: { lat: number; lng: number; label: string };
+  hq: { lat: number; lng: number; label: string; address?: string };
   radiusKm: number;
   presence: Presence[];
 }
