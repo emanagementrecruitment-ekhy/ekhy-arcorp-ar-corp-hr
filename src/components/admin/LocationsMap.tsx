@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { relativeTimeLabel } from "@/lib/format";
+import { spreadOffsets } from "@/lib/map-spread";
 
 export interface MapPresence {
   id: string;
@@ -82,7 +83,7 @@ export default function LocationsMap({
   onSelect,
   focusId,
 }: {
-  hq: { lat: number; lng: number; label: string };
+  hq: { lat: number; lng: number; label: string; address?: string };
   radiusKm: number;
   presence: MapPresence[];
   canEdit: boolean;
@@ -168,7 +169,7 @@ export default function LocationsMap({
     drawRadius();
 
     const hqPopup = new maplibregl.Popup({ offset: 14 }).setHTML(
-      `<strong>${esc(hq.label)}</strong><br/>Radius absensi ${radiusKm.toLocaleString("id-ID")} km`,
+      `<strong>${esc(hq.label)}</strong>${hq.address ? `<br/>${esc(hq.address)}` : ""}<br/>Radius absensi ${radiusKm.toLocaleString("id-ID")} km`,
     );
     overlaysRef.current.push(
       new maplibregl.Marker({ element: dotEl(COLOR_HQ, 20, false, true, "Kantor pusat") })
@@ -177,7 +178,10 @@ export default function LocationsMap({
         .addTo(map),
     );
 
-    const showNames = presence.length <= 8;
+    const offsets = spreadOffsets(hq, presence);
+    // Name tags only while they stay readable; a crowded spot shows names in the popup and the list instead.
+    const spreadCount = [...offsets.values()].filter((v) => v[0] !== 0 || v[1] !== 0).length;
+    const showNames = presence.length <= 8 && spreadCount <= 3;
     for (const p of presence) {
       const live = !p.isFallbackLocation && !!p.lastSeenAt && Date.now() - new Date(p.lastSeenAt).getTime() < LIVE_WINDOW_MS;
       const ok = p.status === "Dalam radius";
@@ -189,7 +193,7 @@ export default function LocationsMap({
         live ? `<br/><span style="color:#15803d">● GPS langsung</span>` : ""
       }${
         p.isFallbackLocation ? `<br/><span style="color:#b45309">⚠ Lokasi terdaftar — belum ada GPS langsung</span>` : ""
-      }${canEdit ? `<br/><button data-edit-id="${esc(p.id)}" style="margin-top:6px;cursor:pointer">Edit karyawan</button>` : ""}`;
+      }${(offsets.get(p.id) ?? [0, 0]).some((v) => v !== 0) ? `<br/><span style="opacity:.7">Titik digeser sedikit agar tidak menumpuk</span>` : ""}${canEdit ? `<br/><button data-edit-id="${esc(p.id)}" style="margin-top:6px;cursor:pointer">Edit karyawan</button>` : ""}`;
       const popup = new maplibregl.Popup({ offset: 12 }).setHTML(html);
       if (canEdit) {
         popup.on("open", () => {
@@ -197,7 +201,7 @@ export default function LocationsMap({
           btn?.addEventListener("click", () => onSelect(p.id), { once: true });
         });
       }
-      const marker = new maplibregl.Marker({ element: dotEl(color, 18, live, false, showNames ? p.name : null) })
+      const marker = new maplibregl.Marker({ element: dotEl(color, 18, live, false, showNames ? p.name : null), offset: offsets.get(p.id) ?? [0, 0] })
         .setLngLat([p.lng, p.lat])
         .setPopup(popup)
         .addTo(map);

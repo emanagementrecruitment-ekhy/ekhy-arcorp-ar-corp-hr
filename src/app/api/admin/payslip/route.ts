@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
-import { OFFICE_ROLES } from "@/lib/constants";
+import { OFFICE_ROLES, isStaffRole } from "@/lib/constants";
 import { parseMonth } from "@/lib/period";
 import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
 import { buildPayslip, ensureAttendancePenalty, ensureRecurringCosts } from "@/lib/payslip";
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     }
 
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-    if (!employee || employee.accessRole !== "KARYAWAN") {
+    if (!employee || !isStaffRole(employee.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
 

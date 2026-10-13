@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel, isStaffRole } from "@/lib/constants";
 import { fmtRp, dLabel, timeLabel, dayKey } from "@/lib/format";
 import { notifyOffice } from "@/lib/notify";
 
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     if (Number.isNaN(occurredAt.getTime())) return NextResponse.json({ error: "Tanggal tidak valid." }, { status: 400 });
 
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-    if (!employee || employee.accessRole !== "KARYAWAN") {
+    if (!employee || !isStaffRole(employee.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
     if (!usesVcr(employee.role)) {

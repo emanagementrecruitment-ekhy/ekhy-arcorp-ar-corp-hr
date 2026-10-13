@@ -3,6 +3,16 @@
 export const ACCESS_ROLES = ["KARYAWAN", "OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] as const;
 export type AccessRole = (typeof ACCESS_ROLES)[number];
 
+/**
+ * Everyone who is on the payroll/roster: plain karyawan plus anyone appointed to Admin Pusat, Kepala Mess or Manager.
+ * Appointing someone only changes their access, never their place in Data Karyawan, slip pay or the salary totals.
+ * OWNER/CONSULTANT are system accounts and stay out of the roster.
+ */
+export const STAFF_ROLES = ["KARYAWAN", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] as const;
+export function isStaffRole(role: string | null | undefined): boolean {
+  return !!role && (STAFF_ROLES as readonly string[]).includes(role);
+}
+
 // A resigned employee/Tera can't log in and drops out of the active Data
 // Karyawan/Data Tera list, but keeps their voucher/absensi/slip pay history
 // intact for reports — the non-destructive alternative to deleting them
@@ -83,8 +93,11 @@ export const VOUCHER_STATUS_LABEL: Record<VoucherStatus, string> = {
 };
 
 // AR Corp head office — Jakarta.
-export const HQ = { lat: -6.2088, lng: 106.8456 };
-export const HQ_NAME = "Kantor Pusat — Jakarta";
+// Kantor pusat: Jl. Mangga Besar IX No.1 Blok B2, Pinangsia, Taman Sari, Jakarta Barat 11110.
+// Koordinat dipasang dari alamat itu (perkiraan, belum dari pin Google Maps) — ganti di sini bila titiknya perlu digeser.
+export const HQ = { lat: -6.148, lng: 106.8205 };
+export const HQ_NAME = "Kantor Pusat — Jakarta Barat";
+export const HQ_ADDRESS = "Jl. Mangga Besar IX No.1 Blok B2, RT.7/RW.1, Pinangsia, Kec. Taman Sari, Kota Jakarta Barat, DKI Jakarta 11110";
 export const ATTENDANCE_RADIUS_KM = 1000;
 
 export const SESSION_COOKIE = "arcorp_session";

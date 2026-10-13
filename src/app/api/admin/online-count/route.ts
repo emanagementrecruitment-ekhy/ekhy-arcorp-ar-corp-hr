@@ -17,7 +17,7 @@ export async function GET() {
 
     const [employees, logins] = await Promise.all([
       prisma.employee.findMany({
-        where: { accessRole: "KARYAWAN" },
+        where: { accessRole: { in: ["KARYAWAN", "SUPERVISOR"] } },
         select: { id: true, liveAt: true, liveLat: true, liveLng: true },
       }),
       prisma.loginEvent.findMany({

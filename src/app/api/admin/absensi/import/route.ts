@@ -1,3 +1,4 @@
+import { STAFF_ROLES } from "@/lib/constants";
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { Prisma } from "@prisma/client";
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
     const rows = await readTabularFile(buf, filename);
 
     const employees = await prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN" },
+      where: { accessRole: { in: [...STAFF_ROLES] } },
       select: { id: true, code: true, name: true, status: true },
     });
     const byCode = new Map(employees.map((e) => [e.code.trim().toLowerCase(), e]));

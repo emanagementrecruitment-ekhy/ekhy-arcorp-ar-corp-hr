@@ -3,14 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
 import { dayKey, monthLabel } from "./format";
-import {
-  usesVcr,
-  ATTENDANCE_CHECKIN_START_MONTH,
-  LATE_CHECKIN_DEADLINE_HOUR,
-  LATE_CHECKIN_GRACE_MINUTES,
-  LATE_CHECKIN_PENALTY_AMOUNT,
-  LATE_CHECKIN_PENALTY_CATEGORY,
-} from "./constants";
+import { usesVcr, ATTENDANCE_CHECKIN_START_MONTH, LATE_CHECKIN_DEADLINE_HOUR, LATE_CHECKIN_GRACE_MINUTES, LATE_CHECKIN_PENALTY_AMOUNT, LATE_CHECKIN_PENALTY_CATEGORY, STAFF_ROLES, isStaffRole } from "./constants";
 
 /** Number of calendar days in a "YYYY-MM" month. */
 export function daysInMonth(month: string): number {
@@ -61,7 +54,7 @@ export async function ensureLateCheckinPenalty(employeeId: string, dateKey: stri
   if (!attendance || attendance.latePenaltyApplied) return;
 
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
-  if (!employee || employee.accessRole !== "KARYAWAN" || usesVcr(employee.role)) return;
+  if (!employee || !isStaffRole(employee.accessRole) || usesVcr(employee.role)) return;
 
   // Asia/Jakarta (WIB) has no daylight saving, so the deadline is computed
   // directly in UTC (Jakarta hour - 7) rather than trusting the server
@@ -158,7 +151,7 @@ export async function getAttendanceDashboard(monthInput: string | null): Promise
 
   const [employees, attendanceRows, vouchers] = await Promise.all([
     prisma.employee.findMany({
-      where: { accessRole: "KARYAWAN" },
+      where: { accessRole: { in: [...STAFF_ROLES] } },
       orderBy: [{ homePlace: "asc" }, { name: "asc" }],
     }),
     trackingStarted

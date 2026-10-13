@@ -1,3 +1,4 @@
+import { isStaffRole } from "@/lib/constants";
 import { NextResponse } from "next/server";
 import { logAudit, employeeLabel } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
@@ -27,7 +28,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const { id } = await params;
 
     const existing = await prisma.employee.findUnique({ where: { id } });
-    if (!existing || existing.accessRole !== "KARYAWAN") {
+    if (!existing || !isStaffRole(existing.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
 
@@ -64,7 +65,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
 
     const existing = await prisma.employee.findUnique({ where: { id } });
-    if (!existing || existing.accessRole !== "KARYAWAN") {
+    if (!existing || !isStaffRole(existing.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
 

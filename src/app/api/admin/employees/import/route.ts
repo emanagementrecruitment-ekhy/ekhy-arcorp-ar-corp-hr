@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, FIELD_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, FIELD_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel, STAFF_ROLES, isStaffRole } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { getEmployeeLimit } from "@/lib/license";
 import { readTabularFile, pickField } from "@/lib/import-file";
@@ -133,7 +133,7 @@ export async function POST(req: Request) {
     const rows = await readTabularFile(buf, filename);
 
     const employeeLimit = await getEmployeeLimit();
-    const existingActiveCount = await prisma.employee.count({ where: { accessRole: "KARYAWAN", status: "AKTIF" } });
+    const existingActiveCount = await prisma.employee.count({ where: { accessRole: { in: [...STAFF_ROLES] }, status: "AKTIF" } });
     let slotsLeft = employeeLimit === null ? Infinity : employeeLimit - existingActiveCount;
 
     const [existingEmails, existingPhones, existingByCode] = await Promise.all([
@@ -210,7 +210,7 @@ export async function POST(req: Request) {
       let supervisorId: string | null = null;
       if (supervisorCode) {
         const sup = byCode.get(supervisorCode.trim());
-        if (!sup || sup.accessRole !== "KARYAWAN" || sup.role !== "Kepala Mess") {
+        if (!sup || !isStaffRole(sup.accessRole) || sup.role !== "Kepala Mess") {
           fail(`Kode Supervisor "${supervisorCode}" tidak ditemukan atau bukan Kepala Mess.`);
           continue;
         }

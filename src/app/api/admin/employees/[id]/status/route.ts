@@ -3,7 +3,7 @@ import { checkOwnerCode } from "@/lib/owner-confirm";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { requireSession, apiError } from "@/lib/api-auth";
-import { EMPLOYEE_STATUSES, type EmployeeStatus } from "@/lib/constants";
+import { EMPLOYEE_STATUSES, type EmployeeStatus, isStaffRole } from "@/lib/constants";
 import { archiveResignPayslip } from "@/lib/payslip-archive";
 
 /**
@@ -36,7 +36,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const existing = await prisma.employee.findUnique({ where: { id } });
-    if (!existing || existing.accessRole !== "KARYAWAN") {
+    if (!existing || !isStaffRole(existing.accessRole)) {
       return NextResponse.json({ error: "Karyawan tidak ditemukan." }, { status: 404 });
     }
 
