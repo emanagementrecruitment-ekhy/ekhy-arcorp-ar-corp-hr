@@ -7,7 +7,7 @@ import { cardClass } from "@/components/ui/styles";
 interface SystemData {
   product: { name: string; version: string; owner: string; year: number };
   license: { configured: boolean; status: "AKTIF" | "REFERENSI"; clientId: string | null; employeeLimit: number | null; employeeCount: number; ownerGenerated: boolean };
-  support: { phone: string; whatsapp: string };
+  support: { phone: string; whatsapp: string; email: string; website: string; websiteLabel: string };
   system: {
     uptimeMin: number;
     database: { ok: boolean; ms: number; sizeKb: number | null };
@@ -154,6 +154,16 @@ export default function SystemCenter() {
           <Row label="Call Center">
             <a href={`tel:${support.phone.replace(/\D/g, "")}`} className="text-ar-gold underline-offset-4 hover:underline">
               {support.phone}
+            </a>
+          </Row>
+          <Row label="Website">
+            <a href={support.website} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline-offset-4 hover:underline">
+              {support.websiteLabel}
+            </a>
+          </Row>
+          <Row label="Email resmi">
+            <a href={`mailto:${support.email}`} className="text-ar-gold underline-offset-4 hover:underline">
+              {support.email}
             </a>
           </Row>
         </div>
