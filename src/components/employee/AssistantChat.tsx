@@ -13,13 +13,34 @@ interface Msg {
   forwarded?: boolean;
 }
 
-const QUICK = ["Sudah absen belum?", "Berapa VCR saya?", "Total Slip Pay saya", "Status kasbon saya", "Saya mau izin"];
-const GREETING: Msg = {
-  role: "assistant",
-  content: "Halo! Saya Ara, asisten AR Corp. Tanya apa saja soal absen, VCR, Slip Pay, atau kasbon. Kalau kamu butuh izin atau punya keluhan, ceritakan saja, nanti saya teruskan ke kantor.",
-};
+// Same chat for two audiences: field staff (their own data, can forward wishes to the office) and the office
+// (read-only questions about employees).
+const VARIANTS = {
+  employee: {
+    endpoint: "/api/assistant/chat",
+    quick: ["Sudah absen belum?", "Berapa VCR saya?", "Total Slip Pay saya", "Status kasbon saya", "Saya mau izin"],
+    greeting:
+      "Halo! Saya Ara, asisten AR Corp. Tanya apa saja soal absen, VCR, Slip Pay, atau kasbon. Kalau kamu butuh izin atau punya keluhan, ceritakan saja, nanti saya teruskan ke kantor.",
+    placeholder: "Tulis pertanyaan atau keinginanmu…",
+    subtitle: "Asisten AR Corp · siap membantu",
+    fab: "fixed right-3 bottom-[92px] z-40 flex items-end gap-2",
+    hint: "Ada pertanyaan? Tanya",
+  },
+  admin: {
+    endpoint: "/api/admin/assistant/chat",
+    quick: ["Ringkasan hari ini", "Siapa belum absen?", "Kasbon menunggu", "Rincian karyawan…"],
+    greeting:
+      "Halo! Saya Ara, asisten admin. Saya bisa menampilkan ringkasan hari ini, yang belum absen, kasbon menunggu, dan rincian tiap karyawan (absen, VCR, kasbon, Slip Pay). Saya hanya membaca data, tidak mengubah apa pun.",
+    placeholder: "Tanya data karyawan, mis. rincian Budi…",
+    subtitle: "Asisten admin · hanya membaca data",
+    fab: "fixed right-4 bottom-16 z-40 flex items-end gap-2",
+    hint: "Butuh data karyawan? Tanya",
+  },
+} as const;
 
-export default function AssistantChat() {
+export default function AssistantChat({ variant = "employee" }: { variant?: "employee" | "admin" }) {
+  const cfg = VARIANTS[variant];
+  const GREETING: Msg = { role: "assistant", content: cfg.greeting };
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([GREETING]);
   const [text, setText] = useState("");
@@ -59,12 +80,12 @@ export default function AssistantChat() {
   async function send(raw: string) {
     const message = raw.trim();
     if (!message || busy) return;
-    const history = msgs.filter((m) => m !== GREETING).map((m) => ({ role: m.role, content: m.content }));
+    const history = msgs.filter((m) => m !== msgs[0]).map((m) => ({ role: m.role, content: m.content }));
     setMsgs((cur) => [...cur, { role: "user", content: message }]);
     setText("");
     setBusy(true);
     try {
-      const res = await fetch("/api/assistant/chat", {
+      const res = await fetch(cfg.endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, history }),
@@ -108,14 +129,14 @@ export default function AssistantChat() {
   return (
     <>
       {!open && (
-        <div className="fixed right-3 bottom-[92px] z-40 flex items-end gap-2">
+        <div className={cfg.fab}>
           {hint && (
             <button
               type="button"
               onClick={openChat}
               className="mb-3 max-w-[180px] rounded-2xl rounded-br-sm border border-ar-goldline bg-ar-surface px-3 py-2 text-left text-[12px] leading-snug text-ar-text shadow-lg"
             >
-              Ada pertanyaan? Tanya <b>Ara</b> ya!
+              {cfg.hint} <b>Ara</b> ya!
             </button>
           )}
           <button
@@ -143,7 +164,7 @@ export default function AssistantChat() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[15px] font-medium text-ar-text">Ara</div>
-                <div className="text-[11px] text-ar-dim">{busy ? "sedang berpikir…" : "Asisten AR Corp · siap membantu"}</div>
+                <div className="text-[11px] text-ar-dim">{busy ? "sedang berpikir…" : cfg.subtitle}</div>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label="Tutup" className="rounded-full p-2 text-ar-dim hover:text-ar-text">
                 <span aria-hidden className="block h-5 w-5 text-center text-[18px] leading-5">✕</span>
@@ -209,11 +230,11 @@ export default function AssistantChat() {
             <div className="border-t border-ar-line px-3 pt-2.5 pb-3">
               {msgs.length <= 1 && (
                 <div className="mb-2 flex flex-wrap gap-1.5">
-                  {QUICK.map((q) => (
+                  {cfg.quick.map((q) => (
                     <button
                       key={q}
                       type="button"
-                      onClick={() => send(q)}
+                      onClick={() => (q.endsWith("…") ? setText(q.slice(0, -1) + " ") : send(q))}
                       className="rounded-full border border-ar-line px-3 py-1.5 text-[11.5px] text-ar-dim hover:text-ar-text"
                     >
                       {q}
@@ -232,7 +253,7 @@ export default function AssistantChat() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   maxLength={500}
-                  placeholder="Tulis pertanyaan atau keinginanmu…"
+                  placeholder={cfg.placeholder}
                   className="min-w-0 flex-1 rounded-full border border-ar-line bg-ar-input px-4 py-2.5 text-[13.5px] text-ar-text outline-none focus:border-ar-goldline"
                 />
                 <button
