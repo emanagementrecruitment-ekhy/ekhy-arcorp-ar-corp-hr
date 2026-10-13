@@ -32,6 +32,7 @@ export const AUDIT_ACTIONS = {
   VOUCHER_SELF: "Input pendapatan sendiri",
   PHOTO_CHANGE: "Foto profil diubah",
   IDENTITY_CHANGE: "Identitas Owner diubah",
+  DATA_RESET: "Data direset ke nol",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

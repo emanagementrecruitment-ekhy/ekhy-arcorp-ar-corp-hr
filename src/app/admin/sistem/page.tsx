@@ -4,6 +4,7 @@ import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import SystemCenter from "@/components/admin/SystemCenter";
 import ResetAppearance from "@/components/admin/ResetAppearance";
+import ResetData from "@/components/admin/ResetData";
 import OwnerIdentityPanel from "@/components/admin/OwnerIdentityPanel";
 import PackagePanel from "@/components/admin/PackagePanel";
 
@@ -27,6 +28,7 @@ export default async function PusatSistemPage() {
             <OwnerIdentityPanel />
             <PackagePanel />
             <ResetAppearance />
+            <ResetData />
           </div>
         </>
       ) : (
