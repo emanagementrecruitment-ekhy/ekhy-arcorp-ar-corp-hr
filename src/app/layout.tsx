@@ -1,42 +1,49 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Cormorant_Garamond, Manrope, Playfair_Display, Inter, Montserrat, Work_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { getAppearanceSetting } from "@/lib/settings";
 import { LIGHT_MODE_DAY_START_HOUR, LIGHT_MODE_DAY_END_HOUR } from "@/lib/constants";
 import LightModeSync from "@/components/LightModeSync";
 
-const displayClassic = Cormorant_Garamond({
+// Self-hosted variable fonts (see ./fonts/README.md) — no network fetch at build time.
+const displayClassic = localFont({
+  src: "./fonts/cormorant-garamond-latin-wght-normal.woff2",
   variable: "--font-display-classic",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "300 700",
+  display: "swap",
 });
-const sansClassic = Manrope({
+const sansClassic = localFont({
+  src: "./fonts/manrope-latin-wght-normal.woff2",
   variable: "--font-sans-classic",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "200 800",
+  display: "swap",
 });
 
-const displayModern = Playfair_Display({
+const displayModern = localFont({
+  src: "./fonts/playfair-display-latin-wght-normal.woff2",
   variable: "--font-display-modern",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "400 900",
+  display: "swap",
 });
-const sansModern = Inter({
+const sansModern = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2",
   variable: "--font-sans-modern",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "100 900",
+  display: "swap",
 });
 
-const displayBold = Montserrat({
+const displayBold = localFont({
+  src: "./fonts/montserrat-latin-wght-normal.woff2",
   variable: "--font-display-bold",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: "100 900",
+  display: "swap",
 });
-const sansBold = Work_Sans({
+const sansBold = localFont({
+  src: "./fonts/work-sans-latin-wght-normal.woff2",
   variable: "--font-sans-bold",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "100 900",
+  display: "swap",
 });
 
 const fontVariables = [
