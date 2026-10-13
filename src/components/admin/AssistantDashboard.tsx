@@ -122,6 +122,18 @@ export default function AssistantDashboard() {
         </div>
       )}
 
+      {/* Claude allowance: the only paid part of Ara */}
+      <div className="text-[12px] text-ar-dim bg-ar-surface border border-ar-line rounded-2xl p-4">
+        {data.ai.configured ? (
+          <>
+            Ara AI (Claude) hari ini: <b className="text-ar-text">{data.ai.used}</b> dari batas <b className="text-ar-text">{data.ai.limit}</b> pertanyaan bebas. Pertanyaan umum
+            (absen, VCR, Slip Pay, kasbon) dijawab tanpa AI dan tidak dihitung. Batas diatur lewat ASSISTANT_AI_DAILY_LIMIT dan ASSISTANT_AI_PER_USER_LIMIT di Railway.
+          </>
+        ) : (
+          <>Ara AI (Claude) belum aktif: ANTHROPIC_API_KEY belum diisi di server. Ara tetap menjawab pertanyaan umum berbasis aturan.</>
+        )}
+      </div>
+
       {/* Today at a glance */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat

@@ -431,3 +431,15 @@ model AssistantRun {
   @@unique([dateKey, task])
   @@index([ranAt])
 }
+
+// Daily counter of questions Ara sent to Claude (the only paid part of the assistant). One row per day for the whole
+// app (scope "global") and one per person ("u:<employeeId>"); the unique pair plus a guarded increment is what makes
+// the daily cap hold across restarts and parallel requests. Rule-based answers are never counted.
+model AiUsage {
+  id      String @id @default(cuid())
+  dateKey String // "YYYY-MM-DD" in Asia/Jakarta
+  scope   String
+  count   Int    @default(0)
+
+  @@unique([dateKey, scope])
+}

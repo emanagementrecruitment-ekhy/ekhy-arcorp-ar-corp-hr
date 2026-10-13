@@ -39,6 +39,7 @@ export async function resetAppData(opts: { removeSeatHolders: boolean }): Promis
     prisma.loginEvent.deleteMany(),
     prisma.otpCode.deleteMany(),
     prisma.assistantRun.deleteMany(), // its summaries name people
+    prisma.aiUsage.deleteMany(), // per-person counters
     // Clear the self-reference so nobody is left pointing at a removed supervisor.
     prisma.employee.updateMany({ data: { supervisorId: null } }),
     prisma.employee.deleteMany({ where: { accessRole: { in: removable }, code: { not: DEMO_TERA_CODE } } }),

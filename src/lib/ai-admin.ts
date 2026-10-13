@@ -4,6 +4,8 @@ import { prisma } from "./prisma";
 import { buildPayslip, ensureRecurringCosts } from "./payslip";
 import { getAssistantSnapshot } from "./assistant";
 import { aiConfigured } from "./ai-assistant";
+import { tryConsumeAi } from "./ai-usage";
+import { limitNotice } from "./ai-limits";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import { monthLabel } from "./format";
 import { ATTENDANCE_MIN_DAYS, DEMO_TERA_CODE, STAFF_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "./constants";
@@ -255,7 +257,7 @@ async function askClaudeAdmin(adminName: string, history: ChatTurn[], message: s
 }
 
 /** One admin turn: rules for the common questions, Claude (with read-only lookups) for the rest. */
-export async function answerAdmin(adminName: string, message: string, history: ChatTurn[]): Promise<AdminReply> {
+export async function answerAdmin(adminId: string, adminName: string, message: string, history: ChatTurn[]): Promise<AdminReply> {
   const intent = matchAdminIntent(message);
   const useAi = aiConfigured();
 
@@ -264,6 +266,13 @@ export async function answerAdmin(adminName: string, message: string, history: C
     return { text, source: "rules", links: adminLinks(message) };
   }
   if (!useAi) return { text: adminUnknownAnswer(), source: "rules", links: [] };
+
+  // Claude costs money: spend one slot of today's allowance (per person and app-wide) or stay rule-based.
+  const gate = await tryConsumeAi(adminId, true);
+  if (!gate.ok) {
+    const base = intent ? await ruleAnswerAdmin(intent, message, adminName) : adminUnknownAnswer();
+    return { text: `${base}\n\n${limitNotice(gate.reason)}`, source: "rules", links: adminLinks(message) };
+  }
 
   try {
     const text = await askClaudeAdmin(adminName, history, message);
