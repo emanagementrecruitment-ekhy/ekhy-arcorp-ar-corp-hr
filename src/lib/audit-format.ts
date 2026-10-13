@@ -36,6 +36,7 @@ export const AUDIT_ACTIONS = {
   ASSISTANT_REMIND: "Asisten: pengingat absen manual",
   ASSISTANT_TOGGLE: "Asisten Harian dinyalakan/dijeda",
   ASSISTANT_ASK: "Pertanyaan karyawan ke asisten AI",
+  ASSISTANT_ADMIN_ASK: "Pertanyaan admin ke asisten AI",
   ASSISTANT_FORWARD: "Permintaan karyawan diteruskan ke kantor",
 } as const;
 
