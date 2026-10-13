@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+### Fixed
+- Deploy Railway gagal saat build karena font Google gagal diunduh. Font (Cormorant Garamond, Manrope, Playfair Display, Inter, Montserrat, Work Sans) kini disimpan di dalam proyek, sehingga build tidak lagi bergantung pada internet. Tampilan tidak berubah.
+
 ### Added
 - Pusat Sistem (Owner): "Reset Data ke Nol". Dengan kode reset dari vendor dan ketikan RESET, semua Tera dan karyawan dihapus kecuali Grace (demo) beserta seluruh pendapatan, kasbon, absensi, chat, slip pay, tabungan, biaya rutin, arsip resign, notifikasi, dan pengingat. Akun Owner, tampilan, paket, dan Riwayat Aktivitas tetap; pemegang jabatan (Admin/Kepala Mess/Manager) dipertahankan kecuali dicentang untuk ikut dihapus. Tercatat di Riwayat Aktivitas.
 
