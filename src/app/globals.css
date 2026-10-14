@@ -726,6 +726,58 @@ button {
   .ar-plate-item { animation: none; opacity: 1; }
 }
 
+/* Pusat Sistem — the plate as an aquarium: gold ornamental fish in pairs circle each other. */
+.ar-tank { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
+.ar-tank-waterline {
+  position: absolute; left: 0; right: 0; top: 0; height: 46px;
+  background: linear-gradient(180deg, rgba(255, 244, 201, 0.10), rgba(255, 244, 201, 0));
+}
+.ar-bubble {
+  position: absolute; bottom: -12px; border-radius: 9999px;
+  border: 1px solid rgba(255, 238, 180, 0.55);
+  background: radial-gradient(circle at 32% 30%, rgba(255, 250, 225, 0.55), rgba(255, 250, 225, 0.04) 62%);
+  animation-name: arBubbleRise; animation-timing-function: ease-in; animation-iteration-count: infinite;
+  opacity: 0;
+}
+.ar-lane {
+  position: absolute; left: 0; right: 0; height: 0;
+  animation: arLaneSway ease-in-out infinite alternate;
+}
+.ar-pair {
+  position: absolute; width: 0; height: 0;
+  animation: arOrbit linear infinite;
+  --a-rot: 90deg; --b-rot: -90deg;
+}
+.ar-pair-rev { animation-direction: reverse; --a-rot: -90deg; --b-rot: 90deg; }
+.ar-fish {
+  position: absolute; left: 0; top: 0;
+  width: var(--fw); height: calc(var(--fw) * 0.405);
+  margin-left: calc(var(--fw) / -2); margin-top: calc(var(--fw) * -0.2);
+  overflow: visible;
+  filter: drop-shadow(0 0 7px rgba(240, 199, 90, 0.5));
+}
+.ar-fish-a { transform: translateX(var(--r)) rotate(var(--a-rot)); }
+.ar-fish-b { transform: translateX(calc(var(--r) * -1)) rotate(var(--b-rot)); }
+.ar-fish-tail { transform-box: fill-box; transform-origin: 100% 50%; animation: arFishTail 0.55s ease-in-out infinite alternate; }
+.ar-fish-b .ar-fish-tail { animation-delay: -0.27s; }
+@keyframes arOrbit { to { transform: rotate(360deg); } }
+@keyframes arLaneSway {
+  0% { transform: translate(calc(var(--sway) * -1), -8px); }
+  100% { transform: translate(var(--sway), 8px); }
+}
+@keyframes arFishTail { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+@keyframes arBubbleRise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.9; }
+  50% { transform: translateY(-170px) translateX(6px); }
+  90% { opacity: 0.7; }
+  100% { transform: translateY(-340px) translateX(-4px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-bubble { display: none; }
+  .ar-lane, .ar-pair, .ar-fish-tail { animation: none; }
+}
+
 /* ---- Ara, the AR Corp doll mascot (src/components/employee/ArMascot.tsx) ---- */
 .arc-mascot { display: block; overflow: visible; }
 .arc-mascot-dots { opacity: 0; }
