@@ -7,7 +7,7 @@ import { cardClass } from "@/components/ui/styles";
 interface SystemData {
   product: { name: string; version: string; owner: string; year: number };
   license: { configured: boolean; status: "AKTIF" | "REFERENSI"; clientId: string | null; employeeLimit: number | null; employeeCount: number; ownerGenerated: boolean };
-  support: { phone: string; whatsapp: string; email: string; website: string; websiteLabel: string };
+  support: { phone: string; whatsapp: string; email: string; website: string; websiteLabel: string; address: string };
   system: {
     uptimeMin: number;
     database: { ok: boolean; ms: number; sizeKb: number | null };
@@ -122,14 +122,39 @@ export default function SystemCenter() {
 
   return (
     <div className="mt-6 flex flex-col gap-5 max-w-5xl">
-      {/* Hak cipta — always on a dark plate so the gold reads in both Siang and Malam. */}
-      <div className="rounded-3xl border border-ar-goldline px-6 py-9 sm:py-12 text-center overflow-hidden relative" style={{ background: "radial-gradient(120% 140% at 50% 0%, #1a1408 0%, #09090b 62%)" }}>
-        <div className="text-[10.5px] tracking-[0.34em] uppercase" style={{ color: "#d8c28a" }}>
-          Hak cipta &copy; {product.year}
-        </div>
-        <div className="ar-copyright-gold text-[40px] sm:text-[68px] leading-[1.05] mt-3 tracking-[-0.01em]">{product.owner}</div>
-        <div className="text-[11px] tracking-[0.2em] uppercase mt-4" style={{ color: "#bfae80" }}>
-          {product.name} &middot; Versi {product.version} &middot; Seluruh hak dilindungi
+      {/* Hak cipta — always on a dark plate so the gold reads in both Siang and Malam.
+          The plate is alive: drifting gold glows, a light beam, a pulsing border, and the contact lines rise in one by one. */}
+      <div className="ar-copyright-plate rounded-3xl border border-ar-goldline px-6 py-9 sm:py-12 text-center overflow-hidden relative">
+        <span className="ar-plate-glow ar-plate-glow-a" aria-hidden />
+        <span className="ar-plate-glow ar-plate-glow-b" aria-hidden />
+        <span className="ar-plate-beam" aria-hidden />
+        <div className="relative">
+          <div className="text-[10.5px] tracking-[0.34em] uppercase" style={{ color: "#d8c28a" }}>
+            Hak cipta &copy; {product.year}
+          </div>
+          <div className="ar-copyright-gold text-[40px] sm:text-[68px] leading-[1.05] mt-3 tracking-[-0.01em]">{product.owner}</div>
+          <div className="text-[11px] tracking-[0.2em] uppercase mt-4" style={{ color: "#bfae80" }}>
+            {product.name} &middot; Versi {product.version} &middot; Seluruh hak dilindungi
+          </div>
+          <div className="ar-plate-rule" aria-hidden />
+          <div className="ar-plate-contact mt-6 grid gap-x-8 gap-y-3 text-[12.5px] sm:grid-cols-2 max-w-3xl mx-auto text-left">
+            <div className="ar-plate-item" style={{ animationDelay: "0.2s" }}>
+              <span className="ar-plate-label">Alamat</span>
+              <span style={{ color: "#e9dfc3" }}>{support.address}</span>
+            </div>
+            <div className="ar-plate-item" style={{ animationDelay: "0.4s" }}>
+              <span className="ar-plate-label">Telepon</span>
+              <a href={`tel:${support.phone.replace(/\D/g, "")}`} className="ar-plate-link">{support.phone}</a>
+            </div>
+            <div className="ar-plate-item" style={{ animationDelay: "0.6s" }}>
+              <span className="ar-plate-label">Email</span>
+              <a href={`mailto:${support.email}`} className="ar-plate-link break-all">{support.email}</a>
+            </div>
+            <div className="ar-plate-item" style={{ animationDelay: "0.8s" }}>
+              <span className="ar-plate-label">Website</span>
+              <a href={support.website} target="_blank" rel="noopener noreferrer" className="ar-plate-link break-all">{support.websiteLabel}</a>
+            </div>
+          </div>
         </div>
       </div>
 
