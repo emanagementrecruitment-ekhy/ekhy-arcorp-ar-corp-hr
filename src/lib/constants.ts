@@ -274,3 +274,9 @@ export const LIGHT_MODE_DAY_END_HOUR = 18;
 // the code on-screen for this one account, in every environment including
 // production, so the demo stays usable without real delivery.
 export const DEMO_TERA_CODE = "DEMO-01";
+
+/** Official public contact of AR Corporation — one source for the privacy page, Pusat Sistem and Ara. */
+export const COMPANY_NAME = "AR Corporation";
+export const COMPANY_WEBSITE_HOST = "www.officialarcorporation.my.id";
+export const COMPANY_WEBSITE_URL = `https://${COMPANY_WEBSITE_HOST}`;
+export const COMPANY_EMAIL = "official.arcorporation@gmail.com";

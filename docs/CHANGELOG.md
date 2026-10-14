@@ -7,6 +7,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Kontak resmi AR Corporation (website www.officialarcorporation.my.id dan email official.arcorporation@gmail.com) ditambahkan di Pusat Sistem, Kebijakan Privasi, dan jawaban Ara. Kebijakan Privasi tidak lagi memakai email pribadi.
 - Ara (Claude): variabel opsional `ANTHROPIC_WORKSPACE_ID` untuk kunci API yang tidak terikat ke satu workspace Anthropic. Tanpa ini kunci seperti itu ditolak (HTTP 400) dan Ara jatuh ke jawaban berbasis aturan.
 
 ### Added

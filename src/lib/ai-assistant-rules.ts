@@ -3,6 +3,7 @@
 // these rules (free, instant, nothing leaves the server) or hands the question to Claude with the same facts.
 
 import { fmtRp } from "./format";
+import { COMPANY_EMAIL, COMPANY_WEBSITE_HOST } from "./constants";
 
 export const CALL_CENTER = "0881-02545-8888";
 export const ASSISTANT_NAME = "Ara";
@@ -194,7 +195,7 @@ export function ruleAnswer(intent: Intent, f: EmployeeFacts): string {
     case "request":
       return requestAnswer(f);
     case "contact":
-      return `Hubungi Call Center AR Corp di ${CALL_CENTER}. Untuk permintaan biasa, kamu juga bisa menulis di sini lalu tekan "Kirim ke kantor".`;
+      return `Hubungi Call Center AR Corp di ${CALL_CENTER}, email ${COMPANY_EMAIL}, atau buka ${COMPANY_WEBSITE_HOST}. Untuk permintaan biasa, kamu juga bisa menulis di sini lalu tekan "Kirim ke kantor".`;
   }
 }
 
@@ -228,7 +229,7 @@ ATURAN PERUSAHAAN:
 - Hari hadir minimal ${f.month.minDays} hari per bulan; kurang dari itu Tera kena pinalty absensi Rp500.000.
 - Kasbon: ajukan di menu Kasbon; Owner memutuskan; Admin Pusat mentransfer jika disetujui.
 - Menu aplikasi: Home (kotak absen), Voucher, Kasbon, Lapor, Profil, Slip Pay.
-- Call Center: ${CALL_CENTER}.
+- Call Center: ${CALL_CENTER}. Email resmi: ${COMPANY_EMAIL}. Website: ${COMPANY_WEBSITE_HOST}.
 
 FAKTA KARYAWAN INI (sekarang ${f.now.label} WIB, ${f.now.dateKey}):
 - Nama: ${f.name} (${f.code}), peran: ${f.role}${f.isTera ? " (Tera)" : ""}.

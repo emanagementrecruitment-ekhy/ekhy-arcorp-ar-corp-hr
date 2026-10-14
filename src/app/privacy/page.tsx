@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Kebijakan Privasi · AR Corp",
@@ -77,9 +78,13 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Kontak</div>
             <p>
-              Pertanyaan seputar kebijakan privasi ini dapat disampaikan ke{" "}
-              <a href="mailto:aldhilarizky@gmail.com" className="text-ar-gold">
-                aldhilarizky@gmail.com
+              Pertanyaan seputar kebijakan privasi ini dapat disampaikan ke {COMPANY_NAME} melalui email{" "}
+              <a href={`mailto:${COMPANY_EMAIL}`} className="text-ar-gold">
+                {COMPANY_EMAIL}
+              </a>{" "}
+              atau website{" "}
+              <a href={COMPANY_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="text-ar-gold">
+                {COMPANY_WEBSITE_HOST}
               </a>
               .
             </p>
