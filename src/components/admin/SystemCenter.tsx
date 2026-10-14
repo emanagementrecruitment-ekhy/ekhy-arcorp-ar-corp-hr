@@ -131,15 +131,15 @@ export default function SystemCenter() {
         <span className="ar-plate-glow ar-plate-glow-b" aria-hidden />
         <span className="ar-plate-beam" aria-hidden />
         <div className="relative">
-          <div className="text-[10.5px] tracking-[0.34em] uppercase" style={{ color: "#d8c28a" }}>
+          <div className="ar-plate-head-line text-[12px] tracking-[0.34em] uppercase" style={{ color: "#d8c28a" }}>
             Hak cipta &copy; {product.year}
           </div>
           <div className="ar-copyright-gold text-[40px] sm:text-[68px] leading-[1.05] mt-3 tracking-[-0.01em]">{product.owner}</div>
-          <div className="text-[11px] tracking-[0.2em] uppercase mt-4" style={{ color: "#bfae80" }}>
+          <div className="ar-plate-head-line text-[12px] tracking-[0.2em] uppercase mt-4" style={{ color: "#bfae80" }}>
             {product.name} &middot; Versi {product.version} &middot; Seluruh hak dilindungi
           </div>
           <div className="ar-plate-rule" aria-hidden />
-          <div className="ar-plate-contact mt-6 grid gap-x-8 gap-y-3 text-[12.5px] sm:grid-cols-2 max-w-3xl mx-auto text-left">
+          <div className="ar-plate-contact mt-6 grid gap-x-8 gap-y-2 text-[13px] sm:grid-cols-2 max-w-3xl mx-auto text-left">
             <div className="ar-plate-item" style={{ animationDelay: "0.2s" }}>
               <span className="ar-plate-label">Alamat</span>
               <span style={{ color: "#e9dfc3" }}>{support.address}</span>
