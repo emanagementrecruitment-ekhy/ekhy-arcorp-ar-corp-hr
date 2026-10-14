@@ -7,6 +7,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Pusat Sistem: banner hak cipta "AR Corporation" kini bergerak (cahaya emas melayang, berkas cahaya lewat, bingkai berdenyut) dan memuat Alamat, Telepon, Email, dan Website perusahaan. Gerakan berhenti otomatis bila pengguna mengaktifkan "kurangi gerakan" di perangkatnya.
 - Deskripsi resmi aplikasi (metadata situs dan manifest PWA/Android) menjadi "AR Corporation - Good Grip, Profesional, Trusted. Integrated HR System Management".
 - Kontak resmi AR Corporation (website www.officialarcorporation.my.id dan email official.arcorporation@gmail.com) ditambahkan di Pusat Sistem, Kebijakan Privasi, dan jawaban Ara. Kebijakan Privasi tidak lagi memakai email pribadi.
 - Ara (Claude): variabel opsional `ANTHROPIC_WORKSPACE_ID` untuk kunci API yang tidak terikat ke satu workspace Anthropic. Tanpa ini kunci seperti itu ditolak (HTTP 400) dan Ara jatuh ke jawaban berbasis aturan.

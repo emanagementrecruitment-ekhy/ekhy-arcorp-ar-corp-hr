@@ -1,4 +1,4 @@
-import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL, STAFF_ROLES } from "@/lib/constants";
+import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL, HQ_ADDRESS, STAFF_ROLES } from "@/lib/constants";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
@@ -70,6 +70,7 @@ export async function GET() {
         email: COMPANY_EMAIL,
         website: COMPANY_WEBSITE_URL,
         websiteLabel: COMPANY_WEBSITE_HOST,
+        address: HQ_ADDRESS,
       },
       system: {
         server: true,
