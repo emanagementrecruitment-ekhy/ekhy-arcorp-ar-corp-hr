@@ -280,3 +280,5 @@ export const COMPANY_NAME = "AR Corporation";
 export const COMPANY_WEBSITE_HOST = "www.officialarcorporation.my.id";
 export const COMPANY_WEBSITE_URL = `https://${COMPANY_WEBSITE_HOST}`;
 export const COMPANY_EMAIL = "official.arcorporation@gmail.com";
+/** Public one-line description — used for the site metadata and the PWA manifest. */
+export const COMPANY_DESCRIPTION = "AR Corporation - Good Grip, Profesional, Trusted. Integrated HR System Management";

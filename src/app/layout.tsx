@@ -3,7 +3,7 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
 import { getAppearanceSetting } from "@/lib/settings";
-import { LIGHT_MODE_DAY_START_HOUR, LIGHT_MODE_DAY_END_HOUR } from "@/lib/constants";
+import { LIGHT_MODE_DAY_START_HOUR, LIGHT_MODE_DAY_END_HOUR, COMPANY_DESCRIPTION } from "@/lib/constants";
 import LightModeSync from "@/components/LightModeSync";
 
 // Self-hosted variable fonts (see ./fonts/README.md) — no network fetch at build time.
@@ -57,7 +57,7 @@ const fontVariables = [
 
 export const metadata: Metadata = {
   title: "AR Corp · E-Management",
-  description: "Portal operasional AR Corp — absensi GPS, voucher komisi, dan kasbon karyawan.",
+  description: COMPANY_DESCRIPTION,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { COMPANY_DESCRIPTION } from "@/lib/constants";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "AR Corp",
     short_name: "AR Corp",
-    description: "Portal operasional AR Corp — absensi GPS, voucher komisi, dan kasbon karyawan.",
+    description: COMPANY_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: "#07080b",
