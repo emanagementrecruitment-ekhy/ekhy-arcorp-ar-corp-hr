@@ -16,7 +16,8 @@ export interface EditableEmployee {
   role: string;
   place: string;
   supervisorId: string;
-  channelLink: string;
+  channelLink?: string;
+  joinedAt?: string | null; // ISO datetime string, or null
   nik?: string | null;
   birthPlace: string | null;
   birthDate: string | null; // ISO datetime string, or null
@@ -52,7 +53,7 @@ export default function EditEmployeeForm({
     role: employee.role,
     place: employee.place,
     supervisorId: employee.supervisorId,
-    channelLink: employee.channelLink,
+    joinedAt: employee.joinedAt ? employee.joinedAt.slice(0, 10) : "",
     nik: employee.nik ?? "",
     birthPlace: employee.birthPlace ?? "",
     birthDate: employee.birthDate ? employee.birthDate.slice(0, 10) : "",

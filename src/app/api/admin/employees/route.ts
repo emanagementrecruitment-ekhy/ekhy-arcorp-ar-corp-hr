@@ -11,6 +11,7 @@ import { shortRp } from "@/lib/format";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { getEmployeeLimit } from "@/lib/license";
 import { parseBirthDate } from "@/lib/birthday";
+import { parseJoinedAt } from "@/lib/joined-date";
 
 const PAGE_SIZE = 10;
 
@@ -57,7 +58,7 @@ export async function GET(req: Request) {
     if (searchParams.get("lite") === "1") {
       const lite = await prisma.employee.findMany({
         where,
-        select: { id: true, name: true, code: true, role: true, status: true, homePlace: true, birthDate: true, supervisorId: true, channelLink: true },
+        select: { id: true, name: true, code: true, role: true, status: true, homePlace: true, birthDate: true, supervisorId: true, channelLink: true, joinedAt: true },
         orderBy: { code: "asc" },
         take: pageSize,
       });
@@ -72,6 +73,7 @@ export async function GET(req: Request) {
           birthDate: e.birthDate,
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
+          joinedAt: e.joinedAt,
         })),
         total: lite.length,
         page: 1,
@@ -140,6 +142,7 @@ export async function GET(req: Request) {
           place: e.homePlace,
           supervisorId: e.supervisorId ?? "",
           channelLink: e.channelLink ?? "",
+          joinedAt: e.joinedAt ?? e.createdAt,
           supervisorNote: e.supervisorNote ?? "",
           nik: e.nik ?? "",
           birthPlace: e.birthPlace,
@@ -202,6 +205,8 @@ export async function POST(req: Request) {
     const birthPlace = typeof body?.birthPlace === "string" ? body.birthPlace.trim() : "";
     const nikRaw = typeof body?.nik === "string" ? body.nik.replace(/\D/g, "") : "";
     if (nikRaw && nikRaw.length !== 16) return NextResponse.json({ error: "NIK harus 16 digit." }, { status: 400 });
+    const joinedResult = parseJoinedAt(body?.joinedAt);
+    if (!joinedResult.ok) return NextResponse.json({ error: joinedResult.error }, { status: 400 });
     const birthDateResult = parseBirthDate(body?.birthDate);
     if (!birthDateResult.ok) return NextResponse.json({ error: birthDateResult.error }, { status: 400 });
     const customRateRaw = Number(body?.customRate);
@@ -270,6 +275,7 @@ export async function POST(req: Request) {
         homePlace: city.place,
         supervisorId,
         channelLink: channelLink || null,
+        joinedAt: joinedResult.value ?? new Date(),
         supervisorNote: supervisorNote || null,
         nik: nikRaw || null,
         birthPlace: birthPlace || null,

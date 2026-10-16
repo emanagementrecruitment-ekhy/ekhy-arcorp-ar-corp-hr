@@ -17,7 +17,7 @@ export interface EmployeeFieldsValue {
   role: string;
   place: string;
   supervisorId: string;
-  channelLink: string;
+  joinedAt: string; // "" or "YYYY-MM-DD" (Tanggal Bergabung)
   nik: string;
   birthPlace: string;
   birthDate: string; // "" or "YYYY-MM-DD" (native <input type="date"> value)
@@ -40,7 +40,7 @@ export function emptyEmployeeFields(kind?: "staff" | "tera"): EmployeeFieldsValu
     role: kind === "tera" ? "Tera" : kind === "staff" ? "Staff" : FIELD_ROLES[0],
     place: FIELD_CITIES[0].place,
     supervisorId: "",
-    channelLink: "",
+    joinedAt: new Date().toISOString().slice(0, 10),
     nik: "",
     birthPlace: "",
     birthDate: "",
@@ -200,11 +200,12 @@ export default function EmployeeFields({
         </select>
       </div>
       <div>
-        <label className={labelCls}>Channel/Link</label>
+        <label className={labelCls}>Tanggal Bergabung</label>
         <input
-          value={value.channelLink}
-          onChange={(e) => onChange({ channelLink: e.target.value })}
-          placeholder="cth. wa.me/62812xxxxxxx"
+          type="date"
+          value={value.joinedAt}
+          max={new Date().toISOString().slice(0, 10)}
+          onChange={(e) => onChange({ joinedAt: e.target.value })}
           className={inputCls}
         />
       </div>

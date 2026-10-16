@@ -40,6 +40,7 @@ export async function GET() {
         role: e.role,
         supervisorId: e.supervisorId ?? "",
         channelLink: e.channelLink ?? "",
+        joinedAt: e.joinedAt ?? e.createdAt,
         supervisorNote: e.supervisorNote ?? "",
         nik: e.nik ?? "",
         birthPlace: e.birthPlace,

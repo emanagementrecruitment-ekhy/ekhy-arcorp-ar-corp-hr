@@ -29,6 +29,7 @@ export const EMPLOYEE_NO_PHOTO = {
   homeLng: true,
   homePlace: true,
   channelLink: true,
+  joinedAt: true,
   supervisorId: true,
   supervisorNote: true,
   nik: true,

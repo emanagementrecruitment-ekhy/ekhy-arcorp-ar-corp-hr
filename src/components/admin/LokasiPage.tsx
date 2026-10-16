@@ -23,6 +23,7 @@ interface Presence extends MapPresence {
   role: string;
   supervisorId: string;
   channelLink: string;
+  joinedAt?: string | null;
   nik?: string;
   birthPlace: string | null;
   birthDate: string | null;
@@ -222,7 +223,7 @@ export default function LokasiPage({ initialTab = "lokasi" }: { initialTab?: "lo
                 role: editing.role,
                 place: editing.place,
                 supervisorId: editing.supervisorId,
-                channelLink: editing.channelLink,
+                joinedAt: editing.joinedAt,
                 nik: editing.nik,
                 birthPlace: editing.birthPlace,
                 birthDate: editing.birthDate,

@@ -5,6 +5,7 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { EMPLOYEE_LEVELS, FIELD_CITIES, usesVcr, type EmployeeLevel, isStaffRole } from "@/lib/constants";
 import { normalizeIdentifier } from "@/lib/lookup";
 import { parseBirthDate } from "@/lib/birthday";
+import { parseJoinedAt } from "@/lib/joined-date";
 import { logAudit } from "@/lib/audit";
 import { describeEmployeeChange } from "@/lib/audit-format";
 
@@ -26,7 +27,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const role = typeof body?.role === "string" ? body.role.trim() : "";
     const place = typeof body?.place === "string" ? body.place : "";
     const supervisorId = typeof body?.supervisorId === "string" && body.supervisorId ? body.supervisorId : null;
-    const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : "";
+    // The form no longer has a Channel/Link input (replaced by Tanggal Bergabung): omitted = keep what is stored.
+    const channelLink = typeof body?.channelLink === "string" ? body.channelLink.trim() : existing.channelLink ?? "";
+    const joinedResult = parseJoinedAt(body?.joinedAt);
+    if (!joinedResult.ok) return NextResponse.json({ error: joinedResult.error }, { status: 400 });
     // Data Karyawan/Tera's edit form no longer has a Catatan Supervisor input
     // (replaced by birthPlace/birthDate below) — an omitted key here means
     // "leave the existing value alone", not "clear it". Only an explicit
@@ -115,6 +119,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           homePlace: city ? city.place : existing.homePlace,
           supervisorId,
           channelLink: channelLink || null,
+          joinedAt: body?.joinedAt === undefined ? existing.joinedAt : joinedResult.value,
           supervisorNote,
           // A caller that omits nik (e.g. an older form) must not wipe the stored one.
           nik: typeof body?.nik === "string" ? nikRaw || null : existing.nik,

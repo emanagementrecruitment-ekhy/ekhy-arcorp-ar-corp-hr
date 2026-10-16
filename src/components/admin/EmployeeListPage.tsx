@@ -9,6 +9,7 @@ import BulkImportEmployees from "@/components/admin/BulkImportEmployees";
 import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink, shortRp } from "@/lib/format";
+import { joinedLabel } from "@/lib/joined-date";
 
 interface EmpRow {
   id: string;
@@ -27,6 +28,7 @@ interface EmpRow {
   place: string;
   supervisorId: string;
   channelLink: string;
+  joinedAt: string | null;
   supervisorNote: string;
   nik: string;
   birthPlace: string | null;
@@ -305,7 +307,7 @@ export default function EmployeeListPage({
               </>
             ) : (
               <>
-                <span>CH/Link</span>
+                <span>Bergabung</span>
                 <span>Kasbon</span>
               </>
             )}
@@ -340,7 +342,7 @@ export default function EmployeeListPage({
                     role: e.role,
                     place: e.place,
                     supervisorId: e.supervisorId,
-                    channelLink: e.channelLink,
+                    joinedAt: e.joinedAt,
                     nik: e.nik,
                     birthPlace: e.birthPlace,
                     birthDate: e.birthDate,
@@ -412,19 +414,7 @@ export default function EmployeeListPage({
                   </>
                 ) : (
                   <>
-                <span className="text-[11px] break-all">
-                  {e.channelLink ? (
-                    isLink(e.channelLink) ? (
-                      <a href={e.channelLink} target="_blank" rel="noopener noreferrer" className="text-ar-gold underline">
-                        {e.channelLink}
-                      </a>
-                    ) : (
-                      e.channelLink
-                    )
-                  ) : (
-                    <span className="text-ar-faint">—</span>
-                  )}
-                </span>
+                <span className="text-[11px]">{joinedLabel(e.joinedAt)}</span>
                 <span className={`text-[12px] ${e.kasbon !== "—" ? "text-ar-red" : "text-ar-faint"}`}>{e.kasbon}</span>
                   </>
                 )}
