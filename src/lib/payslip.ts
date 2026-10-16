@@ -5,7 +5,8 @@ import { monthRange, parseMonth } from "./period";
 import { dLabel, monthLabel } from "./format";
 import { VOUCHER_LABEL, VOUCHER_AMOUNT, usesVcr, ATTENDANCE_MIN_DAYS, ATTENDANCE_PENALTY_AMOUNT, ATTENDANCE_PENALTY_CATEGORY, ATTENDANCE_CHECKIN_START_MONTH, type EmployeeLevel, isStaffRole } from "./constants";
 import { getAttendanceDaysCount, daysInMonth } from "./attendance";
-import { buildSheet, sheetTotal, type SheetRow, type VcrLine } from "./payslip-sheet";
+import { computeKasbonCarry, prevYm } from "./kasbon-carry";
+import { buildSheet, sheetTotal, type SheetRow, type SheetItemIn, type VcrLine } from "./payslip-sheet";
 
 export interface PayslipRow {
   no: number;
@@ -98,12 +99,15 @@ export interface KaryawanSlip {
   tunjangan: number;
   feeVcr: number;
   feeVcrQty: number;
+  feeVcrRate: number; // per-VCR rate (feeVcr / feeVcrQty)
   feeTransport: number;
   kasbon: number;
   denda: number;
   terlambat: number;
   lain: number;
   total: number;
+  note: string; // free text typed by the admin, shown to the karyawan
+  carryKasbon: number; // part of `kasbon` carried over from earlier months
 }
 
 export interface Payslip {
@@ -155,7 +159,10 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   // Tera: an approved kasbon is deducted in full the month it was taken. Karyawan: any instalment is agreed
   // case by case, so nothing is auto-deducted — Admin enters each cicilan by hand (Masuk ke Blok: Kasbon Uang).
   const autoKasbon = vcr ? kasbonRows : [];
-  const kasbonTotal = autoKasbon.reduce((s, k) => s + k.amount, 0);
+  // Kasbon / titipan still unreturned at the end of last month lands here automatically (Tera and karyawan).
+  const carry = await computeKasbonCarry({ id: employee.id, role: employee.role, salary: employee.salary }, month);
+  const carryLabel = `SISA KASBON ${monthLabel(prevYm(month)).toUpperCase()}`;
+  const kasbonTotal = autoKasbon.reduce((s, k) => s + k.amount, 0) + carry;
 
   const draft: Array<Omit<PayslipRow, "no" | "balance">> = [];
   if (vcr && vcrTotal > 0) {
@@ -164,8 +171,11 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   if (!vcr && employee.salary && employee.salary > 0) {
     draft.push({ id: null, date: null, dateRaw: null, description: "GAJI POKOK", category: null, qty: null, debit: employee.salary, credit: 0, note: null });
   }
-  if (kasbonTotal > 0) {
-    draft.push({ id: null, date: null, dateRaw: null, description: "KASBON DISETUJUI", category: null, qty: null, debit: 0, credit: kasbonTotal, note: null });
+  if (kasbonTotal - carry > 0) {
+    draft.push({ id: null, date: null, dateRaw: null, description: "KASBON DISETUJUI", category: null, qty: null, debit: 0, credit: kasbonTotal - carry, note: null });
+  }
+  if (carry > 0) {
+    draft.push({ id: null, date: null, dateRaw: null, description: carryLabel, category: null, qty: null, debit: 0, credit: carry, note: "Otomatis dari bulan sebelumnya" });
   }
   for (const it of items) {
     draft.push({
@@ -230,10 +240,10 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
     vcrLines,
     vcr: vcr ? { count: vouchers.length, total: vcrTotal, unit: manualRate != null ? manualRate : amounts.size === 1 ? vouchers[0].amount : null } : null,
     salary: employee.salary,
-    kasbon: autoKasbon.map((k) => {
+    kasbon: autoKasbon.map((k): SheetItemIn => {
       const d = k.decidedAt ?? k.createdAt;
       return { id: null, date: dLabel(d), dateRaw: d.toISOString().slice(0, 10), description: k.reason || "Kasbon", category: "Kasbon Uang", qty: null, debit: 0, credit: k.amount, note: null };
-    }),
+    }).concat(carry > 0 ? [{ id: null, date: null, dateRaw: null, description: carryLabel, category: "Kasbon Uang", qty: null, debit: 0, credit: carry, note: "Otomatis dari bulan sebelumnya" }] : []),
     items: items.map((it) => ({
       id: it.id,
       date: it.date ? dLabel(it.date) : null,
@@ -250,9 +260,12 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   // Slip Gaji Karyawan: group the stored rows into the owner's earnings / deductions lines.
   let karyawan: KaryawanSlip | null = null;
   if (!vcr) {
-    const k: KaryawanSlip = { register: "", gajiPokok: employee.salary ?? 0, bonus: 0, tunjangan: 0, feeVcr: 0, feeVcrQty: 0, feeTransport: 0, kasbon: 0, denda: 0, terlambat: 0, lain: 0, total: 0 };
+    const k: KaryawanSlip = { register: "", gajiPokok: employee.salary ?? 0, bonus: 0, tunjangan: 0, feeVcr: 0, feeVcrQty: 0, feeVcrRate: 0, feeTransport: 0, kasbon: 0, denda: 0, terlambat: 0, lain: 0, total: 0, note: "", carryKasbon: carry };
     Object.assign(k, groupKaryawanItems(items));
     for (const r of autoKasbon) k.kasbon += r.amount;
+    k.kasbon += carry;
+    k.feeVcrRate = k.feeVcrQty > 0 ? Math.round(k.feeVcr / k.feeVcrQty) : 0;
+    k.note = (await prisma.payslipNote.findUnique({ where: { employeeId_month: { employeeId, month } } }))?.text ?? "";
     k.total = k.gajiPokok + k.bonus + k.tunjangan + k.feeVcr + k.feeTransport - k.kasbon - k.denda - k.terlambat - k.lain;
     const joined = employee.joinedAt ?? employee.createdAt;
     k.register = joined.toLocaleDateString("id-ID", { month: "long", year: "numeric", timeZone: "UTC" }).toUpperCase();

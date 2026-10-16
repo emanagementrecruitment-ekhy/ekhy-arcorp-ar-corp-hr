@@ -39,8 +39,12 @@ export async function PUT(req: Request) {
     const changes: string[] = [];
 
     for (const key of Object.keys(LINES) as KaryawanLine[]) {
-      if (lines[key] === undefined) continue;
-      const want = Math.round(Number(lines[key]));
+      if (key === "feeVcr" ? lines.feeVcrRate === undefined && lines.feeVcrQty === undefined : lines[key] === undefined) continue;
+      // Fee VCR is typed as rate x jumlah (e.g. 2.000 x 100 = 2.000.000); every other line is typed as a total.
+      const want =
+        key === "feeVcr"
+          ? Math.round(Number(lines.feeVcrRate) || 0) * Math.round(Number(lines.feeVcrQty) || 0)
+          : Math.round(Number(lines[key]));
       if (!Number.isFinite(want) || want < 0 || want > 1_000_000_000) return NextResponse.json({ error: `Nominal ${LINES[key].label} tidak valid.` }, { status: 400 });
       const delta = want - others[key];
       if (delta < 0) {
@@ -58,6 +62,17 @@ export async function PUT(req: Request) {
         else await prisma.payslipItem.create({ data: { employeeId, month, description: LINES[key].label, category: SLIP_GAJI_CATEGORY, ...data } });
       }
       changes.push(`${LINES[key].label}: Rp ${want.toLocaleString("id-ID")}`);
+    }
+
+    // NOTE shown on the slip (free text for the karyawan).
+    if (typeof body?.note === "string") {
+      const text = body.note.trim().slice(0, 500);
+      const existingNote = await prisma.payslipNote.findUnique({ where: { employeeId_month: { employeeId, month } } });
+      if ((existingNote?.text ?? "") !== text) {
+        if (!text) await prisma.payslipNote.deleteMany({ where: { employeeId, month } });
+        else await prisma.payslipNote.upsert({ where: { employeeId_month: { employeeId, month } }, create: { employeeId, month, text }, update: { text } });
+        changes.push("Note diubah");
+      }
     }
 
     if (changes.length) await logAudit(session, "PAYSLIP_EDIT", `${employee.name} (${employee.code}) · ${month}`, `Edit Slip Gaji: ${changes.join("; ")}`);

@@ -46,7 +46,7 @@ function KaryawanSlipView({ payslip }: { payslip: Payslip }) {
           <div className="font-bold">{line("GAJI POKOK", k.gajiPokok)}</div>
           {line("BONUS", k.bonus)}
           {line("Tunjangan", k.tunjangan)}
-          {line("- - FEE VCR", k.feeVcr, k.feeVcrQty ? `X ${k.feeVcrQty}` : "X")}
+          {line("- - FEE VCR", k.feeVcr, k.feeVcrQty ? `${fmtNum(k.feeVcrRate)} X ${k.feeVcrQty} =` : "")}
           {line("- - FEE TRANSPORT", k.feeTransport)}
           <div className="font-bold mt-2">POTONGAN</div>
           {line("- SISA KASBON", k.kasbon)}
@@ -62,7 +62,7 @@ function KaryawanSlipView({ payslip }: { payslip: Payslip }) {
       <div className="grid grid-cols-2 gap-8 mt-6 text-[11px]">
         <div>
           <div className="font-bold">NOTE :</div>
-          <div className="h-10" />
+          {k.note ? <div className="whitespace-pre-wrap mt-1 min-h-10">{k.note}</div> : <div className="h-10" />}
         </div>
         <div className="text-center">
           <div>Dibuat Oleh,</div>
@@ -73,7 +73,6 @@ function KaryawanSlipView({ payslip }: { payslip: Payslip }) {
         <div>{HQ_ADDRESS}</div>
         <div>{OFFICE2_ADDRESS}</div>
       </div>
-      <div className="mt-5 mb-1 text-[10px] tracking-[0.16em] uppercase text-ar-dim print:hidden">Rincian (untuk edit)</div>
     </div>
   );
 }
@@ -127,7 +126,7 @@ export default function PayslipDocument({
 
       {k && <KaryawanSlipView payslip={payslip} />}
 
-      <div className={k ? "print:hidden" : undefined}>
+      <div className={k ? "hidden" : undefined}>
       <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12.5px] mb-5 print:mb-4 print:text-black">
         <div>
           <span className="text-ar-dim print:text-black/60">Nama</span> : <strong>{payslip.employee.name}</strong>

@@ -66,14 +66,14 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       });
       const rows: Array<[string, number | null, boolean]> = [
         ["GAJI POKOK", k.gajiPokok, true], ["BONUS", k.bonus, false], ["Tunjangan", k.tunjangan, false],
-        [`- - FEE VCR${k.feeVcrQty ? ` X ${k.feeVcrQty}` : " X"}`, k.feeVcr, false], ["- - FEE TRANSPORT", k.feeTransport, false],
+        [`- - FEE VCR${k.feeVcrQty ? ` ${nm(k.feeVcrRate)} X ${k.feeVcrQty} =` : ""}`, k.feeVcr, false], ["- - FEE TRANSPORT", k.feeTransport, false],
         ["POTONGAN", null, true], ["- SISA KASBON", k.kasbon, false], ["- DENDA ABSEN", k.denda, false],
         ["- POTONGAN TERLAMBAT", k.terlambat, false], ["- LAIN LAIN", k.lain, false],
       ];
       rows.forEach(([l, v, bold], i) => {
         const yy = y0 + i * 16;
-        doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(10).fillColor("#111111").text(l, 320, yy, { width: 130 });
-        if (v !== null) doc.font("Helvetica").text(nm(v), 450, yy, { width: 108, align: "right" });
+        doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(9).fillColor("#111111").text(l, 300, yy, { width: 160, lineBreak: false });
+        if (v !== null) doc.font("Helvetica").fontSize(10).text(nm(v), 450, yy, { width: 108, align: "right" });
       });
       const yt = y0 + rows.length * 16 + 8;
       doc.moveTo(320, yt - 3).lineTo(558, yt - 3).lineWidth(0.6).strokeColor("#8a6d1f").stroke();
@@ -81,7 +81,8 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       doc.fillColor(k.total < 0 ? "#dc2626" : "#111111").text(`Rp ${nm(k.total)}`, 430, yt, { width: 128, align: "right" });
       const yn = Math.max(yt, y0 + left.length * 18) + 50;
       doc.fillColor("#111111").font("Helvetica-Bold").fontSize(9).text("NOTE :", 36, yn);
-      doc.font("Helvetica").text("Dibuat Oleh,", 380, yn, { width: 150, align: "center" });
+      if (k.note) doc.font("Helvetica").fontSize(9).text(k.note, 36, yn + 14, { width: 250, height: 70 });
+      doc.font("Helvetica").fontSize(9).text("Dibuat Oleh,", 380, yn, { width: 150, align: "center" });
       doc.fontSize(8).fillColor("#555555").text(HQ_ADDRESS, 36, yn + 90, { width: 523 });
       doc.text(OFFICE2_ADDRESS, 36, doc.y + 2, { width: 523 });
       doc.end();

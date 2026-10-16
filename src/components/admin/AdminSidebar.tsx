@@ -38,6 +38,7 @@ const DESKS: readonly Desk[] = [
       { href: "/admin/hr-office", icon: "briefcase", label: "HR & Office", roles: ["OWNER", "CONSULTANT", "MANAGER"] },
       { href: "/admin/karyawan/tera", icon: "id-card", label: "Data Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/karyawan", icon: "users", label: "Data Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/slip-gaji", icon: "receipt", label: "Slip Gaji Karyawan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
     ],
   },
   {
@@ -46,7 +47,7 @@ const DESKS: readonly Desk[] = [
       { href: "/admin/laporan", icon: "chart", label: "Laporan Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/pendapatan", icon: "tray-in", label: "Input Pendapatan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/kasbon", icon: "banknote", label: "Kasbon", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
-      { href: "/admin/payslip", icon: "receipt", label: "Rincian Totalan", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
+      { href: "/admin/payslip", icon: "receipt", label: "Rincian Totalan Tera", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
       { href: "/admin/import", icon: "archive", label: "Import Data", roles: ["OWNER", "CONSULTANT", "ADMIN_PUSAT", "MANAGER"] },
     ],
   },

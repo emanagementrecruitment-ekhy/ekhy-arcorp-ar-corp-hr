@@ -66,6 +66,7 @@ model Employee {
   chatsSent    ChatMessage[] @relation("ChatSender")
   payslipItems PayslipItem[]
   payslipRates PayslipRate[]
+  payslipNotes PayslipNote[]
   attendancePenaltyChecks AttendancePenaltyCheck[]
   savingEntries SavingEntry[]
   recurringCosts RecurringCost[]
@@ -453,6 +454,17 @@ model PayslipRate {
   month      String   // "YYYY-MM"
   rate       Int      // per-voucher rate typed on the Slip Pay for a MANUAL-level Tera that month
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([employeeId, month])
+}
+
+model PayslipNote {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  month      String   // "YYYY-MM"
+  text       String   // free note typed on the Slip Gaji Karyawan, shown to the karyawan
   updatedAt  DateTime @updatedAt
 
   @@unique([employeeId, month])
