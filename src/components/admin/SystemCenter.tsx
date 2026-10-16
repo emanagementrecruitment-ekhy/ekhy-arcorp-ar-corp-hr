@@ -1,6 +1,6 @@
 "use client";
 
-import GoldFishTank from "@/components/admin/GoldFishTank";
+import GoldKoiYinYang from "@/components/admin/GoldKoiYinYang";
 import { useCallback, useEffect, useState } from "react";
 import Icon from "@/components/ui/Icon";
 import { cardClass } from "@/components/ui/styles";
@@ -126,7 +126,7 @@ export default function SystemCenter() {
       {/* Hak cipta — always on a dark plate so the gold reads in both Siang and Malam.
           The plate is alive: drifting gold glows, a light beam, a pulsing border, and the contact lines rise in one by one. */}
       <div className="ar-copyright-plate rounded-3xl border border-ar-goldline px-6 py-9 sm:py-12 text-center overflow-hidden relative">
-        <GoldFishTank />
+        <GoldKoiYinYang />
         <span className="ar-plate-glow ar-plate-glow-a" aria-hidden />
         <span className="ar-plate-glow ar-plate-glow-b" aria-hidden />
         <span className="ar-plate-beam" aria-hidden />
