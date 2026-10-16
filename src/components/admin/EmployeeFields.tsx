@@ -1,6 +1,6 @@
 "use client";
 
-import { FIELD_CITIES, FIELD_ROLES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { FIELD_CITIES, FIELD_ROLES, VOUCHER_AMOUNT, VOUCHER_LABEL, levelOptionLabel, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { computeAge } from "@/lib/birthday";
 
 export interface SupervisorOption {
@@ -126,7 +126,7 @@ export default function EmployeeFields({
             >
               {(Object.keys(VOUCHER_AMOUNT) as EmployeeLevel[]).map((lvl) => (
                 <option key={lvl} value={lvl}>
-                  {lvl === "MANUAL" ? VOUCHER_LABEL[lvl] : `${VOUCHER_LABEL[lvl]} (Rp ${VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")}/voucher)`}
+                  {lvl === "MANUAL" ? VOUCHER_LABEL[lvl] : levelOptionLabel(lvl)}
                 </option>
               ))}
             </select>

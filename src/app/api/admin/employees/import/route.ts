@@ -86,6 +86,9 @@ export async function GET() {
 
 function resolveLevel(raw: string): EmployeeLevel | null {
   const norm = raw.trim().toUpperCase();
+  // Old labels from earlier templates still resolve.
+  const legacy: Record<string, EmployeeLevel> = { ST: "CLASSIC_D", "PLATINUM / JASMINE": "PLATINUM" };
+  if (legacy[norm]) return legacy[norm];
   if ((EMPLOYEE_LEVELS as readonly string[]).includes(norm)) return norm as EmployeeLevel;
   const byLabel = (Object.entries(VOUCHER_LABEL) as [EmployeeLevel, string][]).find(
     ([, label]) => label.toUpperCase() === norm

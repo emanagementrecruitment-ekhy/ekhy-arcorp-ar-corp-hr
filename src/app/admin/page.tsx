@@ -106,7 +106,7 @@ export default function RingkasanPage() {
                 <span className="text-ar-text">{data?.silverAll ?? 0} voucher</span>
               </div>
               <div className="flex justify-between">
-                <span>PLATINUM / JASMINE (400.000)</span>
+                <span>PLATINUM (400.000)</span>
                 <span className="text-ar-text">{data?.platAll ?? 0} voucher</span>
               </div>
             </div>

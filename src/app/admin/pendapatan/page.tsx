@@ -3,7 +3,7 @@
 import { cachedJson } from "@/lib/client-cache";
 import { useEffect, useRef, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
+import { EMPLOYEE_LEVELS, FIELD_CITIES, VOUCHER_AMOUNT, levelOptionLabel, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { fmtRp } from "@/lib/format";
 import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
 
@@ -258,7 +258,7 @@ export default function PendapatanPage() {
               >
                 {EMPLOYEE_LEVELS.map((lvl) => (
                   <option key={lvl} value={lvl}>
-                    {VOUCHER_LABEL[lvl]} (default Rp {VOUCHER_AMOUNT[lvl].toLocaleString("id-ID")})
+                    {levelOptionLabel(lvl)}
                   </option>
                 ))}
               </select>

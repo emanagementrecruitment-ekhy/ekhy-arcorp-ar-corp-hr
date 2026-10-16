@@ -64,16 +64,25 @@ export const VOUCHER_AMOUNT: Record<EmployeeLevel, number> = {
 };
 
 export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
-  CLASSIC_D: "ST",
-  FL: "FL",
+  CLASSIC_D: "D",
+  FL: "S",
   SILVER: "SILVER",
   GOLD: "GOLD",
   LB: "LB",
-  PLATINUM: "PLATINUM / JASMINE",
+  PLATINUM: "PLATINUM",
   LV: "LV",
   MODEL: "MODEL",
   MANUAL: "MANUAL INPUT",
 };
+
+// Levels whose rate is a fixed income (shown as "Pendapatan Tetap" instead of "default").
+export const FIXED_INCOME_LEVELS: readonly EmployeeLevel[] = ["CLASSIC_D", "FL", "PLATINUM"];
+
+/** Dropdown text for a level, e.g. "D (Pendapatan Tetap Rp 95.000)". */
+export function levelOptionLabel(level: EmployeeLevel): string {
+  const rp = VOUCHER_AMOUNT[level].toLocaleString("id-ID");
+  return FIXED_INCOME_LEVELS.includes(level) ? `${VOUCHER_LABEL[level]} (Pendapatan Tetap Rp ${rp})` : `${VOUCHER_LABEL[level]} (default Rp ${rp})`;
+}
 
 /** An employee's real per-voucher rate — MANUAL substitutes their own stored customRate. */
 export function employeeRate(level: EmployeeLevel, customRate?: number | null): number {
