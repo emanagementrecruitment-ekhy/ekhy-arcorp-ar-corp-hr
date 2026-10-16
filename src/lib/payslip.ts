@@ -3,9 +3,9 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
 import { dLabel, monthLabel } from "./format";
-import { VOUCHER_LABEL, usesVcr, ATTENDANCE_MIN_DAYS, ATTENDANCE_PENALTY_AMOUNT, ATTENDANCE_PENALTY_CATEGORY, ATTENDANCE_CHECKIN_START_MONTH, type EmployeeLevel, isStaffRole } from "./constants";
+import { VOUCHER_LABEL, VOUCHER_AMOUNT, usesVcr, ATTENDANCE_MIN_DAYS, ATTENDANCE_PENALTY_AMOUNT, ATTENDANCE_PENALTY_CATEGORY, ATTENDANCE_CHECKIN_START_MONTH, type EmployeeLevel, isStaffRole } from "./constants";
 import { getAttendanceDaysCount, daysInMonth } from "./attendance";
-import { buildSheet, sheetTotal, type SheetRow } from "./payslip-sheet";
+import { buildSheet, sheetTotal, type SheetRow, type VcrLine } from "./payslip-sheet";
 
 export interface PayslipRow {
   no: number;
@@ -28,7 +28,32 @@ export interface SavingRow {
   note: string | null;
 }
 
+/** Day-by-day VCR count (the "REPORT" block left of Rincian Payroll). One column for the normal slip; S and D for the TRAVEL / CLASSIC T5 slip. */
+export interface PayslipDaily {
+  columns: string[]; // e.g. ["VCR"] or ["S", "D"]
+  days: Array<{ label: string; counts: number[] }>; // one per calendar day of the month
+  totals: number[]; // per column
+  grand: number;
+}
+
+/** TRAVEL = Tera working TRAVEL / CLASSIC T5 (categories S and D); NORMAL = every other Tera; null = not a VCR (Tera) payslip. */
+export type PayslipVariant = "NORMAL" | "TRAVEL" | null;
+
+// Outlets whose Tera use the two-category (S / D) Slip Pay; everyone else uses the normal one.
+const TRAVEL_PLACES = ["TRAVEL", "CLASSIC T5"];
+const SD_CATEGORIES: Array<{ key: EmployeeLevel; label: string }> = [
+  { key: "FL", label: "S" },
+  { key: "CLASSIC_D", label: "D" },
+];
+const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+function jakartaDay(d: Date): string {
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }); // YYYY-MM-DD
+}
+
 export interface Payslip {
+  variant: PayslipVariant;
+  daily: PayslipDaily | null;
   employee: { name: string; code: string; role: string; place: string; level: EmployeeLevel | null; levelLabel: string };
   /** Only for a MANUAL-level Tera: the per-voucher rate typed on this month's Slip Pay (null = not typed, falls back to the stored voucher amounts). */
   manualRate: number | null;
@@ -66,6 +91,8 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
 
   const vcr = usesVcr(employee.role);
   // MANUAL level: a rate typed on the Slip Pay overrides the amounts stored on each voucher.
+  const place = (employee.homePlace ?? "").trim().toUpperCase();
+  const variant: PayslipVariant = !vcr ? null : TRAVEL_PLACES.includes(place) || vouchers.some((v) => v.category === "FL" || v.category === "CLASSIC_D") ? "TRAVEL" : "NORMAL";
   const manualRate = vcr && employee.level === "MANUAL" && rateRow ? rateRow.rate : null;
   const vcrTotal = manualRate != null ? vouchers.length * manualRate : vouchers.reduce((s, v) => s + v.amount, 0);
   // Tera: an approved kasbon is deducted in full the month it was taken. Karyawan: any instalment is agreed
@@ -105,7 +132,45 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
 
   // Excel-style sheet: Kasbon (each approved one), Ambil Barang etc. land in their blocks automatically.
   const amounts = new Set(vouchers.map((v) => v.amount));
+  // Travel / Classic T5: one VCR row per category (S, D, plus any other category actually used).
+  let vcrLines: VcrLine[] | undefined;
+  let daily: PayslipDaily | null = null;
+  if (variant) {
+    const cols = variant === "TRAVEL" ? [...SD_CATEGORIES.map((c) => c.label), ...(vouchers.some((v) => !SD_CATEGORIES.some((c) => c.key === v.category)) ? ["LAIN"] : [])] : ["VCR"];
+    const colOf = (cat: string): number => {
+      if (variant === "NORMAL") return 0;
+      const i = SD_CATEGORIES.findIndex((c) => c.key === cat);
+      return i >= 0 ? i : cols.length - 1;
+    };
+    const [yy, mm] = month.split("-").map(Number);
+    const nDays = daysInMonth(month);
+    const days = Array.from({ length: nDays }, (_, i) => ({
+      key: `${month}-${String(i + 1).padStart(2, "0")}`,
+      label: `${String(i + 1).padStart(2, "0")} ${MONTH_ABBR[mm - 1]} ${yy}`,
+      counts: cols.map(() => 0),
+    }));
+    for (const v of vouchers) {
+      const day = days.find((d) => d.key === jakartaDay(v.occurredAt));
+      if (day) day.counts[colOf(v.category)] += 1;
+    }
+    const totals = cols.map((_, i) => days.reduce((s, d) => s + d.counts[i], 0));
+    daily = { columns: cols, days: days.map((d) => ({ label: d.label, counts: d.counts })), totals, grand: totals.reduce((a, b) => a + b, 0) };
+
+    if (variant === "TRAVEL") {
+      const cats: Array<{ label: string; match: (c: string) => boolean; unit: number | null }> = [
+        ...SD_CATEGORIES.map((c) => ({ label: c.label, match: (x: string) => x === c.key, unit: VOUCHER_AMOUNT[c.key] as number | null })),
+      ];
+      if (cols.includes("LAIN")) cats.push({ label: "LAIN", match: (x: string) => !SD_CATEGORIES.some((c) => c.key === x), unit: null });
+      vcrLines = cats.map((c) => {
+        const mine = vouchers.filter((v) => c.match(v.category));
+        const amts = new Set(mine.map((v) => v.amount));
+        return { label: `TOTAL VCR ${c.label}`, count: mine.length, total: mine.reduce((s, v) => s + v.amount, 0), unit: amts.size === 1 ? mine[0].amount : c.unit };
+      });
+    }
+  }
+
   const sheet = buildSheet({
+    vcrLines,
     vcr: vcr ? { count: vouchers.length, total: vcrTotal, unit: manualRate != null ? manualRate : amounts.size === 1 ? vouchers[0].amount : null } : null,
     salary: employee.salary,
     kasbon: autoKasbon.map((k) => {
@@ -127,6 +192,8 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
 
   const level = vcr ? (employee.level as EmployeeLevel) : null;
   return {
+    variant,
+    daily,
     employee: {
       name: employee.name,
       code: employee.code,

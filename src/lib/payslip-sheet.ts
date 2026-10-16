@@ -18,8 +18,17 @@ export interface SheetItemIn {
   note: string | null;
 }
 
+export interface VcrLine {
+  label: string; // e.g. "TOTAL VCR S"
+  count: number;
+  total: number;
+  unit: number | null;
+}
+
 export interface SheetInput {
   vcr: { count: number; total: number; unit: number | null } | null;
+  /** Several VCR rows (TRAVEL / CLASSIC T5 slip: one per category S and D). Overrides `vcr` when set. */
+  vcrLines?: VcrLine[];
   salary: number | null; // fixed monthly Gaji for non-Tera
   kasbon: SheetItemIn[]; // approved kasbon of the month, one entry each
   items: SheetItemIn[]; // manual/recurring PayslipItem rows
@@ -45,7 +54,9 @@ export interface SheetRow {
   filler: boolean;
 }
 
-export const FIXED_LABELS = ["ADMIN", "MESS", "PINALTY ABSEN", "TEST RUTIN", "SPEKULO", "LOKER", "SALON"] as const;
+export const FIXED_LABELS = ["ADMIN", "MESS", "PINALTY ABSEN", "TEST RUTIN", "SPEKULO", "LAIN - LAIN", "SALON"] as const;
+/** Compulsory deductions the owner wants printed bold blue (SALON is not one of them). */
+export const FIXED_BLUE_LABELS: readonly string[] = ["ADMIN", "MESS", "PINALTY ABSEN", "TEST RUTIN", "SPEKULO", "LAIN - LAIN"];
 export const BLOCKS: Array<{ section: Exclude<SheetSection, "VCR" | "GAJI" | "EXTRA" | "FIXED">; label: string; min: number }> = [
   { section: "KASBON", label: "KASBON UANG", min: 5 },
   { section: "BARANG", label: "AMBIL BARANG", min: 18 },
@@ -71,7 +82,7 @@ export function classifyItem(it: Pick<SheetItemIn, "category" | "description" | 
   if (/pinalty|penalty|denda/.test(text)) return { section: "FIXED", fixed: "PINALTY ABSEN" };
   if (/test|hiv|kehamilan/.test(text)) return { section: "FIXED", fixed: "TEST RUTIN" };
   if (/dokter|spekulo/.test(text)) return { section: "FIXED", fixed: "SPEKULO" };
-  if (/loker/.test(text)) return { section: "FIXED", fixed: "LOKER" };
+  if (/loker/.test(text)) return { section: "FIXED", fixed: "LAIN - LAIN" };
   if (/salon/.test(text)) return { section: "FIXED", fixed: "SALON" };
   // Unknown: an addition (bonus/fee, ...) stays on top, an unknown deduction goes to Potongan Lain.
   return it.debit > 0 && it.credit === 0 ? { section: "EXTRA" } : { section: "POTONGAN" };
@@ -114,10 +125,12 @@ export function buildSheet(input: SheetInput): SheetRow[] {
       (f.debit ?? 0) - (f.credit ?? 0),
     );
 
-  if (input.vcr && input.vcr.total > 0) {
+  if (input.vcrLines && input.vcrLines.length > 0) {
+    for (const l of input.vcrLines) top("VCR", l.label, { qty: String(l.count), debit: l.total, debitUnit: l.unit });
+  } else if (input.vcr && input.vcr.total > 0) {
     top("VCR", "TOTAL VCR", { qty: String(input.vcr.count), debit: input.vcr.total, debitUnit: input.vcr.unit });
   }
-  if (!input.vcr && input.salary && input.salary > 0) top("GAJI", "GAJI POKOK", { debit: input.salary });
+  if (!input.vcr && !input.vcrLines && input.salary && input.salary > 0) top("GAJI", "GAJI POKOK", { debit: input.salary });
 
   const placed = input.items.map((it) => ({ it, p: classifyItem(it) }));
   for (const { it } of placed.filter((x) => x.p.section === "EXTRA")) {

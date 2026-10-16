@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { Payslip } from "@/lib/payslip";
+import { FIXED_BLUE_LABELS } from "@/lib/payslip-sheet";
 
 function fmtRp(n: number): string {
   return "Rp " + Math.round(n).toLocaleString("id-ID");
@@ -32,8 +33,17 @@ export default function PayslipDocument({
   onEditItem?: (id: string) => void;
   onDeleteSaving?: (id: string) => void;
 }) {
+  const daily = payslip.daily;
   return (
-    <div id="payslip-print-area" className="bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
+    <div id="payslip-print-area" className="relative bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
+      {/* E-MANAGEMENT watermark: only shows on paper / Save-as-PDF, centered behind the table. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/watermark-emanagement.png"
+        alt=""
+        aria-hidden
+        className="hidden print:block absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2 opacity-[0.09] pointer-events-none select-none"
+      />
       <div className="flex items-center gap-3 mb-5 print:mb-4">
         <Image
           src="/api/brand-logo"
@@ -83,6 +93,9 @@ export default function PayslipDocument({
             <tr className="text-center text-[7px] tracking-[0.06em] uppercase text-ar-dim print:text-black">
               <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">No</th>
               <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Tanggal</th>
+              {daily && (
+                <th colSpan={1 + daily.columns.length} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Report</th>
+              )}
               <th rowSpan={2} colSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Rincian</th>
               <th rowSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Qty</th>
               <th colSpan={2} className="py-1 px-1 font-semibold border border-ar-line print:border-black">Debit</th>
@@ -92,6 +105,14 @@ export default function PayslipDocument({
               {onDeleteItem && <th rowSpan={2} className="print:hidden" />}
             </tr>
             <tr className="text-center text-[7px] tracking-[0.06em] uppercase text-ar-dim print:text-black">
+              {daily && (
+                <>
+                  <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Hari</th>
+                  {daily.columns.map((c) => (
+                    <th key={c} className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">{c}</th>
+                  ))}
+                </>
+              )}
               <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Jumlah</th>
               <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Total</th>
               <th className="py-0.5 px-1 font-semibold border border-ar-line print:border-black">Jumlah</th>
@@ -99,15 +120,31 @@ export default function PayslipDocument({
             </tr>
           </thead>
           <tbody>
-            {payslip.sheet.map((r) => {
+            {payslip.sheet.map((r, idx) => {
+              const day = daily?.days[idx];
               const isTop = r.blockSpan === 1 && r.blockLabel === null;
               const cell = "py-0.5 px-1 border border-ar-line print:border-black";
               return (
                 <tr key={r.key}>
                   <td className={`${cell} text-center`}>{r.no}</td>
                   <td className={cell}>{r.date ?? ""}</td>
+                  {daily && (
+                    <>
+                      <td className={`${cell} whitespace-nowrap`}>{day?.label ?? ""}</td>
+                      {daily.columns.map((c, ci) => (
+                        <td key={c} className={`${cell} text-center`}>{day ? day.counts[ci] || "" : ""}</td>
+                      ))}
+                    </>
+                  )}
                   {isTop ? (
-                    <td colSpan={2} className={`${cell} ${r.filler ? "text-ar-dim" : "text-ar-gold2"} print:text-black`}>
+                    <td
+                      colSpan={2}
+                      className={`${cell} ${
+                        FIXED_BLUE_LABELS.includes(r.description)
+                          ? "font-bold text-blue-400 print:text-blue-800"
+                          : `${r.filler ? "text-ar-dim" : "text-ar-gold2"} print:text-black`
+                      }`}
+                    >
                       {r.description}
                     </td>
                   ) : (
@@ -133,7 +170,7 @@ export default function PayslipDocument({
                       </td>
                     )
                   )}
-                  <td className={`${cell} text-right font-display text-ar-gold2 print:text-black`}>{fmtNum(r.balance)}</td>
+                  <td className={`${cell} text-right font-display ${r.balance < 0 ? "text-ar-red print:text-red-600" : "text-ar-gold2 print:text-black"}`}>{fmtNum(r.balance)}</td>
                   <td className={cell}>{r.note ?? ""}</td>
                   {onDeleteItem && (
                     <td className="py-0.5 pl-1 print:hidden whitespace-nowrap">
@@ -155,6 +192,21 @@ export default function PayslipDocument({
               );
             })}
           </tbody>
+          {daily && (
+            <tfoot>
+              <tr className="font-bold">
+                <td colSpan={2} className="py-0.5 px-1 border border-ar-line print:border-black" />
+                <td className="py-0.5 px-1 border border-ar-line print:border-black whitespace-nowrap">TOTAL VCR</td>
+                {daily.totals.map((t, i) => (
+                  <td key={i} className="py-0.5 px-1 border border-ar-line print:border-black text-center">{t}</td>
+                ))}
+                <td colSpan={9} className="py-0.5 px-1 border border-ar-line print:border-black text-right">
+                  {daily.columns.length > 1 ? `S + D = ${daily.grand}` : ""}
+                </td>
+              </tr>
+            </tfoot>
+          )}
+
         </table>
       </div>
 
