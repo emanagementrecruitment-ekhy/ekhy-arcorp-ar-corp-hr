@@ -362,6 +362,50 @@ export default function AdminPayslipPage() {
     }
   }
 
+  // TRAVEL / CLASSIC T5 Tera: edit the daily S / D voucher counts and nominal straight on the Slip Pay.
+  const [vcrEdits, setVcrEdits] = useState<Record<string, string>>({}); // "YYYY-MM-DD|FL" -> typed count
+  const [vcrRates, setVcrRates] = useState<{ FL: string; CLASSIC_D: string }>({ FL: "", CLASSIC_D: "" });
+  const [vcrBusy, setVcrBusy] = useState(false);
+  const [vcrMsg, setVcrMsg] = useState("");
+  useEffect(() => {
+    setVcrEdits({});
+    setVcrMsg("");
+    const unit = (label: string) => payslip?.sheet.find((r) => r.section === "VCR" && r.description === label)?.debitUnit;
+    setVcrRates({ FL: unit("TOTAL VCR S") ? String(unit("TOTAL VCR S")) : "", CLASSIC_D: unit("TOTAL VCR D") ? String(unit("TOTAL VCR D")) : "" });
+  }, [payslip, employeeId, month]);
+
+  async function saveVcr() {
+    if (!payslip?.daily) return;
+    const cols = payslip.daily.columns;
+    const cats = ["FL", "CLASSIC_D"] as const;
+    const edits: Array<{ day: string; category: string; count: number }> = [];
+    for (const [k, v] of Object.entries(vcrEdits)) {
+      const [day, category] = k.split("|");
+      const idx = cats.indexOf(category as (typeof cats)[number]);
+      const current = payslip.daily.days.find((d) => d.key === day)?.counts[idx] ?? 0;
+      const count = Math.max(0, Math.round(Number(v) || 0));
+      if (idx >= 0 && cols[idx] && count !== current) edits.push({ day, category, count });
+    }
+    setVcrBusy(true);
+    setVcrMsg("");
+    try {
+      const res = await fetch("/api/admin/payslip/vcr", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, month, edits, rates: { FL: Number(vcrRates.FL) || 0, CLASSIC_D: Number(vcrRates.CLASSIC_D) || 0 } }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setVcrMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setPayslip(data.payslip);
+      setVcrMsg(data.unchanged ? "Tidak ada perubahan." : "✓ Tersimpan, Slip Pay dihitung ulang.");
+    } finally {
+      setVcrBusy(false);
+    }
+  }
+
   async function deleteRecurring(id: string) {
     const res = await fetch(`/api/admin/recurring-costs/${id}?month=${month}`, { method: "DELETE" });
     const data = await res.json();
@@ -457,6 +501,64 @@ export default function AdminPayslipPage() {
                 className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}
               >
                 {bonusBusy ? "Menyimpan…" : "Tambah Bonus"}
+              </button>
+            </div>
+          )}
+
+          {employeeId && payslip?.variant === "TRAVEL" && payslip.daily && (
+            <div className={cardClass}>
+              <div className="font-display text-[17px] text-ar-gold2 mb-1">Edit VCR (TRAVEL / CLASSIC T5)</div>
+              <div className="text-[10.5px] text-ar-dim mb-3.5">
+                Ubah jumlah VCR kategori S dan D per hari, atau nominal per VCR bulan ini. Slip Pay dihitung ulang otomatis dan perubahan tercatat di Riwayat Aktivitas.
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-3.5">
+                {([["FL", "Nominal S (Rp/VCR)"], ["CLASSIC_D", "Nominal D (Rp/VCR)"]] as const).map(([cat, label]) => (
+                  <div key={cat}>
+                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">{label}</label>
+                    <input
+                      value={vcrRates[cat] ? Number(vcrRates[cat].replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                      onChange={(e) => setVcrRates((r) => ({ ...r, [cat]: e.target.value.replace(/[^0-9]/g, "") }))}
+                      placeholder="Rp 0"
+                      className={inputClass}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="max-h-[320px] overflow-y-auto border border-ar-line rounded-[10px]">
+                <table className="w-full text-[11.5px] border-collapse">
+                  <thead className="sticky top-0 bg-ar-surface2 text-[9.5px] tracking-[0.1em] uppercase text-ar-dim">
+                    <tr>
+                      <th className="py-1.5 px-2 text-left font-normal">Hari</th>
+                      <th className="py-1.5 px-2 font-normal">S</th>
+                      <th className="py-1.5 px-2 font-normal">D</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payslip.daily.days.map((d) => (
+                      <tr key={d.key} className="border-t border-ar-line/60">
+                        <td className="py-1 px-2 whitespace-nowrap">{d.label}</td>
+                        {(["FL", "CLASSIC_D"] as const).map((cat, i) => {
+                          const k = `${d.key}|${cat}`;
+                          return (
+                            <td key={cat} className="py-1 px-2 text-center">
+                              <input
+                                type="number"
+                                min={0}
+                                value={vcrEdits[k] ?? String(d.counts[i] ?? 0)}
+                                onChange={(e) => setVcrEdits((m) => ({ ...m, [k]: e.target.value }))}
+                                className="w-16 py-1 px-2 bg-ar-input border border-ar-goldline rounded-[8px] text-ar-text text-[12px] text-center"
+                              />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {vcrMsg && <div className={`mt-3 text-[11.5px] ${vcrMsg.startsWith("✓") || vcrMsg.startsWith("Tidak") ? "text-ar-green" : "text-ar-red"}`}>{vcrMsg}</div>}
+              <button disabled={vcrBusy} onClick={saveVcr} className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}>
+                {vcrBusy ? "Menyimpan…" : "Simpan Perubahan VCR"}
               </button>
             </div>
           )}

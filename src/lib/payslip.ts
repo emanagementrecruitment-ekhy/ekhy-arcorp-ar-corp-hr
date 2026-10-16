@@ -31,7 +31,7 @@ export interface SavingRow {
 /** Day-by-day VCR count (the "REPORT" block left of Rincian Payroll). One column for the normal slip; S and D for the TRAVEL / CLASSIC T5 slip. */
 export interface PayslipDaily {
   columns: string[]; // e.g. ["VCR"] or ["S", "D"]
-  days: Array<{ label: string; counts: number[] }>; // one per calendar day of the month
+  days: Array<{ key: string; label: string; counts: number[] }>; // one per calendar day of the month (key = YYYY-MM-DD)
   totals: number[]; // per column
   grand: number;
 }
@@ -47,7 +47,7 @@ const SD_CATEGORIES: Array<{ key: EmployeeLevel; label: string }> = [
 ];
 const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
-function jakartaDay(d: Date): string {
+export function jakartaDay(d: Date): string {
   return d.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }); // YYYY-MM-DD
 }
 
@@ -154,7 +154,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
       if (day) day.counts[colOf(v.category)] += 1;
     }
     const totals = cols.map((_, i) => days.reduce((s, d) => s + d.counts[i], 0));
-    daily = { columns: cols, days: days.map((d) => ({ label: d.label, counts: d.counts })), totals, grand: totals.reduce((a, b) => a + b, 0) };
+    daily = { columns: cols, days: days.map((d) => ({ key: d.key, label: d.label, counts: d.counts })), totals, grand: totals.reduce((a, b) => a + b, 0) };
 
     if (variant === "TRAVEL") {
       const cats: Array<{ label: string; match: (c: string) => boolean; unit: number | null }> = [
