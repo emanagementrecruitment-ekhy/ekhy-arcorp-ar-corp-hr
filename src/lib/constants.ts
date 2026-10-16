@@ -113,21 +113,28 @@ export const OTP_MAX_ATTEMPTS = 5;
 // so they default to HQ (0 km, dalam radius) until a real check-in happens —
 // update the lat/lng here once each venue's actual address is known.
 export const FIELD_CITIES = [
+  { place: "OFFICE", lat: HQ.lat, lng: HQ.lng },
+  { place: "CALIFORNIA", lat: HQ.lat, lng: HQ.lng },
   { place: "CLASSIC BUNGKER", lat: HQ.lat, lng: HQ.lng },
   { place: "CLASSIC T2", lat: HQ.lat, lng: HQ.lng },
   { place: "CLASSIC T5", lat: HQ.lat, lng: HQ.lng },
   { place: "COLLO (1001)", lat: HQ.lat, lng: HQ.lng },
+  { place: "EL GROUP", lat: HQ.lat, lng: HQ.lng },
   { place: "EMVO", lat: HQ.lat, lng: HQ.lng },
+  { place: "HOLYWOOD", lat: HQ.lat, lng: HQ.lng },
   { place: "HRV", lat: HQ.lat, lng: HQ.lng },
+  { place: "KC", lat: HQ.lat, lng: HQ.lng },
   { place: "LA", lat: HQ.lat, lng: HQ.lng },
   { place: "MA", lat: HQ.lat, lng: HQ.lng },
   { place: "MALIO", lat: HQ.lat, lng: HQ.lng },
+  { place: "MAXWELL", lat: HQ.lat, lng: HQ.lng },
   { place: "MEDIKA", lat: HQ.lat, lng: HQ.lng },
   { place: "MTR", lat: HQ.lat, lng: HQ.lng },
-  { place: "MTR2", lat: HQ.lat, lng: HQ.lng },
-  { place: "OFFICE", lat: HQ.lat, lng: HQ.lng },
   { place: "ROYAL", lat: HQ.lat, lng: HQ.lng },
   { place: "SA", lat: HQ.lat, lng: HQ.lng },
+  { place: "SEVEN", lat: HQ.lat, lng: HQ.lng },
+  { place: "SUMO", lat: HQ.lat, lng: HQ.lng },
+  { place: "TRAVEL", lat: HQ.lat, lng: HQ.lng },
   { place: "V-CLUB", lat: HQ.lat, lng: HQ.lng },
 ] as const;
 
