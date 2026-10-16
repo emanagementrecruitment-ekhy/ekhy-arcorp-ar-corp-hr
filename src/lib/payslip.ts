@@ -51,10 +51,28 @@ export function jakartaDay(d: Date): string {
   return d.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }); // YYYY-MM-DD
 }
 
+/** "Slip Gaji Karyawan" summary (non-Tera): earnings and deductions grouped like the owner's PDF format. */
+export interface KaryawanSlip {
+  register: string; // join month, e.g. "SEPTEMBER 2026"
+  gajiPokok: number;
+  bonus: number;
+  tunjangan: number;
+  feeVcr: number;
+  feeVcrQty: number;
+  feeTransport: number;
+  kasbon: number;
+  denda: number;
+  terlambat: number;
+  lain: number;
+  total: number;
+}
+
 export interface Payslip {
+  /** Set for karyawan (non-Tera) payslips: the Slip Gaji Karyawan layout. */
+  karyawan: KaryawanSlip | null;
   variant: PayslipVariant;
   daily: PayslipDaily | null;
-  employee: { name: string; code: string; role: string; place: string; level: EmployeeLevel | null; levelLabel: string };
+  employee: { name: string; code: string; role: string; place: string; level: EmployeeLevel | null; levelLabel: string; nik: string; phone: string; email: string };
   /** Only for a MANUAL-level Tera: the per-voucher rate typed on this month's Slip Pay (null = not typed, falls back to the stored voucher amounts). */
   manualRate: number | null;
   month: string;
@@ -190,8 +208,37 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
     })),
   });
 
+  // Slip Gaji Karyawan: group the stored rows into the owner's earnings / deductions lines.
+  let karyawan: KaryawanSlip | null = null;
+  if (!vcr) {
+    const k: KaryawanSlip = { register: "", gajiPokok: employee.salary ?? 0, bonus: 0, tunjangan: 0, feeVcr: 0, feeVcrQty: 0, feeTransport: 0, kasbon: 0, denda: 0, terlambat: 0, lain: 0, total: 0 };
+    for (const it of items) {
+      const text = `${it.category ?? ""} ${it.description}`.toLowerCase();
+      if (it.debit > 0) {
+        if (/tunjangan/.test(text)) k.tunjangan += it.debit;
+        else if (/transport/.test(text)) k.feeTransport += it.debit;
+        else if (/vcr/.test(text)) {
+          k.feeVcr += it.debit;
+          k.feeVcrQty += Number((it.qty ?? "").match(/\d+/)?.[0] ?? 0);
+        } else k.bonus += it.debit;
+      }
+      if (it.credit > 0) {
+        if (/kasbon/.test(text)) k.kasbon += it.credit;
+        else if (/pinalty|penalty|denda/.test(text)) k.denda += it.credit;
+        else if (/terlambat|telat/.test(text)) k.terlambat += it.credit;
+        else k.lain += it.credit;
+      }
+    }
+    for (const r of autoKasbon) k.kasbon += r.amount;
+    k.total = k.gajiPokok + k.bonus + k.tunjangan + k.feeVcr + k.feeTransport - k.kasbon - k.denda - k.terlambat - k.lain;
+    const joined = employee.joinedAt ?? employee.createdAt;
+    k.register = joined.toLocaleDateString("id-ID", { month: "long", year: "numeric", timeZone: "UTC" }).toUpperCase();
+    karyawan = k;
+  }
+
   const level = vcr ? (employee.level as EmployeeLevel) : null;
   return {
+    karyawan,
     variant,
     daily,
     employee: {
@@ -201,6 +248,9 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
       place: employee.homePlace,
       level,
       levelLabel: level ? VOUCHER_LABEL[level] : "GAJI",
+      nik: employee.nik ?? "",
+      phone: employee.phone ?? "",
+      email: employee.email ?? "",
     },
     manualRate,
     month,

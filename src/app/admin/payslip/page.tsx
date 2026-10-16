@@ -75,6 +75,7 @@ export default function AdminPayslipPage() {
   const [bonusBusy, setBonusBusy] = useState(false);
   const [bonusMsg, setBonusMsg] = useState("");
 
+  const [empFilter, setEmpFilter] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
   const [sendBusy, setSendBusy] = useState(false);
   const [sendMsg, setSendMsg] = useState("");
@@ -426,6 +427,12 @@ export default function AdminPayslipPage() {
         <div className="flex flex-col gap-4">
           <div className={cardClass}>
             <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Karyawan/Tera</label>
+            <input
+              value={empFilter}
+              onChange={(e) => setEmpFilter(e.target.value)}
+              placeholder="Ketik untuk mencari nama atau kode…"
+              className="w-full py-2 px-3.5 mb-2 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12px]"
+            />
             <select
               value={employeeId}
               onChange={(e) => {
@@ -435,12 +442,23 @@ export default function AdminPayslipPage() {
               className="w-full py-2.5 px-3.5 mb-3.5 bg-ar-input border border-ar-goldline rounded-[10px] text-ar-text text-[12.5px]"
             >
               <option value="">Pilih karyawan…</option>
-              {employees.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.name} ({e.code})
-                </option>
-              ))}
+              {employees
+                .filter((e) => e.id === employeeId || !empFilter.trim() || `${e.name} ${e.code}`.toLowerCase().includes(empFilter.trim().toLowerCase()))
+                .map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name} ({e.code})
+                  </option>
+                ))}
             </select>
+
+            {payslip && employeeId && (
+              <div className="mb-3.5 p-3 bg-ar-surface2 border border-ar-line rounded-[10px] text-[11.5px] grid gap-1">
+                <div className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-0.5">Terisi otomatis dari data karyawan</div>
+                <div><span className="text-ar-dim">NIK</span> : {payslip.employee.nik || "—"}</div>
+                <div><span className="text-ar-dim">No HP</span> : {payslip.employee.phone || "—"}</div>
+                <div className="break-all"><span className="text-ar-dim">Email</span> : {payslip.employee.email || "—"}</div>
+              </div>
+            )}
 
             <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Bulan</label>
             <input

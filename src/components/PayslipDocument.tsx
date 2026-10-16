@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { Payslip } from "@/lib/payslip";
+import { HQ_ADDRESS } from "@/lib/constants";
 import { FIXED_BLUE_LABELS } from "@/lib/payslip-sheet";
 
 function fmtRp(n: number): string {
@@ -11,6 +12,67 @@ function fmtRp(n: number): string {
 function fmtNum(n: number): string {
   const v = Math.round(n);
   return v < 0 ? `(${Math.abs(v).toLocaleString("id-ID")})` : v.toLocaleString("id-ID");
+}
+
+function KaryawanSlipView({ payslip }: { payslip: Payslip }) {
+  const k = payslip.karyawan!;
+  const e = payslip.employee;
+  const line = (label: string, amount: number, extra?: string) => (
+    <div className="flex justify-between gap-3 py-0.5">
+      <span>{label}{extra ? <span className="text-ar-dim print:text-black/60"> {extra}</span> : null}</span>
+      <span className="tabular-nums">{amount ? fmtNum(amount) : "-"}</span>
+    </div>
+  );
+  const info = (label: string, value: string) => (
+    <div className="flex gap-2">
+      <span className="w-14 shrink-0 text-ar-dim print:text-black/60">{label}</span>
+      <span>:</span>
+      <strong className="break-all font-semibold">{value || "—"}</strong>
+    </div>
+  );
+  return (
+    <div className="text-[12.5px] print:text-black">
+      <div className="font-display text-[18px] tracking-[0.12em] text-ar-gold2 mb-1 print:text-black">SLIP PAY KARYAWAN</div>
+      <div className="text-[10.5px] text-ar-dim mb-4 print:text-black/60">REGISTER : {k.register}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-x-8 gap-y-4">
+        <div className="flex flex-col gap-1.5">
+          {info("NAMA", e.name)}
+          {info("NIK", e.nik)}
+          {info("BULAN", payslip.monthLabel.toUpperCase())}
+          {info("HP", e.phone)}
+          {info("EMAIL", e.email)}
+        </div>
+        <div>
+          <div className="font-bold">{line("GAJI POKOK", k.gajiPokok)}</div>
+          {line("BONUS", k.bonus)}
+          {line("Tunjangan", k.tunjangan)}
+          {line("- - FEE VCR", k.feeVcr, k.feeVcrQty ? `X ${k.feeVcrQty}` : "X")}
+          {line("- - FEE TRANSPORT", k.feeTransport)}
+          <div className="font-bold mt-2">POTONGAN</div>
+          {line("- SISA KASBON", k.kasbon)}
+          {line("- DENDA ABSEN", k.denda)}
+          {line("- POTONGAN TERLAMBAT", k.terlambat)}
+          {line("- LAIN LAIN", k.lain)}
+          <div className={`flex justify-between gap-3 mt-3 pt-2 border-t border-ar-goldline print:border-black font-bold ${k.total < 0 ? "text-ar-red print:text-red-600" : ""}`}>
+            <span>SISA DAN TOTAL GAJI</span>
+            <span className="tabular-nums">Rp {fmtNum(k.total)}</span>
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-8 mt-6 text-[11px]">
+        <div>
+          <div className="font-bold">NOTE :</div>
+          <div className="h-10" />
+        </div>
+        <div className="text-center">
+          <div>Dibuat Oleh,</div>
+          <div className="h-12" />
+        </div>
+      </div>
+      <div className="mt-2 pt-2 border-t border-ar-line print:border-black/40 text-[9.5px] text-ar-dim print:text-black/70">{HQ_ADDRESS}</div>
+      <div className="mt-5 mb-1 text-[10px] tracking-[0.16em] uppercase text-ar-dim print:hidden">Rincian (untuk edit)</div>
+    </div>
+  );
 }
 
 /**
@@ -34,6 +96,7 @@ export default function PayslipDocument({
   onDeleteSaving?: (id: string) => void;
 }) {
   const daily = payslip.daily;
+  const k = payslip.karyawan;
   return (
     <div id="payslip-print-area" className="relative bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
       {/* E-MANAGEMENT watermark: only shows on paper / Save-as-PDF, centered behind the table. */}
@@ -59,6 +122,9 @@ export default function PayslipDocument({
         </div>
       </div>
 
+      {k && <KaryawanSlipView payslip={payslip} />}
+
+      <div className={k ? "print:hidden" : undefined}>
       <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12.5px] mb-5 print:mb-4 print:text-black">
         <div>
           <span className="text-ar-dim print:text-black/60">Nama</span> : <strong>{payslip.employee.name}</strong>
@@ -215,6 +281,7 @@ export default function PayslipDocument({
           Total Payroll
         </span>
         <span className="font-display text-2xl text-ar-gold2 print:text-black">{fmtRp(payslip.total)}</span>
+      </div>
       </div>
 
       {payslip.savings.length > 0 && (

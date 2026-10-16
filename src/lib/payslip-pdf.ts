@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import { FIXED_BLUE_LABELS } from "./payslip-sheet";
+import { HQ_ADDRESS } from "./constants";
 import type { Payslip } from "./payslip";
 
 function fmtRp(n: number): string {
@@ -45,6 +46,45 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       doc.restore();
     } catch {
       // watermark file missing: still produce the slip
+    }
+
+    // Karyawan (non-Tera): the "Slip Gaji Karyawan" format — identity left, earnings/deductions right.
+    if (payslip.karyawan) {
+      const k = payslip.karyawan;
+      const e = payslip.employee;
+      const nm = (n: number) => (n ? (n < 0 ? `(${Math.abs(Math.round(n)).toLocaleString("id-ID")})` : Math.round(n).toLocaleString("id-ID")) : "-");
+      doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text("AR CORP", { characterSpacing: 2 });
+      doc.fontSize(20).fillColor("#111111").text("SLIP PAY KARYAWAN");
+      doc.fontSize(9).font("Helvetica").fillColor("#555555").text(`REGISTER : ${k.register}`);
+      let y0 = doc.y + 18;
+      const left: Array<[string, string]> = [["NAMA", e.name], ["NIK", e.nik || "-"], ["BULAN", payslip.monthLabel.toUpperCase()], ["HP", e.phone || "-"], ["EMAIL", e.email || "-"]];
+      doc.fontSize(10).fillColor("#111111");
+      left.forEach(([l, v], i) => {
+        doc.font("Helvetica").text(l, 36, y0 + i * 18, { width: 50 });
+        doc.text(":", 88, y0 + i * 18);
+        doc.font("Helvetica-Bold").text(v, 98, y0 + i * 18, { width: 200 });
+      });
+      const rows: Array<[string, number | null, boolean]> = [
+        ["GAJI POKOK", k.gajiPokok, true], ["BONUS", k.bonus, false], ["Tunjangan", k.tunjangan, false],
+        [`- - FEE VCR${k.feeVcrQty ? ` X ${k.feeVcrQty}` : " X"}`, k.feeVcr, false], ["- - FEE TRANSPORT", k.feeTransport, false],
+        ["POTONGAN", null, true], ["- SISA KASBON", k.kasbon, false], ["- DENDA ABSEN", k.denda, false],
+        ["- POTONGAN TERLAMBAT", k.terlambat, false], ["- LAIN LAIN", k.lain, false],
+      ];
+      rows.forEach(([l, v, bold], i) => {
+        const yy = y0 + i * 16;
+        doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(10).fillColor("#111111").text(l, 320, yy, { width: 130 });
+        if (v !== null) doc.font("Helvetica").text(nm(v), 450, yy, { width: 108, align: "right" });
+      });
+      const yt = y0 + rows.length * 16 + 8;
+      doc.moveTo(320, yt - 3).lineTo(558, yt - 3).lineWidth(0.6).strokeColor("#8a6d1f").stroke();
+      doc.font("Helvetica-Bold").fontSize(10).fillColor("#111111").text("SISA DAN TOTAL GAJI", 320, yt, { width: 130 });
+      doc.fillColor(k.total < 0 ? "#dc2626" : "#111111").text(`Rp ${nm(k.total)}`, 430, yt, { width: 128, align: "right" });
+      const yn = Math.max(yt, y0 + left.length * 18) + 50;
+      doc.fillColor("#111111").font("Helvetica-Bold").fontSize(9).text("NOTE :", 36, yn);
+      doc.font("Helvetica").text("Dibuat Oleh,", 380, yn, { width: 150, align: "center" });
+      doc.fontSize(8).fillColor("#555555").text(HQ_ADDRESS, 36, yn + 90, { width: 523 });
+      doc.end();
+      return;
     }
 
     doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text("AR CORP", { characterSpacing: 2 });
