@@ -332,6 +332,36 @@ export default function AdminPayslipPage() {
     }
   }
 
+  // MANUAL-level Tera: the per-voucher rate is typed here on the Slip Pay instead of on the Tera's profile.
+  const [manualRateInput, setManualRateInput] = useState("");
+  const [manualRateBusy, setManualRateBusy] = useState(false);
+  const [manualRateMsg, setManualRateMsg] = useState("");
+  useEffect(() => {
+    setManualRateInput(payslip?.manualRate ? String(payslip.manualRate) : "");
+    setManualRateMsg("");
+  }, [payslip?.manualRate, employeeId, month]);
+
+  async function saveManualRate() {
+    setManualRateBusy(true);
+    setManualRateMsg("");
+    try {
+      const res = await fetch("/api/admin/payslip/rate", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, month, rate: Number(manualRateInput) || 0 }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setManualRateMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setPayslip(data.payslip);
+      setManualRateMsg("✓ Tersimpan.");
+    } finally {
+      setManualRateBusy(false);
+    }
+  }
+
   async function deleteRecurring(id: string) {
     const res = await fetch(`/api/admin/recurring-costs/${id}?month=${month}`, { method: "DELETE" });
     const data = await res.json();
@@ -427,6 +457,28 @@ export default function AdminPayslipPage() {
                 className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}
               >
                 {bonusBusy ? "Menyimpan…" : "Tambah Bonus"}
+              </button>
+            </div>
+          )}
+
+          {employeeId && payslip?.employee.level === "MANUAL" && (
+            <div className={cardClass}>
+              <div className="font-display text-[17px] text-ar-gold2 mb-1">Nominal MANUAL INPUT</div>
+              <div className="text-[10.5px] text-ar-dim mb-3.5">
+                Ketik nominal per VCR untuk bulan ini. TOTAL VCR di Slip Pay dihitung ulang: jumlah VCR × nominal. Kosongkan untuk kembali ke nominal bawaan.
+              </div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Nominal per VCR (Rp)</label>
+              <input
+                value={manualRateInput ? Number(manualRateInput.replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                onChange={(e) => setManualRateInput(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="Rp 0"
+                className={inputClass}
+              />
+              {manualRateMsg && (
+                <div className={`mt-3 text-[11.5px] ${manualRateMsg.startsWith("✓") ? "text-ar-green" : "text-ar-red"}`}>{manualRateMsg}</div>
+              )}
+              <button disabled={manualRateBusy} onClick={saveManualRate} className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}>
+                {manualRateBusy ? "Menyimpan…" : "Simpan Nominal"}
               </button>
             </div>
           )}

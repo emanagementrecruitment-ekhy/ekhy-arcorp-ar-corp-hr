@@ -64,6 +64,7 @@ model Employee {
   chatsAsEmployee ChatMessage[] @relation("ChatEmployee")
   chatsSent    ChatMessage[] @relation("ChatSender")
   payslipItems PayslipItem[]
+  payslipRates PayslipRate[]
   attendancePenaltyChecks AttendancePenaltyCheck[]
   savingEntries SavingEntry[]
   recurringCosts RecurringCost[]
@@ -442,4 +443,16 @@ model AiUsage {
   count   Int    @default(0)
 
   @@unique([dateKey, scope])
+}
+
+model PayslipRate {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  month      String   // "YYYY-MM"
+  rate       Int      // per-voucher rate typed on the Slip Pay for a MANUAL-level Tera that month
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([employeeId, month])
 }

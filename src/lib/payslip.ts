@@ -30,6 +30,8 @@ export interface SavingRow {
 
 export interface Payslip {
   employee: { name: string; code: string; role: string; place: string; level: EmployeeLevel | null; levelLabel: string };
+  /** Only for a MANUAL-level Tera: the per-voucher rate typed on this month's Slip Pay (null = not typed, falls back to the stored voucher amounts). */
+  manualRate: number | null;
   month: string;
   monthLabel: string;
   rows: PayslipRow[];
@@ -53,16 +55,19 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
   if (!employee || !isStaffRole(employee.accessRole)) return null;
 
-  const [vouchers, kasbonRows, items, savings, hariHadir] = await Promise.all([
+  const [vouchers, kasbonRows, items, savings, hariHadir, rateRow] = await Promise.all([
     prisma.voucher.findMany({ where: { employeeId, occurredAt: { gte: start, lt: end } } }),
     prisma.kasbon.findMany({ where: { employeeId, status: "DISETUJUI", createdAt: { gte: start, lt: end } } }),
     prisma.payslipItem.findMany({ where: { employeeId, month }, orderBy: [{ date: "asc" }, { createdAt: "asc" }] }),
     prisma.savingEntry.findMany({ where: { employeeId, date: { gte: start, lt: end } }, orderBy: { date: "asc" } }),
     getAttendanceDaysCount(employeeId, month),
+    prisma.payslipRate.findUnique({ where: { employeeId_month: { employeeId, month } } }),
   ]);
 
   const vcr = usesVcr(employee.role);
-  const vcrTotal = vouchers.reduce((s, v) => s + v.amount, 0);
+  // MANUAL level: a rate typed on the Slip Pay overrides the amounts stored on each voucher.
+  const manualRate = vcr && employee.level === "MANUAL" && rateRow ? rateRow.rate : null;
+  const vcrTotal = manualRate != null ? vouchers.length * manualRate : vouchers.reduce((s, v) => s + v.amount, 0);
   // Tera: an approved kasbon is deducted in full the month it was taken. Karyawan: any instalment is agreed
   // case by case, so nothing is auto-deducted — Admin enters each cicilan by hand (Masuk ke Blok: Kasbon Uang).
   const autoKasbon = vcr ? kasbonRows : [];
@@ -101,7 +106,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   // Excel-style sheet: Kasbon (each approved one), Ambil Barang etc. land in their blocks automatically.
   const amounts = new Set(vouchers.map((v) => v.amount));
   const sheet = buildSheet({
-    vcr: vcr ? { count: vouchers.length, total: vcrTotal, unit: amounts.size === 1 ? vouchers[0].amount : null } : null,
+    vcr: vcr ? { count: vouchers.length, total: vcrTotal, unit: manualRate != null ? manualRate : amounts.size === 1 ? vouchers[0].amount : null } : null,
     salary: employee.salary,
     kasbon: autoKasbon.map((k) => {
       const d = k.decidedAt ?? k.createdAt;
@@ -130,6 +135,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
       level,
       levelLabel: level ? VOUCHER_LABEL[level] : "GAJI",
     },
+    manualRate,
     month,
     monthLabel: monthLabel(month),
     rows,
