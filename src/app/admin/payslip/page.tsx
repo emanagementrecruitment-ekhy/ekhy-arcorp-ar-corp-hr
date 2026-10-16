@@ -375,6 +375,46 @@ export default function AdminPayslipPage() {
     setVcrRates({ FL: unit("TOTAL VCR S") ? String(unit("TOTAL VCR S")) : "", CLASSIC_D: unit("TOTAL VCR D") ? String(unit("TOTAL VCR D")) : "" });
   }, [payslip, employeeId, month]);
 
+  // Karyawan (non-Tera): edit the Slip Gaji lines directly.
+  const [gajiEdit, setGajiEdit] = useState<Record<string, string>>({});
+  const [gajiBusy, setGajiBusy] = useState(false);
+  const [gajiMsg, setGajiMsg] = useState("");
+  useEffect(() => {
+    const k = payslip?.karyawan;
+    setGajiMsg("");
+    setGajiEdit(
+      k
+        ? {
+            bonus: String(k.bonus), tunjangan: String(k.tunjangan), feeVcr: String(k.feeVcr), feeVcrQty: String(k.feeVcrQty),
+            feeTransport: String(k.feeTransport), kasbon: String(k.kasbon), denda: String(k.denda), terlambat: String(k.terlambat), lain: String(k.lain),
+          }
+        : {},
+    );
+  }, [payslip, employeeId, month]);
+
+  async function saveGaji() {
+    setGajiBusy(true);
+    setGajiMsg("");
+    try {
+      const lines: Record<string, number> = {};
+      for (const [k, v] of Object.entries(gajiEdit)) lines[k] = Number(v.replace(/[^0-9]/g, "")) || 0;
+      const res = await fetch("/api/admin/payslip/karyawan", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, month, lines }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setGajiMsg(data.error ?? "Gagal menyimpan.");
+        return;
+      }
+      setPayslip(data.payslip);
+      setGajiMsg(data.unchanged ? "Tidak ada perubahan." : "✓ Tersimpan, Slip Gaji dihitung ulang.");
+    } finally {
+      setGajiBusy(false);
+    }
+  }
+
   async function saveVcr() {
     if (!payslip?.daily) return;
     const cols = payslip.daily.columns;
@@ -519,6 +559,35 @@ export default function AdminPayslipPage() {
                 className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}
               >
                 {bonusBusy ? "Menyimpan…" : "Tambah Bonus"}
+              </button>
+            </div>
+          )}
+
+          {employeeId && payslip?.karyawan && (
+            <div className={cardClass}>
+              <div className="font-display text-[17px] text-ar-gold2 mb-1">Edit Slip Gaji Karyawan</div>
+              <div className="text-[10.5px] text-ar-dim mb-3.5">
+                Ketik nominal tiap baris untuk bulan ini. Gaji Pokok (Rp {payslip.karyawan.gajiPokok.toLocaleString("id-ID")}) mengikuti data karyawan lewat tombol Edit di Data Karyawan.
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  ["bonus", "Bonus"], ["tunjangan", "Tunjangan"], ["feeVcr", "Fee VCR (Rp)"], ["feeVcrQty", "Fee VCR jumlah (X)"],
+                  ["feeTransport", "Fee Transport"], ["kasbon", "Sisa Kasbon"], ["denda", "Denda Absen"], ["terlambat", "Potongan Terlambat"], ["lain", "Lain-lain"],
+                ] as const).map(([key, label]) => (
+                  <div key={key}>
+                    <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">{label}</label>
+                    <input
+                      value={gajiEdit[key] && gajiEdit[key] !== "0" ? Number(gajiEdit[key].replace(/[^0-9]/g, "")).toLocaleString("id-ID") : ""}
+                      onChange={(e) => setGajiEdit((m) => ({ ...m, [key]: e.target.value.replace(/[^0-9]/g, "") }))}
+                      placeholder={key === "feeVcrQty" ? "0" : "Rp 0"}
+                      className={inputClass}
+                    />
+                  </div>
+                ))}
+              </div>
+              {gajiMsg && <div className={`mt-3 text-[11.5px] ${gajiMsg.startsWith("✓") || gajiMsg.startsWith("Tidak") ? "text-ar-green" : "text-ar-red"}`}>{gajiMsg}</div>}
+              <button disabled={gajiBusy} onClick={saveGaji} className={`${btnPrimaryClass} mt-3.5 w-full py-2.5`}>
+                {gajiBusy ? "Menyimpan…" : "Simpan Slip Gaji"}
               </button>
             </div>
           )}

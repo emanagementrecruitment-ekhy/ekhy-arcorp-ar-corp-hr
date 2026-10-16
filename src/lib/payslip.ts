@@ -51,6 +51,45 @@ export function jakartaDay(d: Date): string {
   return d.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }); // YYYY-MM-DD
 }
 
+/** Category marker of rows written from the Slip Gaji edit panel (one row per line, see /api/admin/payslip/karyawan). */
+export const SLIP_GAJI_CATEGORY = "SlipGaji";
+
+export type KaryawanLine = "bonus" | "tunjangan" | "feeVcr" | "feeTransport" | "kasbon" | "denda" | "terlambat" | "lain";
+
+/** Which Slip Gaji line a stored PayslipItem belongs to (additions by debit, deductions by credit). */
+export function karyawanLineOf(it: { category: string | null; description: string; debit: number; credit: number }): KaryawanLine | null {
+  const text = `${it.category ?? ""} ${it.description}`.toLowerCase();
+  if (it.debit > 0) {
+    if (/tunjangan/.test(text)) return "tunjangan";
+    if (/transport/.test(text)) return "feeTransport";
+    if (/vcr/.test(text)) return "feeVcr";
+    return "bonus";
+  }
+  if (it.credit > 0) {
+    if (/kasbon/.test(text)) return "kasbon";
+    if (/pinalty|penalty|denda/.test(text)) return "denda";
+    if (/terlambat|telat/.test(text)) return "terlambat";
+    return "lain";
+  }
+  return null;
+}
+
+/** Sums stored rows into the Slip Gaji lines (optionally ignoring the rows written by the edit panel). */
+export function groupKaryawanItems(
+  items: Array<{ category: string | null; description: string; qty: string | null; debit: number; credit: number }>,
+  skipEditPanelRows = false,
+): Record<KaryawanLine | "feeVcrQty", number> {
+  const out = { bonus: 0, tunjangan: 0, feeVcr: 0, feeVcrQty: 0, feeTransport: 0, kasbon: 0, denda: 0, terlambat: 0, lain: 0 };
+  for (const it of items) {
+    if (skipEditPanelRows && it.category === SLIP_GAJI_CATEGORY) continue;
+    const line = karyawanLineOf(it);
+    if (!line) continue;
+    out[line] += line === "bonus" || line === "tunjangan" || line === "feeVcr" || line === "feeTransport" ? it.debit : it.credit;
+    if (line === "feeVcr") out.feeVcrQty += Number((it.qty ?? "").match(/\d+/)?.[0] ?? 0);
+  }
+  return out;
+}
+
 /** "Slip Gaji Karyawan" summary (non-Tera): earnings and deductions grouped like the owner's PDF format. */
 export interface KaryawanSlip {
   register: string; // join month, e.g. "SEPTEMBER 2026"
@@ -212,23 +251,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   let karyawan: KaryawanSlip | null = null;
   if (!vcr) {
     const k: KaryawanSlip = { register: "", gajiPokok: employee.salary ?? 0, bonus: 0, tunjangan: 0, feeVcr: 0, feeVcrQty: 0, feeTransport: 0, kasbon: 0, denda: 0, terlambat: 0, lain: 0, total: 0 };
-    for (const it of items) {
-      const text = `${it.category ?? ""} ${it.description}`.toLowerCase();
-      if (it.debit > 0) {
-        if (/tunjangan/.test(text)) k.tunjangan += it.debit;
-        else if (/transport/.test(text)) k.feeTransport += it.debit;
-        else if (/vcr/.test(text)) {
-          k.feeVcr += it.debit;
-          k.feeVcrQty += Number((it.qty ?? "").match(/\d+/)?.[0] ?? 0);
-        } else k.bonus += it.debit;
-      }
-      if (it.credit > 0) {
-        if (/kasbon/.test(text)) k.kasbon += it.credit;
-        else if (/pinalty|penalty|denda/.test(text)) k.denda += it.credit;
-        else if (/terlambat|telat/.test(text)) k.terlambat += it.credit;
-        else k.lain += it.credit;
-      }
-    }
+    Object.assign(k, groupKaryawanItems(items));
     for (const r of autoKasbon) k.kasbon += r.amount;
     k.total = k.gajiPokok + k.bonus + k.tunjangan + k.feeVcr + k.feeTransport - k.kasbon - k.denda - k.terlambat - k.lain;
     const joined = employee.joinedAt ?? employee.createdAt;

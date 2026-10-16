@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import { FIXED_BLUE_LABELS } from "./payslip-sheet";
-import { HQ_ADDRESS } from "./constants";
+import { HQ_ADDRESS, OFFICE2_ADDRESS } from "./constants";
 import type { Payslip } from "./payslip";
 
 function fmtRp(n: number): string {
@@ -83,6 +83,7 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       doc.fillColor("#111111").font("Helvetica-Bold").fontSize(9).text("NOTE :", 36, yn);
       doc.font("Helvetica").text("Dibuat Oleh,", 380, yn, { width: 150, align: "center" });
       doc.fontSize(8).fillColor("#555555").text(HQ_ADDRESS, 36, yn + 90, { width: 523 });
+      doc.text(OFFICE2_ADDRESS, 36, doc.y + 2, { width: 523 });
       doc.end();
       return;
     }

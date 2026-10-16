@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { Payslip } from "@/lib/payslip";
-import { HQ_ADDRESS } from "@/lib/constants";
+import { HQ_ADDRESS, OFFICE2_ADDRESS } from "@/lib/constants";
 import { FIXED_BLUE_LABELS } from "@/lib/payslip-sheet";
 
 function fmtRp(n: number): string {
@@ -69,7 +69,10 @@ function KaryawanSlipView({ payslip }: { payslip: Payslip }) {
           <div className="h-12" />
         </div>
       </div>
-      <div className="mt-2 pt-2 border-t border-ar-line print:border-black/40 text-[9.5px] text-ar-dim print:text-black/70">{HQ_ADDRESS}</div>
+      <div className="mt-2 pt-2 border-t border-ar-line print:border-black/40 text-[9.5px] text-ar-dim print:text-black/70 grid gap-0.5">
+        <div>{HQ_ADDRESS}</div>
+        <div>{OFFICE2_ADDRESS}</div>
+      </div>
       <div className="mt-5 mb-1 text-[10px] tracking-[0.16em] uppercase text-ar-dim print:hidden">Rincian (untuk edit)</div>
     </div>
   );
