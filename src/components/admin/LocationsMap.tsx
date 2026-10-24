@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+
 import { relativeTimeLabel } from "@/lib/format";
 import { spreadOffsets } from "@/lib/map-spread";
+
+// maplibre-gl 6 ships its web worker as a separate ES module and looks for it next to its own file. Once the
+// bundler has folded the library into a chunk that path no longer exists ("Worker failed to load"), so the
+// worker is emitted as a static asset and handed over explicitly. Must run before the first Map is created.
+maplibregl.setWorkerUrl(new URL("../../../node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).href);
 
 export interface MapPresence {
   id: string;
