@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { VOUCHER_LABEL, type EmployeeLevel } from "@/lib/constants";
@@ -90,7 +91,7 @@ export default function LaporanPage() {
 
         <div id="report-print-area">
           <div className="hidden print:block mb-3">
-            <div className="font-display text-[20px]">AR Corp — Laporan Totalan {data?.periodLabel ?? ""}</div>
+            <div className="font-display text-[20px]">{BRAND.short} — Laporan Totalan {data?.periodLabel ?? ""}</div>
           </div>
 
           {data && (

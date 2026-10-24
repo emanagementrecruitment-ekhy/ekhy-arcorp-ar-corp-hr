@@ -102,7 +102,7 @@ export default function EmployeeFields({
         <input
           value={value.email}
           onChange={(e) => onChange({ email: e.target.value })}
-          placeholder="nama@arcorp.id"
+          placeholder="nama@perusahaan.com"
           className={inputCls}
         />
       </div>

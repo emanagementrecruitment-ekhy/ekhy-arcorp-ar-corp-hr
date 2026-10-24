@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { btnPrimaryClass, inputClass } from "@/components/ui/styles";
@@ -207,7 +208,7 @@ export default function OwnerIdentityPanel() {
             Welcome &amp; Thanks For Join
           </div>
           <div className="text-[11px] text-ar-dim mt-1.5 leading-[1.6] italic">
-            &quot;ARCorporation Onboarded &amp; Ready System — HR Unlocked : Owner {data.name}&quot;
+            &quot;{BRAND.company} Onboarded &amp; Ready System — HR Unlocked : Owner {data.name}&quot;
           </div>
         </div>
       )}

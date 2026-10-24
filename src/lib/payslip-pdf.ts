@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
@@ -53,7 +54,7 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       const k = payslip.karyawan;
       const e = payslip.employee;
       const nm = (n: number) => (n ? (n < 0 ? `(${Math.abs(Math.round(n)).toLocaleString("id-ID")})` : Math.round(n).toLocaleString("id-ID")) : "-");
-      doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text("AR CORP", { characterSpacing: 2 });
+      doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text(`${BRAND.short.toUpperCase()}`, { characterSpacing: 2 });
       doc.fontSize(20).fillColor("#111111").text("SLIP PAY KARYAWAN");
       doc.fontSize(9).font("Helvetica").fillColor("#555555").text(`REGISTER : ${k.register}`);
       const y0 = doc.y + 18;
@@ -89,7 +90,7 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       return;
     }
 
-    doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text("AR CORP", { characterSpacing: 2 });
+    doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text(`${BRAND.short.toUpperCase()}`, { characterSpacing: 2 });
     doc.moveDown(0.2);
     doc.fontSize(20).fillColor("#111111").font("Helvetica-Bold").text("Slip Pay");
     doc.moveDown(0.8);

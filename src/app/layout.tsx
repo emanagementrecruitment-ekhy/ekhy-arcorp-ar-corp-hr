@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
@@ -56,12 +57,12 @@ const fontVariables = [
 ].join(" ");
 
 export const metadata: Metadata = {
-  title: "AR Corp · E-Management",
+  title: `${BRAND.short} · ${BRAND.product}`,
   description: COMPANY_DESCRIPTION,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "AR Corp",
+    title: `${BRAND.short}`,
   },
 };
 

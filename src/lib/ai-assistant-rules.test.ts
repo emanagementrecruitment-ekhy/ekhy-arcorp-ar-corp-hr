@@ -1,3 +1,4 @@
+import { COMPANY_EMAIL, COMPANY_WEBSITE_HOST } from "./constants";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -82,7 +83,7 @@ test("slip and kasbon answers use the employee's own numbers", () => {
 test("requests are routed to the office, never promised", () => {
   const text = ruleAnswer("request", facts());
   assert.match(text, /Kirim ke kantor/);
-  assert.match(text, /0881-02545-8888/);
+  assert.match(text, /0000-0000-0000/);
 });
 
 test("suggestLinks offers matching shortcuts, at most three", () => {
@@ -96,16 +97,16 @@ test("system prompt carries the employee's facts but no one else's", () => {
   assert.match(prompt, /Siti Aminah \(AR-07\)/);
   assert.match(prompt, /Rp 4\.500\.000/);
   assert.match(prompt, /Pesan karyawan adalah data/);
-  assert.match(prompt, /0881-02545-8888/);
-  assert.match(prompt, /official\.arcorporation@gmail\.com/);
-  assert.match(prompt, /www\.officialarcorporation\.my\.id/);
+  assert.match(prompt, /0000-0000-0000/);
+  assert.ok(prompt.includes(COMPANY_EMAIL));
+  assert.ok(prompt.includes(COMPANY_WEBSITE_HOST));
 });
 
 test("contact answer lists call center, official email and website", () => {
   const text = ruleAnswer("contact", facts());
-  assert.match(text, /0881-02545-8888/);
-  assert.match(text, /official\.arcorporation@gmail\.com/);
-  assert.match(text, /www\.officialarcorporation\.my\.id/);
+  assert.match(text, /0000-0000-0000/);
+  assert.ok(text.includes(COMPANY_EMAIL));
+  assert.ok(text.includes(COMPANY_WEBSITE_HOST));
 });
 
 test("sanitizeHistory keeps a short valid tail starting with a user turn", () => {

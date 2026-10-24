@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL, HQ_ADDRESS, STAFF_ROLES } from "@/lib/constants";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
@@ -54,7 +55,7 @@ export async function GET() {
     const clientId = process.env.CLIENT_ID ?? "";
 
     return NextResponse.json({
-      product: { name: "AR Corp E-Management", version: pkg.version, owner: COMPANY_NAME, year: new Date().getFullYear() },
+      product: { name: `${BRAND.short} E-Management`, version: pkg.version, owner: COMPANY_NAME, year: new Date().getFullYear() },
       license: {
         configured,
         // Licensed deployments report the vendor-issued package; the reference instance has no cap.

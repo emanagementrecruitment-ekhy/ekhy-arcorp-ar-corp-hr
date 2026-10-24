@@ -1,8 +1,9 @@
+import { BRAND } from "@/lib/brand";
 import type { Metadata } from "next";
 import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Kebijakan Privasi · AR Corp",
+  title: `Kebijakan Privasi · ${BRAND.short}`,
 };
 
 export default function PrivacyPage() {
@@ -10,12 +11,12 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-ar-bg text-ar-text">
       <div className="max-w-2xl mx-auto px-5 py-12 sm:py-16">
         <div className="font-display text-[28px] mb-1">Kebijakan Privasi</div>
-        <div className="text-[11.5px] text-ar-dim mb-8">AR Corp · Terakhir diperbarui: September 2026</div>
+        <div className="text-[11.5px] text-ar-dim mb-8">{BRAND.short} · Terakhir diperbarui: September 2026</div>
 
         <div className="flex flex-col gap-6 text-[13px] leading-[1.8] text-ar-text">
           <p>
-            Aplikasi AR Corp (&ldquo;Aplikasi&rdquo;) adalah sistem internal untuk mengelola absensi, komisi/voucher, dan
-            kasbon karyawan AR Corp. Aplikasi ini digunakan oleh karyawan dan staf kantor AR Corp —
+            Aplikasi {BRAND.short} (&ldquo;Aplikasi&rdquo;) adalah sistem internal untuk mengelola absensi, komisi/voucher, dan
+            kasbon karyawan {BRAND.short}. Aplikasi ini digunakan oleh karyawan dan staf kantor {BRAND.short} —
             bukan untuk umum. Halaman ini menjelaskan data apa yang dikumpulkan Aplikasi dan bagaimana data itu
             digunakan.
           </p>
@@ -25,7 +26,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 flex flex-col gap-1.5">
               <li>
                 <strong>Data identitas karyawan</strong> — nama, kode karyawan, jabatan, alamat email, dan nomor
-                WhatsApp/telepon, yang didaftarkan oleh admin/pusat AR Corp untuk keperluan login dan
+                WhatsApp/telepon, yang didaftarkan oleh admin/pusat {BRAND.short} untuk keperluan login dan
                 penggajian.
               </li>
               <li>
@@ -43,7 +44,7 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Bagaimana Data Digunakan</div>
             <p>
-              Data di atas digunakan semata-mata untuk operasional internal AR Corp: verifikasi kehadiran,
+              Data di atas digunakan semata-mata untuk operasional internal {BRAND.short}: verifikasi kehadiran,
               perhitungan komisi/gaji, persetujuan kasbon, dan pelaporan kepada manajemen. Data tidak dijual atau
               dibagikan kepada pihak ketiga untuk kepentingan iklan.
             </p>
@@ -61,7 +62,7 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Penyimpanan &amp; Keamanan</div>
             <p>
-              Data disimpan pada server milik AR Corp dan dilindungi dengan otentikasi berbasis kode OTP.
+              Data disimpan pada server milik {BRAND.short} dan dilindungi dengan otentikasi berbasis kode OTP.
               Akses ke data karyawan dibatasi hanya untuk peran Owner, Admin Pusat, dan Kepala Mess sesuai
               kebutuhan operasional masing-masing.
             </p>
@@ -70,7 +71,7 @@ export default function PrivacyPage() {
           <section>
             <div className="font-display text-[17px] text-ar-gold2 mb-2">Hak Karyawan</div>
             <p>
-              Karyawan dapat meminta koreksi atau penghapusan data pribadinya dengan menghubungi admin/pusat AR Corp
+              Karyawan dapat meminta koreksi atau penghapusan data pribadinya dengan menghubungi admin/pusat {BRAND.short}
               melalui kontak di bawah.
             </p>
           </section>
