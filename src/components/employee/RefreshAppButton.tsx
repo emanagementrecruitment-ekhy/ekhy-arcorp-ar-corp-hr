@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Icon from "@/components/ui/Icon";
+import { GoldImg } from "@/components/ui/GoldIcon";
 
 /**
  * The Android app is a thin TWA wrapper around this live website — every
@@ -49,7 +49,7 @@ export default function RefreshAppButton({
           "w-9 h-9 grid place-items-center rounded-full bg-ar-surface2 border border-ar-line text-ar-dim cursor-pointer transition-colors hover:text-ar-text active:scale-95 disabled:opacity-60"
         }
       >
-        <Icon name="refresh" className={`w-[17px] h-[17px] ${busy ? "animate-spin" : ""}`} />
+        <GoldImg name="refresh" className="w-8 h-8" busy={busy} />
       </button>
     );
   }

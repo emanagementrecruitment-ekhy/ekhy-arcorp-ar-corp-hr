@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Icon from "@/components/ui/Icon";
+import { GoldImg } from "@/components/ui/GoldIcon";
 
 /**
  * Lets the admin pick any rectangular area on screen (drag to resize/move it)
@@ -106,7 +106,7 @@ export default function ScreenshotButton() {
         aria-label="Screenshot area layar"
         className="w-9 h-9 shrink-0 grid place-items-center rounded-full bg-ar-surface2 border border-ar-line text-ar-dim cursor-pointer transition-colors hover:text-ar-text active:scale-95 disabled:opacity-60"
       >
-        {busy ? <span className="text-[10px]">…</span> : <Icon name="scan" className="w-[19px] h-[19px]" />}
+        {busy ? <span className="text-[10px]">…</span> : <GoldImg name="screenshot" className="w-8 h-8" />}
       </button>
 
       {selecting && (
