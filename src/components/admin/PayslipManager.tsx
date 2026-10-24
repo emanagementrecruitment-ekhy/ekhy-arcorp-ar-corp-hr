@@ -98,7 +98,7 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
           }))
         )
       );
-  }, []);
+  }, [mode]);
 
   function load() {
     if (!employeeId) return;
@@ -340,10 +340,14 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
   const [manualRateInput, setManualRateInput] = useState("");
   const [manualRateBusy, setManualRateBusy] = useState(false);
   const [manualRateMsg, setManualRateMsg] = useState("");
-  useEffect(() => {
+  // Reset the typed rate whenever the saved rate, employee or month changes (derived during render, not in an effect).
+  const manualRateKey = `${payslip?.manualRate ?? ""}|${employeeId}|${month}`;
+  const [manualRateKeySeen, setManualRateKeySeen] = useState<string | null>(null);
+  if (manualRateKeySeen !== manualRateKey) {
+    setManualRateKeySeen(manualRateKey);
     setManualRateInput(payslip?.manualRate ? String(payslip.manualRate) : "");
     setManualRateMsg("");
-  }, [payslip?.manualRate, employeeId, month]);
+  }
 
   async function saveManualRate() {
     setManualRateBusy(true);
@@ -371,19 +375,23 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
   const [vcrRates, setVcrRates] = useState<{ FL: string; CLASSIC_D: string }>({ FL: "", CLASSIC_D: "" });
   const [vcrBusy, setVcrBusy] = useState(false);
   const [vcrMsg, setVcrMsg] = useState("");
-  useEffect(() => {
+  const [vcrSeen, setVcrSeen] = useState<{ payslip: typeof payslip; employeeId: string; month: string } | null>(null);
+  if (!vcrSeen || vcrSeen.payslip !== payslip || vcrSeen.employeeId !== employeeId || vcrSeen.month !== month) {
+    setVcrSeen({ payslip, employeeId, month });
     setVcrEdits({});
     setVcrMsg("");
     const unit = (label: string) => payslip?.sheet.find((r) => r.section === "VCR" && r.description === label)?.debitUnit;
     setVcrRates({ FL: unit("TOTAL VCR S") ? String(unit("TOTAL VCR S")) : "", CLASSIC_D: unit("TOTAL VCR D") ? String(unit("TOTAL VCR D")) : "" });
-  }, [payslip, employeeId, month]);
+  }
 
   // Karyawan (non-Tera): edit the Slip Gaji lines directly.
   const [gajiEdit, setGajiEdit] = useState<Record<string, string>>({});
   const [gajiNote, setGajiNote] = useState("");
   const [gajiBusy, setGajiBusy] = useState(false);
   const [gajiMsg, setGajiMsg] = useState("");
-  useEffect(() => {
+  const [gajiSeen, setGajiSeen] = useState<{ payslip: typeof payslip; employeeId: string; month: string } | null>(null);
+  if (!gajiSeen || gajiSeen.payslip !== payslip || gajiSeen.employeeId !== employeeId || gajiSeen.month !== month) {
+    setGajiSeen({ payslip, employeeId, month });
     const k = payslip?.karyawan;
     setGajiMsg("");
     setGajiNote(k?.note ?? "");
@@ -395,7 +403,7 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
           }
         : {},
     );
-  }, [payslip, employeeId, month]);
+  }
 
   async function saveGaji() {
     setGajiBusy(true);
