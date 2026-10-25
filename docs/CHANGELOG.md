@@ -7,6 +7,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Keamanan: pustaka peta MapLibre GL naik ke 6.14 (menutup celah XSS pada pembersih HTML popup) dan pustaka email Nodemailer ke 10.2 (menutup celah DoS pada pembaca daftar alamat). Halaman Lokasi & Absensi dan pengiriman kode OTP/slip lewat email berjalan seperti biasa. Server kini membutuhkan Node.js 20 atau lebih baru.
 - Keamanan: Next.js dinaikkan dari 16.3.4 ke 16.4.2, yang menutup kerentanan critical (eksekusi kode jarak jauh di pembuatan gambar `next/og`), SSRF pada optimasi gambar, dan keracunan cache. Slip Gaji/Rincian Totalan: input yang sedang diketik kembali ke nilai tersimpan saat karyawan atau bulan berganti, tanpa render ulang berantai. Tidak ada perubahan tampilan.
 - Pusat Sistem: banner hak cipta menjadi akuarium — dua ikan koi emas besar mengelilingi banner, satu searah dan satu berlawanan arah jarum jam, dengan sirip yang mengibas menyesuaikan kecepatan renang, gelembung naik, dan cahaya air. Berhenti bergerak otomatis bila perangkat memakai "kurangi gerakan".
 - Pusat Sistem: banner hak cipta "AR Corporation" kini bergerak (cahaya emas melayang, berkas cahaya lewat, bingkai berdenyut) dan memuat Alamat, Telepon, Email, dan Website perusahaan. Gerakan berhenti otomatis bila pengguna mengaktifkan "kurangi gerakan" di perangkatnya.
