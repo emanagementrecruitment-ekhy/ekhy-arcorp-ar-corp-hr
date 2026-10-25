@@ -9,7 +9,7 @@ import { limitNotice } from "./ai-limits";
 import { anthropicHeadersFromEnv } from "./ai-client-config";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import { monthLabel } from "./format";
-import { ATTENDANCE_MIN_DAYS, DEMO_TERA_CODE, STAFF_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "./constants";
+import { ATTENDANCE_MIN_DAYS, DEMO_CODES, STAFF_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "./constants";
 import { wordCount, type AssistantLink, type ChatTurn } from "./ai-assistant-rules";
 import {
   ADMIN_TOOLS,
@@ -43,7 +43,7 @@ const MAX_TOOL_ROUNDS = 5;
 const MAX_SLIP_ROWS = 14;
 
 // Employees as the office sees them in Data Karyawan: staff tiers only (not Owner/Consultant), minus the demo Tera.
-const visibleWhere = { accessRole: { in: [...STAFF_ROLES] }, NOT: { code: DEMO_TERA_CODE } };
+const visibleWhere = { accessRole: { in: [...STAFF_ROLES] }, NOT: { code: { in: DEMO_CODES } } };
 
 function ymd(d: Date): string {
   return jakartaClock(d).dateKey;

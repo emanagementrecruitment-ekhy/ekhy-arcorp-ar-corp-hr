@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { findEmployeeForPortal, normalizeIdentifier, type Portal } from "@/lib/lookup";
 import { issueOtp } from "@/lib/otp";
-import { DEMO_TERA_CODE } from "@/lib/constants";
+import { DEMO_CODES } from "@/lib/constants";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
   const { kind } = normalizeIdentifier(identifier);
   const target = kind === "email" ? employee.email : employee.phone;
-  const isDemo = employee.code === DEMO_TERA_CODE;
+  const isDemo = DEMO_CODES.includes(employee.code);
   const { devCode, delivered } = await issueOtp(employee.id, target, kind, isDemo);
 
   return NextResponse.json({

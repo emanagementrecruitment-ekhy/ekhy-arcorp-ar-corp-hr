@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "./prisma";
-import { DEMO_TERA_CODE } from "./constants";
+import { DEMO_CODES } from "./constants";
 
 export interface DataResetResult {
   employeesRemoved: number;
@@ -42,7 +42,7 @@ export async function resetAppData(opts: { removeSeatHolders: boolean }): Promis
     prisma.aiUsage.deleteMany(), // per-person counters
     // Clear the self-reference so nobody is left pointing at a removed supervisor.
     prisma.employee.updateMany({ data: { supervisorId: null } }),
-    prisma.employee.deleteMany({ where: { accessRole: { in: removable }, code: { not: DEMO_TERA_CODE } } }),
+    prisma.employee.deleteMany({ where: { accessRole: { in: removable }, code: { notIn: DEMO_CODES } } }),
   ]);
 
   const employeesRemoved = (results[results.length - 1] as { count: number }).count;
