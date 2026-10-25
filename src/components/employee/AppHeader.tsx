@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import Image from "next/image";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -15,14 +16,14 @@ export default function AppHeader({
       <div className="flex items-center gap-3 flex-1 basis-0 min-w-0">
         <Image
           src="/api/brand-logo"
-          alt="AR Corp"
+          alt={BRAND.short}
           width={64}
           height={64}
           unoptimized
           className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
         <div className="min-w-0">
-          <div className="font-display text-[13px] tracking-[0.34em] text-ar-gold uppercase">AR Corp</div>
+          <div className="font-display text-[13px] tracking-[0.34em] text-ar-gold uppercase">{BRAND.short}</div>
           <div className="text-[10px] tracking-[0.16em] text-ar-dim mt-1 uppercase">
             Aplikasi Karyawan · {name} ({code})
           </div>

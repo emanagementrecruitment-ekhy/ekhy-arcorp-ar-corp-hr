@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -137,7 +138,7 @@ export default function LoginPage() {
             />
             <Image
               src="/api/brand-logo"
-              alt="AR Corp"
+              alt={BRAND.short}
               width={128}
               height={128}
               priority
@@ -146,10 +147,10 @@ export default function LoginPage() {
             />
           </div>
           <div className="mt-3 font-display text-[15px] tracking-[0.38em] uppercase font-semibold text-center">
-            <span className="ar-shimmer-gold">E-Management</span>
+            <span className="ar-shimmer-gold">{BRAND.product}</span>
           </div>
           <div className="text-[10px] tracking-[0.2em] text-ar-dim mt-1.5 uppercase text-center">
-            Portal operasional &middot; Slip pay
+            {BRAND.subtitle}
           </div>
         </div>
 
@@ -287,24 +288,10 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <div className="text-[9.5px] tracking-[0.3em] uppercase ar-shimmer-gold font-semibold">
-            Professional &middot; Trusted &middot; Together
+            {BRAND.slogan}
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-[10.5px] text-ar-faint">
-          <span>Unduh:</span>
-          <a href="/downloads/arcorp.apk" download className="text-ar-gold underline-offset-4 hover:underline">
-            Android (APK)
-          </a>
-          <span aria-hidden="true">&middot;</span>
-          <a
-            href="https://github.com/emanagementrecruitment-ekhy/ekhy-arcorp-ar-corp-hr/releases/latest/download/AR-Corp-Desktop-Setup.exe"
-            title="AR Corp Desktop untuk Admin/Owner/Kepala Mess — bisa dipakai offline saat internet kantor mati."
-            className="text-ar-gold underline-offset-4 hover:underline"
-          >
-            Windows (Desktop)
-          </a>
-        </div>
       </div>
     </div>
   );

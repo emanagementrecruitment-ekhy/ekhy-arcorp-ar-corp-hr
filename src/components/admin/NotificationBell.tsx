@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Icon from "@/components/ui/Icon";
+import { GoldImg } from "@/components/ui/GoldIcon";
 import { SOUNDS, playSound, unlockAudioOnFirstGesture, countNewUnread, type SoundId } from "@/lib/notif-sound";
 
 interface Notif {
@@ -107,7 +107,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
         }`}
         aria-label="Notifikasi"
       >
-        <Icon name="bell" className="w-[18px] h-[18px]" />
+        <GoldImg name="notifikasi" className="w-8 h-8" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-ar-red text-white text-[9px] font-bold grid place-items-center ring-2 ring-ar-bg">
             {unreadCount > 9 ? "9+" : unreadCount}

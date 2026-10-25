@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
@@ -18,12 +19,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // have to explain (not every client engagement has a Consultant).
   const roleLabel =
     session.accessRole === "OWNER" || session.accessRole === "CONSULTANT"
-      ? "Owner AR Corp"
+      ? `Owner ${BRAND.short}`
       : session.accessRole === "MANAGER"
-        ? "Manager AR Corp"
+        ? `Manager ${BRAND.short}`
         : isSupervisor
-          ? "Kepala Mess AR Corp"
-          : "Admin Pusat AR Corp";
+          ? `Kepala Mess ${BRAND.short}`
+          : `Admin Pusat ${BRAND.short}`;
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">

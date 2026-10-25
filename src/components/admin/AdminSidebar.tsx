@@ -1,10 +1,12 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Icon, { type IconName } from "@/components/ui/Icon";
+import NavIcon from "@/components/ui/GoldIcon";
 import LogoutButton from "@/components/LogoutButton";
 import RefreshAppButton from "@/components/employee/RefreshAppButton";
 import NotificationBell from "@/components/admin/NotificationBell";
@@ -101,7 +103,7 @@ export default function AdminSidebar({
         }`}
       >
         <span className="flex items-center gap-2.5 min-w-0">
-          <Icon name={d.icon} className="w-4 h-4 shrink-0" />
+          <NavIcon name={d.icon} />
           <span>{d.label}</span>
         </span>
         {d.href === "/admin/kasbon" && pendingKasbon ? (
@@ -142,12 +144,9 @@ export default function AdminSidebar({
   const accountCard = (
     <div className="mt-auto p-3 bg-ar-surface2 border border-ar-line rounded-2xl">
       <div className="flex items-center gap-2.5">
-        <span className="w-9 h-9 shrink-0 grid place-items-center rounded-full bg-ar-goldfill text-ar-gold2">
-          <Icon name="id-card" className="w-[17px] h-[17px]" />
-        </span>
+        <Image src="/brand/login-emas.png" unoptimized alt="Login" width={640} height={480} className="w-16 h-12 shrink-0 object-contain" style={{ mixBlendMode: "screen" }} />
         <div className="min-w-0">
-          <div className="text-[9.5px] tracking-[0.14em] uppercase text-ar-dim">Masuk sebagai</div>
-          <div className="text-[12.5px] mt-0.5 truncate">{roleLabel}</div>
+          <div className="text-[12.5px] truncate">{roleLabel}</div>
         </div>
       </div>
       <LogoutButton className="w-full mt-3 py-2 bg-transparent border border-ar-line rounded-[10px] text-ar-dim text-[11px] cursor-pointer" />
@@ -162,7 +161,7 @@ export default function AdminSidebar({
       <div className="lg:hidden flex items-center justify-between px-4 py-2.5">
         <Image
           src="/api/brand-logo"
-          alt="AR Corp"
+          alt={BRAND.short}
           width={30}
           height={30}
           unoptimized
@@ -191,7 +190,7 @@ export default function AdminSidebar({
             <div className="flex items-center justify-between px-1">
               <Image
                 src="/api/brand-logo"
-                alt="AR Corp"
+                alt={BRAND.short}
                 width={30}
                 height={30}
                 unoptimized
@@ -219,14 +218,14 @@ export default function AdminSidebar({
         <div className="flex items-center gap-2.5 px-1.5">
           <Image
             src="/api/brand-logo"
-            alt="AR Corp"
+            alt={BRAND.short}
             width={44}
             height={44}
             unoptimized
             className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
           />
           <div className="min-w-0">
-            <div className="font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">AR Corp</div>
+            <div className="font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">{BRAND.short}</div>
             <div className="text-[9.5px] tracking-[0.08em] text-ar-dim mt-1 uppercase whitespace-nowrap">Kantor Pusat</div>
           </div>
         </div>

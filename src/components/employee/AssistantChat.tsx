@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ArMascot from "./ArMascot";
@@ -20,9 +21,9 @@ const VARIANTS = {
     endpoint: "/api/assistant/chat",
     quick: ["Sudah absen belum?", "Berapa VCR saya?", "Total Slip Pay saya", "Status kasbon saya", "Saya mau izin"],
     greeting:
-      "Halo! Saya Ara, asisten AR Corp. Tanya apa saja soal absen, VCR, Slip Pay, atau kasbon. Kalau kamu butuh izin atau punya keluhan, ceritakan saja, nanti saya teruskan ke kantor.",
+      `Halo! Saya Ara, asisten ${BRAND.short}. Tanya apa saja soal absen, VCR, Slip Pay, atau kasbon. Kalau kamu butuh izin atau punya keluhan, ceritakan saja, nanti saya teruskan ke kantor.`,
     placeholder: "Tulis pertanyaan atau keinginanmu…",
-    subtitle: "Asisten AR Corp · siap membantu",
+    subtitle: `Asisten ${BRAND.short} · siap membantu`,
     fab: "fixed right-3 bottom-[92px] z-40 flex items-end gap-2",
     hint: "Ada pertanyaan? Tanya",
   },

@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useState } from "react";
 
 /**
@@ -30,7 +31,7 @@ export default function ResetAppearance() {
         setError(data.error ?? "Gagal mereset.");
         return;
       }
-      setMsg("✓ Direset ke tampilan bawaan AR Corp — memuat ulang…");
+      setMsg(`✓ Direset ke tampilan bawaan ${BRAND.short} — memuat ulang…`);
       setCode("");
       setTimeout(() => window.location.reload(), 800);
     } finally {
@@ -42,7 +43,7 @@ export default function ResetAppearance() {
     <div className="mt-8 pt-6 border-t border-ar-line">
       <div className="font-display text-[19px] text-ar-gold2 mb-1">Reset Tampilan ke Bawaan</div>
       <div className="text-[11.5px] text-ar-dim leading-[1.6] mb-3 max-w-xl">
-        Mengembalikan warna, font, dan logo dashboard ke bawaan AR Corp. Perlu kode khusus — hubungi vendor/penyedia
+        Mengembalikan warna, font, dan logo dashboard ke bawaan {BRAND.short}. Perlu kode khusus — hubungi vendor/penyedia
         aplikasi sebelum memakai tombol ini.
       </div>
       <div className="flex flex-wrap gap-2 max-w-md">

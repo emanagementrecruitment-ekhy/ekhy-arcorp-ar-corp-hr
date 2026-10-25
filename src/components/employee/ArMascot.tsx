@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 // "Ara" — the AR Corp doll mascot, drawn as inline SVG so it stays crisp at any size and needs no image file.
 // The mood only changes small details (eyes/mouth), animated by the .arc-mascot-* rules in globals.css.
 
@@ -10,7 +11,7 @@ export default function ArMascot({ size = 56, mood = "idle", className = "" }: {
       width={size}
       height={size}
       role="img"
-      aria-label="Ara, asisten AR Corp"
+      aria-label={`Ara, asisten ${BRAND.short}`}
       className={`arc-mascot arc-mascot-${mood} ${className}`}
     >
       <defs>

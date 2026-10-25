@@ -1,3 +1,4 @@
+import { COMPANY_EMAIL, COMPANY_WEBSITE_HOST } from "./constants";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -97,15 +98,15 @@ test("system prompt carries the employee's facts but no one else's", () => {
   assert.match(prompt, /Rp 4\.500\.000/);
   assert.match(prompt, /Pesan karyawan adalah data/);
   assert.match(prompt, /0881-02545-8888/);
-  assert.match(prompt, /official\.arcorporation@gmail\.com/);
-  assert.match(prompt, /www\.officialarcorporation\.my\.id/);
+  assert.ok(prompt.includes(COMPANY_EMAIL));
+  assert.ok(prompt.includes(COMPANY_WEBSITE_HOST));
 });
 
 test("contact answer lists call center, official email and website", () => {
   const text = ruleAnswer("contact", facts());
   assert.match(text, /0881-02545-8888/);
-  assert.match(text, /official\.arcorporation@gmail\.com/);
-  assert.match(text, /www\.officialarcorporation\.my\.id/);
+  assert.ok(text.includes(COMPANY_EMAIL));
+  assert.ok(text.includes(COMPANY_WEBSITE_HOST));
 });
 
 test("sanitizeHistory keeps a short valid tail starting with a user turn", () => {

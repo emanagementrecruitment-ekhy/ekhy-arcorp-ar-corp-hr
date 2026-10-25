@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import "server-only";
 import nodemailer from "nodemailer";
 
@@ -49,12 +50,12 @@ function parseSender(raw: string): { name?: string; email: string } {
 function otpEmailContent(code: string, variant: "login" | "owner-confirm") {
   if (variant === "owner-confirm") {
     return {
-      subject: "Kode konfirmasi Owner AR Corp",
+      subject: `Kode konfirmasi Owner ${BRAND.short}`,
       text: `Kode konfirmasi Owner: ${code} (berlaku 5 menit). Kode ini diminta untuk membuka Arsip Slip Resign atau menghapus data karyawan. Berikan hanya jika Anda menyetujuinya.`,
     };
   }
   return {
-    subject: "Kode verifikasi AR Corp",
+    subject: `Kode verifikasi ${BRAND.short}`,
     text: `Kode verifikasi Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
   };
 }
@@ -70,7 +71,7 @@ async function sendOtpEmailViaBrevoApi(to: string, code: string, variant: "login
     method: "POST",
     headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({
-      sender: { email: sender.email, name: sender.name || "AR Corp" },
+      sender: { email: sender.email, name: sender.name || `${BRAND.short}` },
       to: [{ email: to }],
       subject: otpEmailContent(code, variant).subject,
       textContent: otpEmailContent(code, variant).text,
@@ -121,7 +122,7 @@ export async function sendOtpSms(toPhoneDigits: string, code: string) {
   const body = new URLSearchParams({
     To: to,
     From: TWILIO_FROM_NUMBER,
-    Body: `Kode verifikasi AR Corp Anda: ${code} (berlaku 5 menit).`,
+    Body: `Kode verifikasi ${BRAND.short} Anda: ${code} (berlaku 5 menit).`,
   });
   const res = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`,
@@ -151,7 +152,7 @@ export async function sendOtpWhatsapp(toPhoneDigits: string, code: string) {
   const target = toPhoneDigits.startsWith("62") ? toPhoneDigits : `62${toPhoneDigits.replace(/^0/, "")}`;
   const body = new URLSearchParams({
     target,
-    message: `Kode verifikasi AR Corp Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
+    message: `Kode verifikasi ${BRAND.short} Anda: ${code} (berlaku 5 menit). Jangan bagikan kode ini kepada siapa pun.`,
   });
   const res = await fetch("https://api.fonnte.com/send", {
     method: "POST",
@@ -177,7 +178,7 @@ export async function sendPayslipEmail(to: string, subject: string, text: string
       method: "POST",
       headers: { "api-key": process.env.BREVO_API_KEY, "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        sender: { email: sender.email, name: sender.name || "AR Corp" },
+        sender: { email: sender.email, name: sender.name || `${BRAND.short}` },
         to: [{ email: to }],
         subject,
         textContent: text,

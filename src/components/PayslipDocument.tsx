@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import Image from "next/image";
 import type { Payslip } from "@/lib/payslip";
 import { HQ_ADDRESS, OFFICE2_ADDRESS } from "@/lib/constants";
@@ -112,14 +113,14 @@ export default function PayslipDocument({
       <div className="flex items-center gap-3 mb-5 print:mb-4">
         <Image
           src="/api/brand-logo"
-          alt="AR Corp"
+          alt={BRAND.short}
           width={52}
           height={52}
           unoptimized
           className="rounded-full object-contain bg-ar-bg border border-ar-goldline print:border-black"
         />
         <div>
-          <div className="font-display text-[13px] tracking-[0.3em] text-ar-gold uppercase print:text-black">AR Corp</div>
+          <div className="font-display text-[13px] tracking-[0.3em] text-ar-gold uppercase print:text-black">{BRAND.short}</div>
           <div className="font-display text-[22px] print:text-black">Slip Pay</div>
         </div>
       </div>

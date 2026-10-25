@@ -1,3 +1,4 @@
+import { BRAND } from "./brand";
 // Enum-like string values for SQLite columns (see prisma/schema.prisma header comment).
 
 export const ACCESS_ROLES = ["KARYAWAN", "OWNER", "CONSULTANT", "ADMIN_PUSAT", "SUPERVISOR", "MANAGER"] as const;
@@ -250,7 +251,7 @@ export const OWNER_ACCOUNT_CODE = "HQ-OWNER";
 // look and stays the default so nothing changes visually until an
 // Owner/Consultant/Admin Pusat picks something else.
 export const THEME_COLORS = [
-  { id: "classic", label: "AR Corp Emas", desc: "Emas klasik + hitam pekat (tampilan asli AR Corp)" },
+  { id: "classic", label: "Emas Klasik", desc: "Emas klasik + hitam pekat (tampilan bawaan)" },
   { id: "sand", label: "Emas Pasir", desc: "Coklat pasir hangat + krem — nuansa natural" },
   { id: "sage", label: "Hijau Zaitun", desc: "Hijau zaitun lembut + krem" },
   { id: "terracotta", label: "Terracotta", desc: "Oranye tanah liat + krem" },
@@ -294,9 +295,9 @@ export const LIGHT_MODE_DAY_END_HOUR = 18;
 export const DEMO_TERA_CODE = "DEMO-01";
 
 /** Official public contact of AR Corporation — one source for the privacy page, Pusat Sistem and Ara. */
-export const COMPANY_NAME = "AR Corporation";
-export const COMPANY_WEBSITE_HOST = "www.officialarcorporation.my.id";
+export const COMPANY_NAME = BRAND.company;
+export const COMPANY_WEBSITE_HOST = BRAND.websiteHost;
 export const COMPANY_WEBSITE_URL = `https://${COMPANY_WEBSITE_HOST}`;
-export const COMPANY_EMAIL = "official.arcorporation@gmail.com";
+export const COMPANY_EMAIL = BRAND.email;
 /** Public one-line description — used for the site metadata and the PWA manifest. */
-export const COMPANY_DESCRIPTION = "AR Corporation - Good Grip, Profesional, Trusted. Integrated HR System Management";
+export const COMPANY_DESCRIPTION = `${BRAND.company} - ${BRAND.product}. Integrated HR System Management`;

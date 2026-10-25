@@ -1,10 +1,11 @@
+import { BRAND } from "@/lib/brand";
 import type { MetadataRoute } from "next";
 import { COMPANY_DESCRIPTION } from "@/lib/constants";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "AR Corp",
-    short_name: "AR Corp",
+    name: `${BRAND.short}`,
+    short_name: `${BRAND.short}`,
     description: COMPANY_DESCRIPTION,
     start_url: "/",
     display: "standalone",

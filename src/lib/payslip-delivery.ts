@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import "server-only";
 import { prisma } from "./prisma";
 import { buildPayslip, ensureRecurringCosts } from "./payslip";
@@ -27,7 +28,7 @@ export async function deliverPayslip(employeeId: string, month: string): Promise
 
   const pdf = await generatePayslipPdf(payslip);
   const filename = payslipFilename(payslip);
-  const subject = `Slip Pay ${payslip.monthLabel} - AR Corp`;
+  const subject = `Slip Pay ${payslip.monthLabel} - ${BRAND.short}`;
   const text = `Halo ${payslip.employee.name}, berikut Slip Pay Anda untuk ${payslip.monthLabel}. Dokumen terlampir.`;
 
   const result: PayslipDeliveryResult = { email: "skipped", whatsapp: "skipped" };

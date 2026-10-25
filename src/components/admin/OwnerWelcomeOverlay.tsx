@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useEffect, useState } from "react";
 
 /**
@@ -43,7 +44,7 @@ export default function OwnerWelcomeOverlay() {
           <div className="ar-frame-luxury bg-ar-surface rounded-[20px] px-8 py-9 text-center">
             <div className="text-[11px] tracking-[0.3em] uppercase text-ar-dim mb-4">Welcome &amp; Thanks For Join</div>
             <div className="text-[17px] leading-[1.8] text-ar-gold2 ar-shimmer-gold font-semibold">
-              &quot;ARCorporation Onboarded &amp; Ready System
+              &quot;{BRAND.company} Onboarded &amp; Ready System
               <br />
               HR Unlocked : Owner {name}&quot;
             </div>
@@ -55,7 +56,7 @@ export default function OwnerWelcomeOverlay() {
               onClick={dismiss}
               className="py-3 px-7 ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer disabled:opacity-60"
             >
-              Mulai Kelola AR Corp
+              Mulai Kelola {BRAND.short}
             </button>
           </div>
         </div>

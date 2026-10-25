@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -203,7 +204,7 @@ export default function PengaturanPage() {
                   className="w-16 h-16 rounded-full object-contain bg-ar-bg border border-ar-goldline"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12.5px] text-ar-text">{logo.hasCustom ? "Logo kustom aktif" : "Logo bawaan AR Corp"}</div>
+                  <div className="text-[12.5px] text-ar-text">{logo.hasCustom ? "Logo kustom aktif" : `Logo bawaan ${BRAND.short}`}</div>
                   {logo.locked && logo.unlockAt ? (
                     <div className="text-[10.5px] text-ar-gold mt-1">
                       Terkunci — bisa diganti lagi mulai{" "}
