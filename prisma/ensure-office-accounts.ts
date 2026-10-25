@@ -21,10 +21,11 @@ const prisma = new PrismaClient();
 const CONSULTANT_ACCOUNT = {
   code: "HQ-CONSULT",
   name: "Admin",
-  role: "Admin AR Corp",
+  role: process.env.OFFICE_ADMIN_ROLE || "Admin AR Corp",
   accessRole: "CONSULTANT",
-  email: "aldhilarizky@gmail.com",
-  phone: "087843860999",
+  // Per-client override via env (Railway variables); defaults keep AR Corporation unchanged.
+  email: process.env.OFFICE_ADMIN_EMAIL || "aldhilarizky@gmail.com",
+  phone: process.env.OFFICE_ADMIN_PHONE || "087843860999",
 };
 
 async function main() {

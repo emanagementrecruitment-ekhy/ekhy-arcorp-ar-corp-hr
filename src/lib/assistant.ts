@@ -5,7 +5,7 @@ import { SETTING_ID } from "./settings";
 import { notifyOffice } from "./notify";
 import { sendPushToEmployee, pushConfigured } from "./push";
 import { getAiUsageToday } from "./ai-usage";
-import { DEMO_TERA_CODE, VCR_ROLE, LATE_CHECKIN_DEADLINE_HOUR, LATE_CHECKIN_GRACE_MINUTES, LATE_CHECKIN_PENALTY_AMOUNT } from "./constants";
+import { DEMO_CODES, VCR_ROLE, LATE_CHECKIN_DEADLINE_HOUR, LATE_CHECKIN_GRACE_MINUTES, LATE_CHECKIN_PENALTY_AMOUNT } from "./constants";
 import { fmtRp } from "./format";
 import {
   ASSISTANT_TASKS,
@@ -56,7 +56,7 @@ const PERSON_SELECT = { id: true, name: true, code: true, role: true, homePlace:
 /** Active field staff who are expected to check in (Tera and karyawan; the demo Tera is left out). */
 async function rosterToday(): Promise<Person[]> {
   return prisma.employee.findMany({
-    where: { accessRole: "KARYAWAN", status: "AKTIF", code: { not: DEMO_TERA_CODE } },
+    where: { accessRole: "KARYAWAN", status: "AKTIF", code: { notIn: DEMO_CODES } },
     select: PERSON_SELECT,
     orderBy: { name: "asc" },
   });
@@ -135,7 +135,7 @@ async function vouchersBetween(from: Date, to: Date): Promise<VcrDay> {
 
 async function teraRoster(): Promise<Person[]> {
   return prisma.employee.findMany({
-    where: { accessRole: "KARYAWAN", status: "AKTIF", role: VCR_ROLE, code: { not: DEMO_TERA_CODE } },
+    where: { accessRole: "KARYAWAN", status: "AKTIF", role: VCR_ROLE, code: { notIn: DEMO_CODES } },
     select: PERSON_SELECT,
     orderBy: { name: "asc" },
   });
