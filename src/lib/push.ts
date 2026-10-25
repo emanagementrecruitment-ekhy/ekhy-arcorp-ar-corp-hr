@@ -7,7 +7,7 @@ function ensureConfigured() {
   if (configured) return;
   const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = process.env;
   if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) return;
-  webpush.setVapidDetails(VAPID_SUBJECT || "mailto:no-reply@unicornmanagement.id", VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  webpush.setVapidDetails(VAPID_SUBJECT || "mailto:no-reply@arcorp.id", VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
   configured = true;
 }
 

@@ -1,19 +1,21 @@
-// ONE place to rename the app for a client. Edit the values below, commit, redeploy.
+// ONE place to rename the app for a client. Values come from environment variables
+// (NEXT_PUBLIC_BRAND_*), so every client runs the SAME code and only sets its own env.
+// Defaults = AR Corporation. NEXT_PUBLIC_* values are inlined at build time (set before Deploy).
 // Plain strings only (no server code) so both server and client components can import it.
 export const BRAND = {
   /** Full company name — privacy page, emails, AI assistant, metadata. */
-  company: "Unicorn Management",
+  company: process.env.NEXT_PUBLIC_BRAND_COMPANY || "AR Corporation",
   /** Short name — sidebar, logo alt text, OTP emails, PDF header (UPPERCASE is applied where needed). */
-  short: "Unicorn",
+  short: process.env.NEXT_PUBLIC_BRAND_SHORT || "AR Corp",
   /** Product title on the login page and browser tab. */
-  product: "E-Management",
+  product: process.env.NEXT_PUBLIC_BRAND_PRODUCT || "E-Management",
   /** Small line under the product title on the login page. */
-  subtitle: "Portal operasional · Slip pay",
+  subtitle: process.env.NEXT_PUBLIC_BRAND_SUBTITLE || "Portal operasional · Slip pay",
   /** Three-word slogan at the bottom of the login page. */
-  slogan: "Professional · Trusted · Together",
-  /** Public contact shown on the privacy page and in the assistant. Change to the client's real contact. */
-  email: "hr@unicornmanagement.id",
-  websiteHost: "unicornmanagement.id",
+  slogan: process.env.NEXT_PUBLIC_BRAND_SLOGAN || "Professional · Trusted · Together",
+  /** Public contact shown on the privacy page and in the assistant. */
+  email: process.env.NEXT_PUBLIC_BRAND_EMAIL || "official.arcorporation@gmail.com",
+  websiteHost: process.env.NEXT_PUBLIC_BRAND_WEBSITE_HOST || "www.officialarcorporation.my.id",
   /** Call-center / HR phone shown by the assistant. */
-  phone: "0000-0000-0000",
-} as const;
+  phone: process.env.NEXT_PUBLIC_BRAND_PHONE || "0881-02545-8888",
+};
