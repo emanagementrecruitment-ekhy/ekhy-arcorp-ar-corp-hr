@@ -56,7 +56,7 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
       doc.fontSize(9).fillColor("#8a6d1f").font("Helvetica-Bold").text("AR CORP", { characterSpacing: 2 });
       doc.fontSize(20).fillColor("#111111").text("SLIP PAY KARYAWAN");
       doc.fontSize(9).font("Helvetica").fillColor("#555555").text(`REGISTER : ${k.register}`);
-      let y0 = doc.y + 18;
+      const y0 = doc.y + 18;
       const left: Array<[string, string]> = [["NAMA", e.name], ["NIK", e.nik || "-"], ["BULAN", payslip.monthLabel.toUpperCase()], ["HP", e.phone || "-"], ["EMAIL", e.email || "-"]];
       doc.fontSize(10).fillColor("#111111");
       left.forEach(([l, v], i) => {
