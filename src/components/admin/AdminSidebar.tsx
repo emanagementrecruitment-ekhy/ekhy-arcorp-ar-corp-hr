@@ -144,7 +144,7 @@ export default function AdminSidebar({
   const accountCard = (
     <div className="mt-auto p-3 bg-ar-surface2 border border-ar-line rounded-2xl">
       <div className="flex items-center gap-2.5">
-        <Image src="/login-emas.png" alt="Login" width={640} height={480} className="w-16 h-12 shrink-0 object-contain" style={{ mixBlendMode: "screen" }} />
+        <Image src="/brand/login-emas.png" unoptimized alt="Login" width={640} height={480} className="w-16 h-12 shrink-0 object-contain" style={{ mixBlendMode: "screen" }} />
         <div className="min-w-0">
           <div className="text-[12.5px] truncate">{roleLabel}</div>
         </div>

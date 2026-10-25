@@ -30,8 +30,8 @@ const NAV_TO_GOLD: Partial<Record<IconName, GoldName>> = {
 
 export function GoldImg({ name, className = "w-6 h-6", busy = false }: { name: GoldName; className?: string; busy?: boolean }) {
   return (
-    <Image
-      src={`/icons/gold/${GOLD_FILES[name]}.png`}
+    <Image unoptimized
+      src={`/brand/${GOLD_FILES[name]}.png`}
       alt=""
       width={80}
       height={80}
