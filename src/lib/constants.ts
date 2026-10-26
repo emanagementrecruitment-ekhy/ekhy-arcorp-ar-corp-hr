@@ -76,6 +76,17 @@ export const VOUCHER_LABEL: Record<EmployeeLevel, string> = {
   MANUAL: "MANUAL INPUT",
 };
 
+// Outlets whose Tera use the two-category (S / D) voucher entry and Slip Pay; everyone else uses the single VCR one.
+export const TRAVEL_PLACES = ["TRAVEL", "CLASSIC T5"];
+export function isTravelPlace(place: string | null | undefined): boolean {
+  return TRAVEL_PLACES.includes((place ?? "").trim());
+}
+/** S = FL, D = CLASSIC_D (the two categories of the Travel / Classic T5 slip). */
+export const SD_CATEGORIES = [
+  { key: "FL", label: "S" },
+  { key: "CLASSIC_D", label: "D" },
+] as const;
+
 // Levels whose rate is a fixed income (shown as "Pendapatan Tetap" instead of "default").
 export const FIXED_INCOME_LEVELS: readonly EmployeeLevel[] = ["CLASSIC_D", "FL", "PLATINUM"];
 

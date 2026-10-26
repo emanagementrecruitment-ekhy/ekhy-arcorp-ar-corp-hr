@@ -27,6 +27,8 @@ interface VoucherData {
   myLevelLabel: string;
   myRate: number;
   myPlace: string;
+  sd?: boolean;
+  sdRates?: { S: number; D: number };
 }
 
 const PERIODS: { key: Period; label: string }[] = [
@@ -43,6 +45,8 @@ export default function VoucherPage() {
   const [period, setPeriod] = useState<Period>("harian");
   const [data, setData] = useState<VoucherData | null>(null);
   const [qty, setQty] = useState("1");
+  const [qtyS, setQtyS] = useState("");
+  const [qtyD, setQtyD] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [success, setSuccess] = useState("");
@@ -55,8 +59,11 @@ export default function VoucherPage() {
 
   useEffect(load, [period]);
 
-  const qtyNum = Number(qty) || 0;
-  const total = (data?.myRate ?? 0) * qtyNum;
+  const sd = Boolean(data?.sd);
+  const numS = Number(qtyS) || 0;
+  const numD = Number(qtyD) || 0;
+  const qtyNum = sd ? numS + numD : Number(qty) || 0;
+  const total = sd ? numS * (data?.sdRates?.S ?? 0) + numD * (data?.sdRates?.D ?? 0) : (data?.myRate ?? 0) * qtyNum;
 
   async function submit() {
     if (qtyNum <= 0) return;
@@ -66,7 +73,7 @@ export default function VoucherPage() {
       const res = await fetch("/api/vouchers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ qty: qtyNum }),
+        body: JSON.stringify(sd ? { qtyS: numS, qtyD: numD } : { qty: qtyNum }),
       });
       const d = await res.json();
       if (!res.ok) {
@@ -75,6 +82,8 @@ export default function VoucherPage() {
       }
       setSuccess(`✓ ${d.count} voucher tersimpan · ${fmtRp(d.total)}`);
       setQty("1");
+      setQtyS("");
+      setQtyD("");
       load();
       setTimeout(() => setSuccess(""), 2500);
     } finally {
@@ -127,10 +136,17 @@ export default function VoucherPage() {
 
       <div className="bg-ar-surface border border-ar-line rounded-2xl p-4 mb-4">
         <div className="text-[13px] font-display text-ar-gold2 mb-1">Input Pendapatan Hari Ini</div>
-        <div className="text-[10.5px] text-ar-dim mb-3">
-          Rate kamu: <span className="text-ar-gold">{data?.myLevelLabel ?? "…"}</span> · {fmtRp(data?.myRate ?? 0)}/VCR
-          (ditetapkan dari pusat)
-        </div>
+        {sd ? (
+          <div className="text-[10.5px] text-ar-dim mb-3">
+            Rate: <span className="text-ar-gold">S</span> {fmtRp(data?.sdRates?.S ?? 0)}/VCR ·{" "}
+            <span className="text-ar-gold">D</span> {fmtRp(data?.sdRates?.D ?? 0)}/VCR (ditetapkan dari pusat)
+          </div>
+        ) : (
+          <div className="text-[10.5px] text-ar-dim mb-3">
+            Rate kamu: <span className="text-ar-gold">{data?.myLevelLabel ?? "…"}</span> · {fmtRp(data?.myRate ?? 0)}/VCR
+            (ditetapkan dari pusat)
+          </div>
+        )}
 
         <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Lokasi Kerja</label>
         <div className="w-full py-2.5 px-3.5 mb-1.5 bg-ar-surface2 border border-ar-line rounded-[11px] text-ar-text text-[12.5px]">
@@ -138,17 +154,56 @@ export default function VoucherPage() {
         </div>
         <div className="text-[10px] text-ar-faint mb-3">Ditetapkan oleh pusat, tidak bisa diubah manual di sini.</div>
 
-        <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Jumlah VCR</label>
-        <input
-          type="number"
-          min={1}
-          value={qty}
-          onChange={(e) => setQty(e.target.value)}
-          className="w-full py-2.5 px-3.5 mb-3 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
-        />
+        {sd ? (
+          <div className="grid grid-cols-2 gap-2.5 mb-3">
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">S :</label>
+              <input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                placeholder="0"
+                value={qtyS}
+                onChange={(e) => setQtyS(e.target.value)}
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">D :</label>
+              <input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                placeholder="0"
+                value={qtyD}
+                onChange={(e) => setQtyD(e.target.value)}
+                className="w-full py-2.5 px-3.5 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            <label className="text-[10px] tracking-[0.14em] uppercase text-ar-dim mb-1.5 block">Jumlah VCR</label>
+            <input
+              type="number"
+              min={1}
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+              className="w-full py-2.5 px-3.5 mb-3 bg-ar-input border border-ar-goldline rounded-[11px] text-ar-text text-[12.5px]"
+            />
+          </>
+        )}
 
         <div className="py-2.5 px-3.5 mb-3 bg-ar-surface2 border border-ar-line rounded-[10px] text-[12px] text-ar-gold2">
-          {fmtRp(data?.myRate ?? 0)} × {qtyNum} = <strong>{fmtRp(total)}</strong>
+          {sd ? (
+            <>
+              S {fmtRp(data?.sdRates?.S ?? 0)} × {numS} + D {fmtRp(data?.sdRates?.D ?? 0)} × {numD} = <strong>{fmtRp(total)}</strong>
+            </>
+          ) : (
+            <>
+              {fmtRp(data?.myRate ?? 0)} × {qtyNum} = <strong>{fmtRp(total)}</strong>
+            </>
+          )}
         </div>
 
         {success && <div className="mb-2.5 text-[12px] text-ar-green">{success}</div>}

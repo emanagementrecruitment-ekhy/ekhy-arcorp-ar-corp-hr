@@ -10,6 +10,7 @@ import {
   sendOtpSms,
   sendOtpWhatsapp,
 } from "./otp-providers";
+import { matchOtp, mayLogOtpCode } from "./otp-match";
 import type { IdentifierKind } from "./lookup";
 
 function generateCode(): string {
@@ -70,7 +71,11 @@ export async function issueOtp(employeeId: string, target: string, kind: Identif
     }
   }
 
-  console.log(`[otp] code for employee ${employeeId}: ${code} (expires ${expiresAt.toISOString()})`);
+  if (mayLogOtpCode(process.env)) {
+    console.log(`[otp] code for employee ${employeeId}: ${code} (expires ${expiresAt.toISOString()})`);
+  } else {
+    console.error(`[otp] code for employee ${employeeId} could NOT be delivered (no working ${channel ?? "channel"} provider) — set BREVO_API_KEY or SMTP_*.`);
+  }
 
   // ARCORP_LOCAL_MODE: the AR Corp Desktop app's offline fallback server
   // (see desktop/server-wrapper.js) — there's no internet there to deliver a
@@ -88,25 +93,24 @@ export type OtpVerifyResult =
   | { ok: false; reason: "not_found" | "expired" | "too_many_attempts" | "mismatch" };
 
 export async function verifyOtp(employeeId: string, code: string, purpose = "LOGIN"): Promise<OtpVerifyResult> {
-  const otp = await prisma.otpCode.findFirst({
+  // Newest few only: a double-tapped "send code" leaves two live codes, and
+  // either email's code must work (see matchOtp).
+  const candidates = await prisma.otpCode.findMany({
     where: { employeeId, consumedAt: null, purpose },
     orderBy: { createdAt: "desc" },
+    take: 3,
+    select: { id: true, codeHash: true, expiresAt: true, attempts: true },
   });
-  if (!otp) return { ok: false, reason: "not_found" };
-  if (otp.expiresAt.getTime() < Date.now()) return { ok: false, reason: "expired" };
-  if (otp.attempts >= OTP_MAX_ATTEMPTS) return { ok: false, reason: "too_many_attempts" };
-
-  const match = await bcrypt.compare(code, otp.codeHash);
-  if (!match) {
-    await prisma.otpCode.update({
-      where: { id: otp.id },
-      data: { attempts: { increment: 1 } },
-    });
-    return { ok: false, reason: "mismatch" };
+  const m = await matchOtp(code, candidates, OTP_MAX_ATTEMPTS);
+  if (!m.ok) {
+    if (m.reason === "mismatch") {
+      await prisma.otpCode.updateMany({ where: { id: { in: m.openIds } }, data: { attempts: { increment: 1 } } });
+    }
+    return { ok: false, reason: m.reason };
   }
 
-  await prisma.otpCode.update({
-    where: { id: otp.id },
+  await prisma.otpCode.updateMany({
+    where: { id: { in: candidates.map((c) => c.id) } },
     data: { consumedAt: new Date() },
   });
   return { ok: true };
