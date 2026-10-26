@@ -131,20 +131,32 @@ export default function LoginPage() {
       <DesktopStatusBar />
       <div className="w-full max-w-[380px] ar-in">
         <div className="flex flex-col items-center mb-5">
-          <div className="relative">
+          <div className="ar-logo-stage">
             <div
               className="absolute -inset-5 rounded-full opacity-80 blur-xl pointer-events-none"
               style={{ background: "radial-gradient(circle, rgba(var(--ar-accent-rgb),0.28), transparent 70%)" }}
             />
-            <Image
-              src="/api/brand-logo"
-              alt={BRAND.short}
-              width={128}
-              height={128}
-              priority
-              unoptimized
-              className="relative w-[112px] h-[112px] sm:w-[128px] sm:h-[128px] object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.6)]"
-            />
+            <span className="ar-logo-ring" aria-hidden="true" />
+            <span className="ar-logo-ring ar-logo-ring-b" aria-hidden="true" />
+            <div className="relative w-[112px] h-[112px] sm:w-[128px] sm:h-[128px]">
+              <Image
+                src="/api/brand-logo"
+                alt={BRAND.short}
+                width={128}
+                height={128}
+                priority
+                unoptimized
+                className="ar-logo-img relative w-full h-full object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.6)]"
+              />
+              <span
+                className="ar-logo-glint"
+                aria-hidden="true"
+                style={{ "--logo-mask": "url(/api/brand-logo)" } as React.CSSProperties}
+              />
+            </div>
+            <span className="ar-logo-spark" aria-hidden="true" />
+            <span className="ar-logo-spark" aria-hidden="true" />
+            <span className="ar-logo-spark" aria-hidden="true" />
           </div>
           <div className="mt-3 font-display text-[15px] tracking-[0.38em] uppercase font-semibold text-center">
             <span className="ar-shimmer-gold">{BRAND.company}</span>

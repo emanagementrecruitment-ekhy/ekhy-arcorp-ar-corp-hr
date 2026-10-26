@@ -790,3 +790,44 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .arc-mascot-eyes, .arc-mascot-dots, .arc-mascot-mouth, .arc-ara-fab { animation: none !important; }
 }
+
+/* Login logo stage — motion that follows each client's own logo and theme colour.
+   The glint is masked with the logo itself (/api/brand-logo), so it only runs across the
+   logo's own shape; the ring and sparks use --ar-accent-rgb, which each client's theme sets. */
+.ar-logo-stage { position: relative; display: grid; place-items: center; }
+.ar-logo-ring {
+  position: absolute; inset: -14px; border-radius: 9999px; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 55%, rgba(var(--ar-accent-rgb), 0.85) 78%, transparent 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  animation: arLogoOrbit 7s linear infinite;
+}
+.ar-logo-ring-b { inset: -22px; opacity: 0.55; animation-duration: 11s; animation-direction: reverse; }
+.ar-logo-img { animation: arLogoFloat 5.5s ease-in-out infinite; }
+.ar-logo-glint {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.85) 50%, transparent 62%) no-repeat;
+  background-size: 260% 100%;
+  -webkit-mask: var(--logo-mask) center / contain no-repeat;
+  mask: var(--logo-mask) center / contain no-repeat;
+  mix-blend-mode: overlay;
+  animation: arLogoGlint 4.8s ease-in-out infinite;
+}
+.ar-logo-spark {
+  position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 9999px;
+  background: rgb(var(--ar-accent-rgb)); box-shadow: 0 0 8px 2px rgba(var(--ar-accent-rgb), 0.7);
+  animation: arLogoSpark 9s linear infinite; pointer-events: none;
+}
+.ar-logo-spark:nth-of-type(2) { animation-delay: -3s; animation-duration: 12s; width: 4px; height: 4px; }
+.ar-logo-spark:nth-of-type(3) { animation-delay: -6s; animation-duration: 15s; width: 3px; height: 3px; }
+@keyframes arLogoOrbit { to { transform: rotate(360deg); } }
+@keyframes arLogoFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.025); } }
+@keyframes arLogoGlint { 0%, 55% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
+@keyframes arLogoSpark {
+  from { transform: rotate(0deg) translateX(76px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(76px) rotate(-360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-logo-ring, .ar-logo-img, .ar-logo-glint, .ar-logo-spark { animation: none; }
+  .ar-logo-glint, .ar-logo-spark { display: none; }
+}
