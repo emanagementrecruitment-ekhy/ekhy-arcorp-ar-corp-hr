@@ -12,7 +12,7 @@ export const BRAND = {
   /** Small line under the product title on the login page. */
   subtitle: "Portal operasional · Slip pay",
   /** Three-word slogan at the bottom of the login page. */
-  slogan: "Professional · Trusted · Together",
+  slogan: "Good Grip, Profesional, Trusted",
   /** Public contact shown on the privacy page and in the assistant. */
   email: process.env.NEXT_PUBLIC_BRAND_EMAIL || "official.arcorporation@gmail.com",
   websiteHost: process.env.NEXT_PUBLIC_BRAND_WEBSITE_HOST || "www.officialarcorporation.my.id",

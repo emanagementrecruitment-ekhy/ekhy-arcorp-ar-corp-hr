@@ -147,7 +147,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="mt-3 font-display text-[15px] tracking-[0.38em] uppercase font-semibold text-center">
-            <span className="ar-shimmer-gold">{BRAND.product}</span>
+            <span className="ar-shimmer-gold">{BRAND.company}</span>
           </div>
           <div className="text-[10px] tracking-[0.2em] text-ar-dim mt-1.5 uppercase text-center">
             {BRAND.subtitle}
