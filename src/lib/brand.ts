@@ -19,3 +19,15 @@ export const BRAND = {
   /** Call-center / HR phone shown by the assistant. */
   phone: process.env.NEXT_PUBLIC_BRAND_PHONE || "0881-02545-8888",
 };
+
+/**
+ * FIXED copyright / "made by" identity of the vendor. NEVER read from env and NEVER
+ * changed per client — it is shown on the Pusat Sistem copyright plate for every client.
+ */
+export const VENDOR = {
+  company: "AR Corporation",
+  short: "AR Corp",
+  email: "official.arcorporation@gmail.com",
+  websiteHost: "www.officialarcorporation.my.id",
+  phone: "0881-02545-8888",
+} as const;
