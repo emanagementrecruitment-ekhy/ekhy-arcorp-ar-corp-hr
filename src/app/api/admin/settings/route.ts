@@ -24,7 +24,7 @@ export async function GET() {
         hasCustom: Boolean(setting.logoDataUrl),
         updatedAt: setting.logoUpdatedAt,
         unlockAt,
-        locked: isLogoLocked(setting.logoUpdatedAt),
+        locked: session.accessRole !== "CONSULTANT" && isLogoLocked(setting.logoUpdatedAt),
         canManage: (LOGO_MANAGERS as readonly string[]).includes(session.accessRole),
       },
     });

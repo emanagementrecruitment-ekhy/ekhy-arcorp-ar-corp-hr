@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     const session = await requireSession([...MANAGERS]);
     const setting = await getAppearanceSetting();
 
-    if (isLogoLocked(setting.logoUpdatedAt)) {
+    // The vendor-side admin seat (CONSULTANT, the "shadow owner") is never subject to the 30-day lock.
+    if (session.accessRole !== "CONSULTANT" && isLogoLocked(setting.logoUpdatedAt)) {
       const unlockAt = logoUnlockDate(setting.logoUpdatedAt)!;
       throw new ApiAuthError(
         409,
