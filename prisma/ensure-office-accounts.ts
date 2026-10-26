@@ -24,7 +24,7 @@ const CONSULTANT_ACCOUNT = {
   role: process.env.OFFICE_ADMIN_ROLE || "Admin AR Corp",
   accessRole: "CONSULTANT",
   // Per-client override via env (Railway variables); defaults keep AR Corporation unchanged.
-  email: process.env.OFFICE_ADMIN_EMAIL || "aldhilarizky@gmail.com",
+  email: process.env.OFFICE_ADMIN_EMAIL || "official.arcorporation@gmail.com",
   phone: process.env.OFFICE_ADMIN_PHONE || "087843860999",
 };
 

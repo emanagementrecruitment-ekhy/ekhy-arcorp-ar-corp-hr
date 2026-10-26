@@ -7,12 +7,12 @@ export const BRAND = {
   company: process.env.NEXT_PUBLIC_BRAND_COMPANY || "AR Corporation",
   /** Short name — sidebar, logo alt text, OTP emails, PDF header (UPPERCASE is applied where needed). */
   short: process.env.NEXT_PUBLIC_BRAND_SHORT || "AR Corp",
-  /** Product title on the login page and browser tab. */
-  product: process.env.NEXT_PUBLIC_BRAND_PRODUCT || "E-Management",
+  /** Product title on the login page and browser tab. FIXED (AR Corporation build) for every client — not env-driven. */
+  product: "E-Management",
   /** Small line under the product title on the login page. */
-  subtitle: process.env.NEXT_PUBLIC_BRAND_SUBTITLE || "Portal operasional · Slip pay",
+  subtitle: "Portal operasional · Slip pay",
   /** Three-word slogan at the bottom of the login page. */
-  slogan: process.env.NEXT_PUBLIC_BRAND_SLOGAN || "Professional · Trusted · Together",
+  slogan: "Professional · Trusted · Together",
   /** Public contact shown on the privacy page and in the assistant. */
   email: process.env.NEXT_PUBLIC_BRAND_EMAIL || "official.arcorporation@gmail.com",
   websiteHost: process.env.NEXT_PUBLIC_BRAND_WEBSITE_HOST || "www.officialarcorporation.my.id",
