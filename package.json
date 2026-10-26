@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "start:railway": "node prisma/migrate-safe.js && node prisma/seed-if-empty.js && tsx prisma/cleanup-demo-employees.ts && tsx prisma/ensure-office-accounts.ts && tsx prisma/ensure-demo-tera.ts && tsx prisma/ensure-demo-koordinator.ts && next start -p ${PORT:-3000}",
+    "start:railway": "node prisma/migrate-safe.js && node prisma/schema-sync.js && node prisma/seed-if-empty.js && tsx prisma/cleanup-demo-employees.ts && tsx prisma/ensure-office-accounts.ts && tsx prisma/ensure-demo-tera.ts && tsx prisma/ensure-demo-koordinator.ts && next start -p ${PORT:-3000}",
     "test": "tsx --test src/lib/*.test.ts"
   },
   "prisma": {
