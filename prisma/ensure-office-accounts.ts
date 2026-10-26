@@ -29,22 +29,42 @@ const CONSULTANT_ACCOUNT = {
 };
 
 async function main() {
+  const existing = await prisma.employee.findUnique({ where: { code: CONSULTANT_ACCOUNT.code } });
+
+  // email/phone are unique: never let a clash with another record take the app down.
+  // If another employee already owns the wanted value, keep what the seat has (or leave it empty on create).
+  const clash = async (field: "email" | "phone", value: string) => {
+    const other = await prisma.employee.findFirst({ where: { [field]: value, NOT: { code: CONSULTANT_ACCOUNT.code } }, select: { code: true } });
+    if (other) console.warn(`[ensure-office-accounts] ${field} ${value} already used by ${other.code}; not applied to ${CONSULTANT_ACCOUNT.code}`);
+    return Boolean(other);
+  };
+  const emailOk = !(await clash("email", CONSULTANT_ACCOUNT.email));
+  const phoneOk = !(await clash("phone", CONSULTANT_ACCOUNT.phone));
+
   await prisma.employee.upsert({
     where: { code: CONSULTANT_ACCOUNT.code },
     update: {
       name: CONSULTANT_ACCOUNT.name,
       role: CONSULTANT_ACCOUNT.role,
-      email: CONSULTANT_ACCOUNT.email,
-      phone: CONSULTANT_ACCOUNT.phone,
+      ...(emailOk ? { email: CONSULTANT_ACCOUNT.email } : {}),
+      ...(phoneOk ? { phone: CONSULTANT_ACCOUNT.phone } : {}),
     },
-    create: { ...CONSULTANT_ACCOUNT, level: "PLATINUM", homeLat: HQ.lat, homeLng: HQ.lng, homePlace: "Kantor Pusat Jakarta" },
+    create: {
+      ...CONSULTANT_ACCOUNT,
+      email: emailOk ? CONSULTANT_ACCOUNT.email : "hq-consult@placeholder.invalid",
+      phone: phoneOk ? CONSULTANT_ACCOUNT.phone : "000-HQ-CONSULT",
+      level: "PLATINUM",
+      homeLat: HQ.lat,
+      homeLng: HQ.lng,
+      homePlace: "Kantor Pusat Jakarta",
+    },
   });
-  console.log(`[ensure-office-accounts] consultant pinned to ${CONSULTANT_ACCOUNT.email}`);
+  console.log(`[ensure-office-accounts] consultant seat ok (existing=${Boolean(existing)}, email applied=${emailOk})`);
 }
 
+// Best-effort bootstrap: a failure here must never stop the server from starting.
 main()
   .catch((e) => {
-    console.error("[ensure-office-accounts] failed:", e);
-    process.exit(1);
+    console.error("[ensure-office-accounts] failed (continuing startup):", e);
   })
   .finally(() => prisma.$disconnect());
