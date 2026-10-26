@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { monthRange, parseMonth } from "./period";
 import { dLabel, monthLabel } from "./format";
-import { VOUCHER_LABEL, VOUCHER_AMOUNT, usesVcr, ATTENDANCE_MIN_DAYS, ATTENDANCE_PENALTY_AMOUNT, ATTENDANCE_PENALTY_CATEGORY, ATTENDANCE_CHECKIN_START_MONTH, type EmployeeLevel, isStaffRole } from "./constants";
+import { VOUCHER_LABEL, VOUCHER_AMOUNT, usesVcr, ATTENDANCE_MIN_DAYS, ATTENDANCE_PENALTY_AMOUNT, ATTENDANCE_PENALTY_CATEGORY, ATTENDANCE_CHECKIN_START_MONTH, type EmployeeLevel, isStaffRole, isTravelPlace, SD_CATEGORIES } from "./constants";
 import { getAttendanceDaysCount, daysInMonth } from "./attendance";
 import { computeKasbonCarry, prevYm } from "./kasbon-carry";
 import { buildSheet, sheetTotal, type SheetRow, type SheetItemIn, type VcrLine } from "./payslip-sheet";
@@ -40,12 +40,6 @@ export interface PayslipDaily {
 /** TRAVEL = Tera working TRAVEL / CLASSIC T5 (categories S and D); NORMAL = every other Tera; null = not a VCR (Tera) payslip. */
 export type PayslipVariant = "NORMAL" | "TRAVEL" | null;
 
-// Outlets whose Tera use the two-category (S / D) Slip Pay; everyone else uses the normal one.
-const TRAVEL_PLACES = ["TRAVEL", "CLASSIC T5"];
-const SD_CATEGORIES: Array<{ key: EmployeeLevel; label: string }> = [
-  { key: "FL", label: "S" },
-  { key: "CLASSIC_D", label: "D" },
-];
 const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 export function jakartaDay(d: Date): string {
@@ -153,7 +147,7 @@ export async function buildPayslip(employeeId: string, month: string): Promise<P
   const vcr = usesVcr(employee.role);
   // MANUAL level: a rate typed on the Slip Pay overrides the amounts stored on each voucher.
   const place = (employee.homePlace ?? "").trim().toUpperCase();
-  const variant: PayslipVariant = !vcr ? null : TRAVEL_PLACES.includes(place) || vouchers.some((v) => v.category === "FL" || v.category === "CLASSIC_D") ? "TRAVEL" : "NORMAL";
+  const variant: PayslipVariant = !vcr ? null : isTravelPlace(place) || vouchers.some((v) => v.category === "FL" || v.category === "CLASSIC_D") ? "TRAVEL" : "NORMAL";
   const manualRate = vcr && employee.level === "MANUAL" && rateRow ? rateRow.rate : null;
   const vcrTotal = manualRate != null ? vouchers.length * manualRate : vouchers.reduce((s, v) => s + v.amount, 0);
   // Tera: an approved kasbon is deducted in full the month it was taken. Karyawan: any instalment is agreed

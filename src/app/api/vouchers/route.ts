@@ -7,12 +7,17 @@ import { fmtRp, shortRp, dayLabel, timeLabel, dLabel } from "@/lib/format";
 import {
   VOUCHER_LABEL,
   VOUCHER_STATUS_LABEL,
+  VOUCHER_AMOUNT,
   employeeRate,
+  isTravelPlace,
   usesVcr,
   type EmployeeLevel,
   type VoucherStatus,
 } from "@/lib/constants";
 import { notifyOffice } from "@/lib/notify";
+import { parseVoucherEntry } from "@/lib/voucher-entry";
+import { monthRange, parseMonth } from "@/lib/period";
+import { jakartaDay } from "@/lib/payslip";
 
 export async function GET(req: Request) {
   try {
@@ -51,6 +56,8 @@ export async function GET(req: Request) {
       myLevelLabel: VOUCHER_LABEL[myLevel],
       myRate: employeeRate(myLevel, employee.customRate),
       myPlace: employee.homePlace,
+      sd: isTravelPlace(employee.homePlace),
+      sdRates: { S: VOUCHER_AMOUNT.FL, D: VOUCHER_AMOUNT.CLASSIC_D },
       vouchers: periodVouchers.map((v) => ({
         id: v.id,
         client: v.client,
@@ -91,13 +98,7 @@ export async function POST(req: Request) {
     const session = await requireSession(["KARYAWAN", "SUPERVISOR"]);
     const body = await req.json().catch(() => null);
 
-    const qty = Math.round(Number(body?.qty));
     const occurredAtRaw = typeof body?.occurredAt === "string" ? body.occurredAt : "";
-
-    if (!Number.isInteger(qty) || qty <= 0) {
-      return NextResponse.json({ error: "Jumlah VCR tidak valid." }, { status: 400 });
-    }
-
     const occurredAt = occurredAtRaw ? new Date(occurredAtRaw) : new Date();
     if (Number.isNaN(occurredAt.getTime())) return NextResponse.json({ error: "Tanggal tidak valid." }, { status: 400 });
 
@@ -106,23 +107,39 @@ export async function POST(req: Request) {
     if (!usesVcr(employee.role)) {
       return NextResponse.json({ error: "Pendapatan/VCR tidak berlaku untuk peran Anda — gaji diatur oleh admin." }, { status: 400 });
     }
+
+    // Travel / Classic T5 Tera enter S and D separately, like their Slip Pay.
+    const entry = parseVoucherEntry(isTravelPlace(employee.homePlace), body);
+    if (!entry.ok) return NextResponse.json({ error: entry.error }, { status: 400 });
+
     const level = employee.level as EmployeeLevel;
-    const amount = employeeRate(level, employee.customRate);
+    const { start, end } = monthRange(parseMonth(jakartaDay(occurredAt).slice(0, 7)));
+    const data: Array<{ employeeId: string; category: string; client: string; amount: number; occurredAt: Date }> = [];
+    let count = 0;
+    let total = 0;
+    for (const line of entry.lines) {
+      let category: EmployeeLevel = level;
+      let amount = employeeRate(level, employee.customRate);
+      if (line.category) {
+        // Keep the nominal the office set for this category this month, else the default.
+        category = line.category;
+        const last = await prisma.voucher.findFirst({
+          where: { employeeId: employee.id, category, occurredAt: { gte: start, lt: end } },
+          orderBy: { occurredAt: "desc" },
+          select: { amount: true },
+        });
+        amount = last?.amount ?? VOUCHER_AMOUNT[category];
+      }
+      for (let i = 0; i < line.qty; i++) data.push({ employeeId: employee.id, category, client: employee.homePlace, amount, occurredAt });
+      count += line.qty;
+      total += amount * line.qty;
+    }
+    await prisma.voucher.createMany({ data });
 
-    await prisma.voucher.createMany({
-      data: Array.from({ length: qty }, () => ({
-        employeeId: employee.id,
-        category: level,
-        client: employee.homePlace,
-        amount,
-        occurredAt,
-      })),
-    });
+    await notifyOffice(`Pendapatan baru dari ${employee.name} (self-entry): ${count} voucher · ${fmtRp(total)}`);
 
-    await notifyOffice(`Pendapatan baru dari ${employee.name} (self-entry): ${qty} voucher · ${fmtRp(amount * qty)}`);
-
-    await logAudit(session, "VOUCHER_SELF", `${employee.name} (${employee.code})`, `${qty} voucher · ${fmtRp(amount * qty)}`);
-    return NextResponse.json({ ok: true, count: qty, total: amount * qty });
+    await logAudit(session, "VOUCHER_SELF", `${employee.name} (${employee.code})`, `${count} voucher · ${fmtRp(total)}`);
+    return NextResponse.json({ ok: true, count, total });
   } catch (e) {
     return apiError(e);
   }
