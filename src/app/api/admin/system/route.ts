@@ -1,5 +1,5 @@
-import { BRAND } from "@/lib/brand";
-import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL, HQ_ADDRESS, STAFF_ROLES } from "@/lib/constants";
+import { VENDOR } from "@/lib/brand";
+import { HQ_ADDRESS, STAFF_ROLES } from "@/lib/constants";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
@@ -55,7 +55,7 @@ export async function GET() {
     const clientId = process.env.CLIENT_ID ?? "";
 
     return NextResponse.json({
-      product: { name: `${BRAND.short} E-Management`, version: pkg.version, owner: COMPANY_NAME, year: new Date().getFullYear() },
+      product: { name: `${VENDOR.short} E-Management`, version: pkg.version, owner: VENDOR.company, year: new Date().getFullYear() },
       license: {
         configured,
         // Licensed deployments report the vendor-issued package; the reference instance has no cap.
@@ -68,9 +68,9 @@ export async function GET() {
       support: {
         phone: SUPPORT_PHONE_DISPLAY,
         whatsapp: `https://wa.me/${SUPPORT_WA}`,
-        email: COMPANY_EMAIL,
-        website: COMPANY_WEBSITE_URL,
-        websiteLabel: COMPANY_WEBSITE_HOST,
+        email: VENDOR.email,
+        website: `https://${VENDOR.websiteHost}`,
+        websiteLabel: VENDOR.websiteHost,
         address: HQ_ADDRESS,
       },
       system: {
