@@ -536,9 +536,6 @@ button {
   padding: 2px 7px;
   box-shadow: none;
 }
-[data-mode="dark"] .arc-map {
-  background: #0b0d12;
-}
 /* Map popups: explicit colours per mode so the text never inherits a pale app colour onto the popup surface. */
 .arc-map .maplibregl-popup-content {
   background: #ffffff;
@@ -559,18 +556,6 @@ button {
   font-size: 18px;
   padding: 2px 8px;
 }
-[data-mode="dark"] .arc-map .maplibregl-popup-content {
-  background: #171a21;
-  color: #f2f4f8;
-  border: 1px solid rgba(224, 184, 104, 0.35);
-}
-[data-mode="dark"] .arc-map .maplibregl-popup-tip {
-  border-top-color: #171a21;
-  border-bottom-color: #171a21;
-}
-[data-mode="dark"] .arc-map .maplibregl-popup-close-button {
-  color: #c4cad6;
-}
 .arc-pop-name {
   font-size: 15px;
   font-weight: 700;
@@ -586,9 +571,6 @@ button {
   color: #5b6472;
   margin-top: 2px;
 }
-[data-mode="dark"] .arc-pop-muted {
-  color: #b4bcc9;
-}
 .arc-pop-live {
   color: #0f7a3c;
   font-weight: 700;
@@ -598,12 +580,6 @@ button {
   color: #9a5200;
   font-weight: 600;
   margin-top: 4px;
-}
-[data-mode="dark"] .arc-pop-live {
-  color: #6fe0a2;
-}
-[data-mode="dark"] .arc-pop-warn {
-  color: #f6b45a;
 }
 .arc-pop-btn {
   margin-top: 8px;

@@ -32,18 +32,13 @@ const COLOR_OUT = "#E2716B";
 const COLOR_REGISTERED = "#8A93A3";
 const COLOR_HQ = "#D6AE5F";
 
-// OpenFreeMap: free hosted vector tiles, no API key. Dark style for night mode.
-const STYLE_DARK = "https://tiles.openfreemap.org/styles/dark";
-const STYLE_LIGHT = "https://tiles.openfreemap.org/styles/positron";
+// OpenFreeMap: free hosted vector tiles, no API key. Always the bright style, also in night mode.
+const MAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
 
 const RADIUS_SRC = "arc-radius";
 
 function esc(value: string) {
   return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
-}
-
-function isDarkMode() {
-  return document.documentElement.getAttribute("data-mode") !== "light";
 }
 
 /** Polygon approximating a circle of radiusKm around a point (geodesic, 128 steps). */
@@ -102,7 +97,6 @@ export default function LocationsMap({
   const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const overlaysRef = useRef<maplibregl.Marker[]>([]);
   const fittedRef = useRef(false);
-  const styleDarkRef = useRef<boolean | null>(null);
   const radiusRef = useRef({ hq, radiusKm });
 
   // Draw the radius circle (re-added after every style change).
@@ -128,11 +122,9 @@ export default function LocationsMap({
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-    const dark = isDarkMode();
-    styleDarkRef.current = dark;
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: dark ? STYLE_DARK : STYLE_LIGHT,
+      style: MAP_STYLE,
       center: [hq.lng, hq.lat],
       zoom: 5,
       attributionControl: { compact: true },
@@ -142,18 +134,8 @@ export default function LocationsMap({
     mapRef.current = map;
     const markers = markersRef.current;
 
-    // Follow the day/night switch of the app.
-    const observer = new MutationObserver(() => {
-      const nowDark = isDarkMode();
-      if (nowDark !== styleDarkRef.current) {
-        styleDarkRef.current = nowDark;
-        map.setStyle(nowDark ? STYLE_DARK : STYLE_LIGHT);
-      }
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-mode"] });
 
     return () => {
-      observer.disconnect();
       map.remove();
       mapRef.current = null;
       markers.clear();
