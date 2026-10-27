@@ -1,5 +1,6 @@
 import "server-only";
 import bcrypt from "bcryptjs";
+import { randomInt } from "node:crypto";
 import { prisma } from "./prisma";
 import { OTP_MAX_ATTEMPTS, OTP_TTL_SECONDS } from "./constants";
 import {
@@ -14,7 +15,7 @@ import { matchOtp, mayLogOtpCode } from "./otp-match";
 import type { IdentifierKind } from "./lookup";
 
 function generateCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100000, 1000000));
 }
 
 /**

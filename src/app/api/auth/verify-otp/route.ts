@@ -40,6 +40,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Akun tidak terdaftar." }, { status: 404 });
   }
 
+  // Per-account cap too: a forged/rotating IP must not let someone keep guessing codes for one account.
+  if (!rateLimit(`otp-verify:id:${employee.id}`, 10, 10 * 60_000)) {
+    return NextResponse.json({ error: "Terlalu banyak percobaan. Coba lagi beberapa menit lagi." }, { status: 429 });
+  }
+
   const result = await verifyOtp(employee.id, code);
   if (!result.ok) {
     return NextResponse.json({ error: REASON_MESSAGE[result.reason] }, { status: 400 });

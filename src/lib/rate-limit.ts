@@ -1,4 +1,5 @@
 import "server-only";
+import { ipFromForwardedFor } from "./forwarded-ip";
 
 /**
  * In-memory sliding-window limiter — good enough for a single Railway
@@ -38,7 +39,5 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
 
 /** Best-effort client IP from proxy headers (Railway sits behind one) — falls back to a constant so unknown callers still share one bucket instead of bypassing the limit entirely. */
 export function clientIp(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
+  return ipFromForwardedFor(req.headers.get("x-forwarded-for")) ?? req.headers.get("x-real-ip") ?? "unknown";
 }
