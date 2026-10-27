@@ -59,3 +59,6 @@ next-env.d.ts
 .clawness/*
 !.clawness/memory.md
 !.clawness/rules/
+
+# graphify output (regenerable)
+graphify-out/
