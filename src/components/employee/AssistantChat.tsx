@@ -26,16 +26,20 @@ const VARIANTS = {
     subtitle: `Asisten ${BRAND.short} · siap membantu`,
     fab: "fixed right-3 bottom-[92px] z-40 flex items-end gap-2",
     hint: "Ada pertanyaan? Tanya",
+    forwardLabel: "Kirim ke kantor",
+    forwardedText: "Sudah saya kirim ke kantor ya. Balasan dari Owner/Admin akan muncul di menu Lapor. 🙏",
   },
   admin: {
     endpoint: "/api/admin/assistant/chat",
-    quick: ["Ringkasan hari ini", "Siapa belum absen?", "Kasbon menunggu", "Rincian karyawan…"],
+    quick: ["Ringkasan hari ini", "Total penggajian bulan ini", "Total VCR bulan ini", "Kasbon menunggu", "Rincian karyawan…"],
     greeting:
-      "Halo! Saya Angel, asisten admin. Saya bisa menampilkan ringkasan hari ini, yang belum absen, kasbon menunggu, dan rincian tiap karyawan (absen, VCR, kasbon, Slip Pay). Saya hanya membaca data, tidak mengubah apa pun.",
+      "Halo! Saya Angel, asisten admin. Saya bisa menampilkan ringkasan hari ini, total penggajian, total VCR dan kasbon, yang belum absen, dan rincian tiap karyawan (absen, VCR, kasbon, Slip Pay). Saya hanya membaca data, tidak mengubah apa pun. Yang tidak bisa saya jawab bisa diteruskan ke Owner/Admin.",
     placeholder: "Tanya data karyawan, mis. rincian Budi…",
     subtitle: "Asisten admin · hanya membaca data",
     fab: "fixed right-4 bottom-16 z-40 flex items-end gap-2",
     hint: "Butuh data karyawan? Tanya",
+    forwardLabel: "Teruskan ke Owner/Admin",
+    forwardedText: "Sudah saya teruskan ke Owner/Admin lewat notifikasi (ikon lonceng). 🙏",
   },
 } as const;
 
@@ -118,7 +122,7 @@ export default function AssistantChat({ variant = "employee" }: { variant?: "emp
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Gagal mengirim ke kantor.");
-      setMsgs((cur) => [...cur, { role: "assistant", content: "Sudah saya kirim ke kantor ya. Balasan dari Owner/Admin akan muncul di menu Lapor. 🙏" }]);
+      setMsgs((cur) => [...cur, { role: "assistant", content: cfg.forwardedText }]);
     } catch (e) {
       setMsgs((cur) => [
         ...cur.map((x, i) => (i === index ? { ...x, forwarded: false } : x)),
@@ -209,7 +213,7 @@ export default function AssistantChat({ variant = "employee" }: { variant?: "emp
                             onClick={() => forward(i)}
                             className="rounded-full bg-ar-gold px-3 py-1.5 text-[11.5px] font-medium text-ar-ongold disabled:opacity-50"
                           >
-                            {m.forwarded ? "Terkirim ✓" : "Kirim ke kantor"}
+                            {m.forwarded ? "Terkirim ✓" : cfg.forwardLabel}
                           </button>
                         )}
                       </div>

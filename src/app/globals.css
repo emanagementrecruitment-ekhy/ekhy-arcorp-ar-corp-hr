@@ -1105,3 +1105,41 @@ button {
     transition: none;
   }
 }
+
+/* ── Light mode: gold medallion PNGs and the 3D menu tiles ─────────────────────
+   The medallion PNGs (public/brand/*.png) have a black background. Dark mode hides it with
+   mix-blend-mode: screen; on the light surfaces that blend erased the icons altogether, so the
+   toolbar icons and the account logo vanished. In light mode they now sit on a dark plate. */
+.ar-blend-screen {
+  mix-blend-mode: screen;
+}
+[data-mode="light"] .ar-blend-screen {
+  mix-blend-mode: normal;
+  background: #0b0a08;
+  box-shadow: 0 2px 6px rgba(30, 22, 8, 0.35);
+}
+[data-mode="light"] .ar-blend-round {
+  border-radius: 9999px;
+}
+[data-mode="light"] .ar-blend-rect {
+  border-radius: 12px;
+}
+/* The 3D menu tile gets a dark body in light mode, so the lit gold glyph keeps its contrast. */
+[data-mode="light"] .icon3d {
+  background: linear-gradient(145deg, #3b301b, #0f0d09);
+  border-color: rgba(var(--ar-accent-rgb), 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(40, 30, 10, 0.35);
+}
+/* The client's own logo can be any color, so in light mode it sits on a dark plate and stays visible; the brand name gets a deeper gold. */
+[data-mode="light"] .ar-brand-logo {
+  box-sizing: border-box;
+  padding: 3px;
+  background: #0b0a08;
+  border-radius: 12px;
+}
+[data-mode="light"] .ar-brand-gold {
+  color: #7a5427;
+}

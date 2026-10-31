@@ -3,31 +3,41 @@ import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "./prisma";
 import { buildPayslip, ensureRecurringCosts } from "./payslip";
 import { getAssistantSnapshot } from "./assistant";
-import { aiConfigured } from "./ai-assistant";
+import { aiProvider, askGateway, gatewayConfig } from "./ai-gateway";
+import { buildOperationalReport } from "./report-data";
 import { tryConsumeAi } from "./ai-usage";
 import { limitNotice } from "./ai-limits";
 import { anthropicHeadersFromEnv } from "./ai-client-config";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import { monthLabel } from "./format";
 import { ATTENDANCE_MIN_DAYS, DEMO_CODES, STAFF_ROLES, VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "./constants";
-import { wordCount, type AssistantLink, type ChatTurn } from "./ai-assistant-rules";
+import { asksForExplanation, wordCount, type AssistantLink, type ChatTurn } from "./ai-assistant-rules";
 import {
   ADMIN_TOOLS,
+  adminAggregateFacts,
   adminHelpAnswer,
+  aiAdmitsNoAnswer,
   adminLinks,
   adminSystemPrompt,
+  adminSystemPromptAggregate,
   adminUnknownAnswer,
   candidatesAnswer,
   detailAnswer,
+  detectReportPeriod,
   extractLookupName,
+  kasbonTotalAnswer,
   matchAdminIntent,
   overviewAnswer,
+  payrollAnswer,
   pendingKasbonAnswer,
   uncheckedAnswer,
+  vcrTotalAnswer,
   type AdminIntent,
   type EmployeeBrief,
   type EmployeeDetail,
+  type KasbonSummary,
   type Overview,
+  type PayrollSummary,
   type PendingKasbon,
 } from "./ai-admin-rules";
 
@@ -148,10 +158,53 @@ export async function listPendingKasbon(): Promise<PendingKasbon[]> {
   return rows.map((k) => ({ name: k.employee.name, code: k.employee.code, amount: k.amount, date: ymd(k.createdAt) }));
 }
 
+/** The same payout totals as the Laporan Totalan page (it uses these very numbers), for one report period. */
+export async function getPayrollSummary(period: PayrollSummary["period"], now = new Date()): Promise<PayrollSummary> {
+  const report = await buildOperationalReport(period, now);
+  const t = report.totals;
+  return {
+    period,
+    periodLabel: report.periodLabel,
+    payroll: t.payroll,
+    teraGross: t.teraGross,
+    teraVoucherCount: t.teraVoucherCount,
+    staffPay: t.staffPay,
+    teraKasbon: t.teraKasbon,
+    staffKasbon: t.staffKasbon,
+    teraNet: t.teraNet,
+    staffNet: t.staffNet,
+  };
+}
+
+/** Counts and amounts only (no names): everything waiting for the Owner, plus this month's decisions. */
+export async function getKasbonSummary(now = new Date()): Promise<KasbonSummary> {
+  const clock = jakartaClock(now);
+  const month = clock.dateKey.slice(0, 7);
+  const monthStart = new Date(`${month}-01T00:00:00+07:00`);
+  const [pending, decided] = await Promise.all([
+    prisma.kasbon.aggregate({ where: { status: "MENUNGGU_OWNER" }, _count: true, _sum: { amount: true } }),
+    prisma.kasbon.findMany({
+      where: { createdAt: { gte: monthStart }, status: { in: ["DISETUJUI", "DITOLAK"] } },
+      select: { status: true, amount: true, transferredAt: true },
+    }),
+  ]);
+  const approved = decided.filter((k) => k.status === "DISETUJUI");
+  const transferred = approved.filter((k) => k.transferredAt);
+  const total = (rows: { amount: number }[]) => rows.reduce((s, k) => s + k.amount, 0);
+  return {
+    monthLabel: monthLabel(month),
+    pending: { count: pending._count, amount: pending._sum.amount ?? 0 },
+    approved: { count: approved.length, amount: total(approved), transferredCount: transferred.length, transferredAmount: total(transferred) },
+    rejected: { count: decided.length - approved.length },
+  };
+}
+
 export interface AdminReply {
   text: string;
   source: "rules" | "ai";
   links: AssistantLink[];
+  /** Angel could not answer: offer the "send to Owner/Admin" button. */
+  canForward?: boolean;
 }
 
 async function lookupAnswer(message: string): Promise<string> {
@@ -181,9 +234,35 @@ async function ruleAnswerAdmin(intent: AdminIntent, message: string, adminName: 
       return uncheckedAnswer(await getOverview());
     case "kasbon_pending":
       return pendingKasbonAnswer(await listPendingKasbon());
+    case "payroll":
+      return payrollAnswer(await getPayrollSummary(detectReportPeriod(message)));
+    case "vcr_total":
+      return vcrTotalAnswer(await getOverview());
+    case "kasbon_total":
+      return kasbonTotalAnswer(await getKasbonSummary());
     case "lookup":
       return lookupAnswer(message);
   }
+}
+
+/**
+ * Free-form office questions through the central gateway. Only anonymous aggregates leave the server (totals and
+ * counts, no names or per-person rows), and no chat history is sent: earlier rule answers may name people.
+ */
+async function askGatewayAdmin(message: string): Promise<string> {
+  const cfg = gatewayConfig();
+  if (!cfg) throw new Error("AI gateway is not configured");
+  const now = new Date();
+  const clock = jakartaClock(now);
+  const [overview, harian, mingguan, bulanan, kasbon] = await Promise.all([
+    getOverview(now),
+    getPayrollSummary("harian", now),
+    getPayrollSummary("mingguan", now),
+    getPayrollSummary("bulanan", now),
+    getKasbonSummary(now),
+  ]);
+  const system = adminSystemPromptAggregate(hhmm(clock.minutes), clock.dateKey, adminAggregateFacts(overview, [harian, mingguan, bulanan], kasbon));
+  return askGateway(cfg, system, [{ role: "user", content: message }]);
 }
 
 let client: Anthropic | null = null;
@@ -257,31 +336,41 @@ async function askClaudeAdmin(adminName: string, history: ChatTurn[], message: s
   return "Pertanyaannya terlalu luas untuk saya jawab sekaligus. Coba persempit, mis. satu karyawan atau satu hal.";
 }
 
-/** One admin turn: rules for the common questions, Claude (with read-only lookups) for the rest. */
+/**
+ * One admin turn: rules for the common questions (including company-wide totals), then the AI for the rest: the
+ * central gateway (aggregates only) or Claude (with read-only lookups). Whatever cannot be answered is offered to
+ * Owner/Admin through the forward button instead of a technical error.
+ */
 export async function answerAdmin(adminId: string, adminName: string, message: string, history: ChatTurn[]): Promise<AdminReply> {
   const intent = matchAdminIntent(message);
-  const useAi = aiConfigured();
+  const provider = aiProvider();
+  const useAi = provider !== null;
+  // With the gateway a name lookup stays on the server: names and per-person pay must not go to an outside AI.
+  const keepOnServer = provider === "gateway" && intent === "lookup";
 
-  if (intent && (!useAi || wordCount(message) <= 10)) {
+  // "Why / compare / explain" questions need the AI: the rule answer only prints the numbers (it stays the fallback).
+  const wantsExplanation = intent !== null && asksForExplanation(message);
+
+  if (intent && (!useAi || keepOnServer || (wordCount(message) <= 10 && !wantsExplanation))) {
     const text = await ruleAnswerAdmin(intent, message, adminName);
     return { text, source: "rules", links: adminLinks(message) };
   }
-  if (!useAi) return { text: adminUnknownAnswer(), source: "rules", links: [] };
+  if (!useAi) return { text: adminUnknownAnswer(), source: "rules", links: [], canForward: true };
 
-  // Claude costs money: spend one slot of today's allowance (per person and app-wide) or stay rule-based.
+  // The AI has a daily allowance (per person and app-wide): spend one slot or stay rule-based.
   const gate = await tryConsumeAi(adminId, true);
   if (!gate.ok) {
     const base = intent ? await ruleAnswerAdmin(intent, message, adminName) : adminUnknownAnswer();
-    return { text: `${base}\n\n${limitNotice(gate.reason)}`, source: "rules", links: adminLinks(message) };
+    return { text: `${base}\n\n${limitNotice(gate.reason)}`, source: "rules", links: adminLinks(message), canForward: !intent };
   }
 
   try {
-    const text = await askClaudeAdmin(adminName, history, message);
-    return { text, source: "ai", links: adminLinks(message, text) };
+    const text = provider === "gateway" ? await askGatewayAdmin(message) : await askClaudeAdmin(adminName, history, message);
+    return { text, source: "ai", links: adminLinks(message, text), canForward: aiAdmitsNoAnswer(text) };
   } catch (e) {
-    console.error("[ai-admin] Claude call failed:", e instanceof Error ? e.message : e);
-    // Never a dead end: fall back to the rules, or to the polite "didn't understand".
+    console.error("[ai-admin] AI call failed:", e instanceof Error ? e.message : e);
+    // Never a dead end: fall back to the rules, or to the polite "cannot answer" with the forward button.
     const text = intent ? await ruleAnswerAdmin(intent, message, adminName) : adminUnknownAnswer();
-    return { text, source: "rules", links: adminLinks(message) };
+    return { text, source: "rules", links: adminLinks(message), canForward: !intent };
   }
 }
