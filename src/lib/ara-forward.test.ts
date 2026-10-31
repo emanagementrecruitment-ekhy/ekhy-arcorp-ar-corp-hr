@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { AUTO_RECEIPT_TEXT, forwardedChatText } from "./ara-forward";
 
-test("forwarded chat text keeps the employee's words and marks that it came through Ara", () => {
-  assert.equal(forwardedChatText("  Saya mau izin besok "), "Lewat asisten Ara: Saya mau izin besok");
+test("forwarded chat text keeps the employee's words and marks that it came through Angel", () => {
+  assert.equal(forwardedChatText("  Saya mau izin besok "), "Lewat asisten Angel: Saya mau izin besok");
 });
 
 test("the automatic receipt only confirms receipt: it names the human answerers and decides nothing", () => {

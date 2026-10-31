@@ -1,7 +1,7 @@
 // What "Kirim ke kantor" in the Ara assistant writes into the employee's chat thread (the same ChatMessage thread
 // the Lapor page and the admin "Lapor Lapangan" page use), so Owner/Admin can answer there.
 
-const FORWARD_PREFIX = "Lewat asisten Ara: ";
+const FORWARD_PREFIX = "Lewat asisten Angel: ";
 
 /** The employee's own words, marked so the office knows it came through Ara. */
 export function forwardedChatText(message: string): string {

@@ -21,7 +21,7 @@ const VARIANTS = {
     endpoint: "/api/assistant/chat",
     quick: ["Sudah absen belum?", "Berapa VCR saya?", "Total Slip Pay saya", "Status kasbon saya", "Saya mau izin"],
     greeting:
-      `Halo! Saya Ara, asisten ${BRAND.short}. Tanya apa saja soal absen, VCR, Slip Pay, atau kasbon. Kalau kamu butuh izin atau punya keluhan, ceritakan saja, nanti saya teruskan ke kantor.`,
+      `Halo! Saya Angel, asisten ${BRAND.short}. Tanya apa saja soal absen, VCR, Slip Pay, atau kasbon. Kalau kamu butuh izin atau punya keluhan, ceritakan saja, nanti saya teruskan ke kantor.`,
     placeholder: "Tulis pertanyaan atau keinginanmu…",
     subtitle: `Asisten ${BRAND.short} · siap membantu`,
     fab: "fixed right-3 bottom-[92px] z-40 flex items-end gap-2",
@@ -31,7 +31,7 @@ const VARIANTS = {
     endpoint: "/api/admin/assistant/chat",
     quick: ["Ringkasan hari ini", "Siapa belum absen?", "Kasbon menunggu", "Rincian karyawan…"],
     greeting:
-      "Halo! Saya Ara, asisten admin. Saya bisa menampilkan ringkasan hari ini, yang belum absen, kasbon menunggu, dan rincian tiap karyawan (absen, VCR, kasbon, Slip Pay). Saya hanya membaca data, tidak mengubah apa pun.",
+      "Halo! Saya Angel, asisten admin. Saya bisa menampilkan ringkasan hari ini, yang belum absen, kasbon menunggu, dan rincian tiap karyawan (absen, VCR, kasbon, Slip Pay). Saya hanya membaca data, tidak mengubah apa pun.",
     placeholder: "Tanya data karyawan, mis. rincian Budi…",
     subtitle: "Asisten admin · hanya membaca data",
     fab: "fixed right-4 bottom-16 z-40 flex items-end gap-2",
@@ -137,13 +137,13 @@ export default function AssistantChat({ variant = "employee" }: { variant?: "emp
               onClick={openChat}
               className="mb-3 max-w-[180px] rounded-2xl rounded-br-sm border border-ar-goldline bg-ar-surface px-3 py-2 text-left text-[12px] leading-snug text-ar-text shadow-lg"
             >
-              {cfg.hint} <b>Ara</b> ya!
+              {cfg.hint} <b>Angel</b> ya!
             </button>
           )}
           <button
             type="button"
             onClick={openChat}
-            aria-label="Buka asisten Ara"
+            aria-label="Buka asisten Angel"
             className="arc-ara-fab rounded-full border border-ar-goldline bg-ar-surface p-1 shadow-xl"
           >
             <ArMascot size={54} />
@@ -155,7 +155,7 @@ export default function AssistantChat({ variant = "employee" }: { variant?: "emp
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-black/55" onClick={() => setOpen(false)}>
           <div
             role="dialog"
-            aria-label="Asisten Ara"
+            aria-label="Asisten Angel"
             onClick={(e) => e.stopPropagation()}
             className="flex h-[78vh] max-h-[640px] w-full max-w-[460px] flex-col overflow-hidden rounded-t-3xl border border-ar-goldline bg-ar-surface shadow-2xl sm:rounded-3xl"
           >
@@ -164,7 +164,7 @@ export default function AssistantChat({ variant = "employee" }: { variant?: "emp
                 <ArMascot size={42} mood={busy ? "thinking" : talking ? "talking" : "idle"} />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-[15px] font-medium text-ar-text">Ara</div>
+                <div className="text-[15px] font-medium text-ar-text">Angel</div>
                 <div className="text-[11px] text-ar-dim">{busy ? "sedang berpikir…" : cfg.subtitle}</div>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label="Tutup" className="rounded-full p-2 text-ar-dim hover:text-ar-text">

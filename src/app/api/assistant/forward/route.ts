@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    await notifyOffice(`Permintaan dari ${session.name} (${session.code}) lewat asisten Ara: "${message}"`);
+    await notifyOffice(`Permintaan dari ${session.name} (${session.code}) lewat asisten Angel: "${message}"`);
     await logAudit(session, "ASSISTANT_FORWARD", session.name, message.slice(0, 160));
     return NextResponse.json({ ok: true });
   } catch (e) {

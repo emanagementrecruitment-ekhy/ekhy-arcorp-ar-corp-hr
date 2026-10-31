@@ -170,7 +170,7 @@ async function lookupAnswer(message: string): Promise<string> {
 async function ruleAnswerAdmin(intent: AdminIntent, message: string, adminName: string): Promise<string> {
   switch (intent) {
     case "greeting":
-      return `Halo ${adminName.split(/\s+/)[0]}! Saya Ara. Mau lihat ringkasan hari ini, yang belum absen, kasbon menunggu, atau rincian karyawan?`;
+      return `Halo ${adminName.split(/\s+/)[0]}! Saya Angel. Mau lihat ringkasan hari ini, yang belum absen, kasbon menunggu, atau rincian karyawan?`;
     case "thanks":
       return "Sama-sama! Kalau perlu data lain, tanya saja.";
     case "help":
