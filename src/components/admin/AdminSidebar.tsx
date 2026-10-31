@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import Icon, { type IconName } from "@/components/ui/Icon";
-import NavIcon from "@/components/ui/GoldIcon";
+import { type IconName } from "@/components/ui/Icon";
+import Icon3D from "@/components/ui/Icon3D";
 import LogoutButton from "@/components/LogoutButton";
 import RefreshAppButton from "@/components/employee/RefreshAppButton";
 import NotificationBell from "@/components/admin/NotificationBell";
@@ -94,7 +94,8 @@ export default function AdminSidebar({
         key={d.href}
         href={d.href}
         onClick={onNavigate}
-        className={`flex items-center justify-between py-2 px-2.5 rounded-[9px] text-[12.5px] transition ${
+        aria-current={active ? "page" : undefined}
+        className={`nav3d-link flex items-center justify-between py-1.5 px-2 rounded-[9px] text-[12.5px] transition ${
           active
             ? "bg-ar-goldfill text-ar-gold2 border border-ar-goldline"
             : mobile
@@ -103,7 +104,7 @@ export default function AdminSidebar({
         }`}
       >
         <span className="flex items-center gap-2.5 min-w-0">
-          <NavIcon name={d.icon} />
+          <Icon3D name={d.icon} />
           <span>{d.label}</span>
         </span>
         {d.href === "/admin/kasbon" && pendingKasbon ? (
@@ -141,12 +142,30 @@ export default function AdminSidebar({
     </Link>
   ) : null;
 
+  // The brand sits at the very bottom of the sidebar (below the account card and "Pusat Sistem").
+  const brandFooter = (
+    <div className="flex items-center gap-2.5 px-1.5 pt-1">
+      <Image
+        src="/api/brand-logo"
+        alt={BRAND.short}
+        width={44}
+        height={44}
+        unoptimized
+        className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+      />
+      <div className="min-w-0">
+        <div className="font-iso text-[16px] tracking-[0.12em] text-ar-gold uppercase whitespace-nowrap">{BRAND.short}</div>
+        <div className="text-[9.5px] tracking-[0.08em] text-ar-dim mt-1 uppercase whitespace-nowrap">Kantor Pusat</div>
+      </div>
+    </div>
+  );
+
   const accountCard = (
     <div className="mt-auto p-3 bg-ar-surface2 border border-ar-line rounded-2xl">
       <div className="flex items-center gap-2.5">
         <Image src="/brand/login-emas.png" unoptimized alt="Login" width={640} height={480} className="w-16 h-12 shrink-0 object-contain" style={{ mixBlendMode: "screen" }} />
         <div className="min-w-0">
-          <div className="text-[12.5px] truncate">{roleLabel}</div>
+          <div className="font-unique text-[13.5px] tracking-[0.02em] truncate">{roleLabel}</div>
         </div>
       </div>
       <LogoutButton className="w-full mt-3 py-2 bg-transparent border border-ar-line rounded-[10px] text-ar-dim text-[11px] cursor-pointer" />
@@ -187,15 +206,7 @@ export default function AdminSidebar({
           onClick={(e) => e.target === e.currentTarget && setMobileOpen(false)}
         >
           <div className="w-[75%] max-w-[280px] h-full bg-ar-bg p-3.5 flex flex-col gap-5 overflow-y-auto">
-            <div className="flex items-center justify-between px-1">
-              <Image
-                src="/api/brand-logo"
-                alt={BRAND.short}
-                width={30}
-                height={30}
-                unoptimized
-                className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-              />
+            <div className="flex items-center justify-end px-1">
               <button onClick={() => setMobileOpen(false)} aria-label="Tutup menu" className="p-1.5 text-ar-dim cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <line x1="5" y1="5" x2="19" y2="19" />
@@ -205,31 +216,18 @@ export default function AdminSidebar({
             </div>
             {navLinks(() => setMobileOpen(false), true)}
             <div className="mt-auto pt-3 border-t border-ar-line text-[11px] text-ar-dim flex items-center justify-between">
-              <span>{roleLabel}</span>
+              <span className="font-unique text-[12.5px]">{roleLabel}</span>
               <LogoutButton className="text-ar-faint cursor-pointer" />
             </div>
             <div className="-mt-3">{systemLink}</div>
+            {brandFooter}
           </div>
         </div>
       )}
 
       {/* Desktop persistent sidebar */}
       <div className="hidden lg:flex w-60 shrink-0 border-r border-ar-line p-4 sm:p-5 flex-col gap-6">
-        <div className="flex items-center gap-2.5 px-1.5">
-          <Image
-            src="/api/brand-logo"
-            alt={BRAND.short}
-            width={44}
-            height={44}
-            unoptimized
-            className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-          />
-          <div className="min-w-0">
-            <div className="font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">{BRAND.short}</div>
-            <div className="text-[9.5px] tracking-[0.08em] text-ar-dim mt-1 uppercase whitespace-nowrap">Kantor Pusat</div>
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-1.5 px-1.5 -mt-3">
+        <div className="flex items-center justify-end gap-1.5 px-1.5">
           <ScreenshotButton />
           <RefreshAppButton iconOnly />
           {isDesktop && <NotificationBell align="left" />}
@@ -238,6 +236,7 @@ export default function AdminSidebar({
         {navLinks()}
         {accountCard}
         <div className="-mt-3">{systemLink}</div>
+        {brandFooter}
       </div>
     </>
   );

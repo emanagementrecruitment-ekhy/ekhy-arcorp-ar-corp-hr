@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
  * Line icons for the AR Corp design system: 24px grid, 1.6 stroke, round caps,
  * drawn in currentColor so they follow the text color (dim, gold, gold2).
  */
-const PATHS = {
+export const PATHS = {
   home: (
     <>
       <path d="M3 11.5 12 4l9 7.5" />
