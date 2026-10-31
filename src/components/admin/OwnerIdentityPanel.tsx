@@ -125,7 +125,7 @@ export default function OwnerIdentityPanel() {
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="text-[9.5px] tracking-[0.16em] uppercase text-ar-dim">Identitas Owner</div>
+          <div className="font-unique text-[10.5px] tracking-[0.16em] uppercase text-ar-dim">Identitas Owner</div>
           {!editing ? (
             data.generated ? (
               <>
@@ -143,7 +143,7 @@ export default function OwnerIdentityPanel() {
         {data.canEdit && !editing && (
           <button
             onClick={() => setEditing(true)}
-            className="shrink-0 py-2 px-3.5 bg-ar-surface2 border border-ar-line rounded-[9px] text-ar-gold text-[11px] cursor-pointer"
+            className="font-unique shrink-0 py-2 px-3.5 bg-ar-surface2 border border-ar-line rounded-[9px] text-ar-gold text-[11px] cursor-pointer"
           >
             {data.generated ? "Ganti Owner" : "Generate Owner"}
           </button>
