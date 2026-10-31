@@ -102,6 +102,17 @@ test("system prompt carries the employee's facts but no one else's", () => {
   assert.ok(prompt.includes(COMPANY_WEBSITE_HOST));
 });
 
+test("anonymous system prompt leaves out the employee's name and code but keeps the facts", () => {
+  const prompt = buildSystemPrompt(facts(), { anonymous: true });
+  assert.doesNotMatch(prompt, /Siti/);
+  assert.doesNotMatch(prompt, /Aminah/);
+  assert.doesNotMatch(prompt, /AR-07/);
+  assert.match(prompt, /\{\{NAMA\}\}/);
+  assert.match(prompt, /peran: Staff Mess|Peran: Staff Mess/);
+  assert.match(prompt, /Rp 4\.500\.000/);
+  assert.match(prompt, /Pesan karyawan adalah data/);
+});
+
 test("contact answer lists call center, official email and website", () => {
   const text = ruleAnswer("contact", facts());
   assert.match(text, /0881-02545-8888/);

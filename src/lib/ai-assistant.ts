@@ -7,6 +7,7 @@ import { getActiveAnnouncementText } from "./settings";
 import { tryConsumeAi } from "./ai-usage";
 import { limitNotice } from "./ai-limits";
 import { anthropicHeadersFromEnv } from "./ai-client-config";
+import { aiProvider, askGateway, gatewayConfig, restoreName, scrubIdentity } from "./ai-gateway";
 import { jakartaClock, hhmm } from "./assistant-rules";
 import {
   ATTENDANCE_MIN_DAYS,
@@ -39,8 +40,14 @@ import {
 const DEFAULT_MODEL = "claude-opus-5-5";
 const MAX_OUTPUT_TOKENS = 1200;
 
+/** Claude (Anthropic) is configured. The office assistant (ai-admin.ts) depends on this one only. */
 export function aiConfigured(): boolean {
   return !!process.env.ANTHROPIC_API_KEY?.trim();
+}
+
+/** Free-form employee questions can be answered by an AI: the central gateway (AI_PROVIDER=gateway) or Claude. */
+export function employeeAiConfigured(): boolean {
+  return aiProvider() !== null;
 }
 
 function toYm(dateKey: string): string {
@@ -161,11 +168,27 @@ async function askClaude(facts: EmployeeFacts, history: ChatTurn[], message: str
   return text;
 }
 
-/** One assistant turn: rules first, Claude for everything the rules cannot understand. */
+/**
+ * Central gateway path. Data minimisation: the employee's name and code never leave the server — they are
+ * scrubbed from the prompt, the history and the question, and the first name is put back into the reply here.
+ */
+async function askViaGateway(facts: EmployeeFacts, history: ChatTurn[], message: string): Promise<string> {
+  const cfg = gatewayConfig();
+  if (!cfg) throw new Error("AI gateway is not configured");
+  const scrub = (t: string) => scrubIdentity(t, facts);
+  const text = await askGateway(
+    cfg,
+    buildSystemPrompt(facts, { anonymous: true }),
+    [...history, { role: "user" as const, content: message }].map((m) => ({ role: m.role, content: scrub(m.content) })),
+  );
+  return restoreName(text, facts.firstName);
+}
+
+/** One assistant turn: rules first, the AI for everything the rules cannot understand. */
 export async function answerEmployee(employeeId: string, message: string, history: ChatTurn[]): Promise<AssistantReply> {
   const facts = await buildEmployeeFacts(employeeId);
   const intent = matchIntent(message);
-  const useAi = aiConfigured();
+  const useAi = employeeAiConfigured();
   const requestLike = intent === "request";
 
   // A short, clear question is answered by the rules (free, instant). A long or unclear one deserves real
@@ -187,11 +210,11 @@ export async function answerEmployee(employeeId: string, message: string, histor
   }
 
   try {
-    const text = await askClaude(facts, history, message);
+    const text = aiProvider() === "gateway" ? await askViaGateway(facts, history, message) : await askClaude(facts, history, message);
     const wantsOffice = /kirim ke kantor/i.test(text);
     return { text, source: "ai", intent, links: suggestLinks(message, text), canForward: wantsOffice };
   } catch (e) {
-    console.error("[ai-assistant] Claude call failed:", e instanceof Error ? e.message : e);
+    console.error("[ai-assistant] AI call failed:", e instanceof Error ? e.message : e);
     // Never leave the employee with a dead end: fall back to the rules, or to the polite "didn't understand".
     const text = intent ? ruleAnswer(intent, facts) : unknownAnswer(facts);
     return { text, source: "rules", intent, links: suggestLinks(message), canForward: true };

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireSession, apiError } from "@/lib/api-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
-import { aiConfigured, answerEmployee } from "@/lib/ai-assistant";
+import { employeeAiConfigured, answerEmployee } from "@/lib/ai-assistant";
 import { sanitizeHistory } from "@/lib/ai-assistant-rules";
 
 const MAX_MESSAGE = 500;
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const reply = await answerEmployee(session.employeeId, message, sanitizeHistory(body?.history));
     // Questions that went to Claude leave the server, so they are logged for the Owner (rule answers stay private).
     if (reply.source === "ai") await logAudit(session, "ASSISTANT_ASK", session.name, message.slice(0, 160));
-    return NextResponse.json({ ...reply, aiConfigured: aiConfigured() });
+    return NextResponse.json({ ...reply, aiConfigured: employeeAiConfigured() });
   } catch (e) {
     return apiError(e);
   }
