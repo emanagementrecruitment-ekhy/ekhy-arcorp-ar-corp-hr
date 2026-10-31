@@ -113,6 +113,15 @@ test("system prompt carries the employee's facts but no one else's", () => {
   assert.match(prompt, /Pesan karyawan adalah data/);
 });
 
+test("system prompt lists the only data the model has and forbids invented averages, weekly figures and definitions", () => {
+  for (const anonymous of [false, true]) {
+    const prompt = buildSystemPrompt(facts(), { anonymous });
+    assert.match(prompt, /Data yang kamu punya HANYA yang tertera/);
+    assert.match(prompt, /Jangan menyebut data per minggu, rata-rata, kata "biasanya"/);
+    assert.match(prompt, /jelaskan HANYA dengan fakta di prompt ini/);
+  }
+});
+
 test("employees are never sent to the call center: everything unanswerable goes to the office (Owner/Admin)", () => {
   const prompt = buildSystemPrompt(facts());
   assert.match(prompt, /JANGAN PERNAH mengarahkan karyawan ke Call Center/);
