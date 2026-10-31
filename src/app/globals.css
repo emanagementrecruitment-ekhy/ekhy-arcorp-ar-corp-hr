@@ -899,3 +899,37 @@ button {
     transform: none;
   }
 }
+
+/* Pusat Sistem — the "AR Corporation" mark in 3D Isometric gold: a stacked gold edge for depth, the sweeping gold
+   shine, and a slow 3D sway. */
+.ar-copyright-iso {
+  display: inline-block;
+  font-family: var(--font-iso), var(--font-display-bold), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: linear-gradient(100deg, #9a7420 0%, #f7e3a1 16%, #d9ab3c 32%, #fff4c9 48%, #c8932c 64%, #f3d57d 80%, #9a7420 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(1px 1px 0 #7a5416) drop-shadow(2px 2px 0 #5a3d0c) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.65))
+    drop-shadow(0 0 18px rgba(217, 171, 60, 0.35));
+  transform-origin: 50% 60%;
+  animation: arGoldSweep 6s linear infinite, arIsoSway 9s ease-in-out infinite;
+}
+@keyframes arIsoSway {
+  0%,
+  100% {
+    transform: perspective(900px) rotateX(6deg) rotateY(-9deg);
+  }
+  50% {
+    transform: perspective(900px) rotateX(-4deg) rotateY(9deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-copyright-iso {
+    animation: none;
+    transform: none;
+    background-position: 40% 0;
+  }
+}

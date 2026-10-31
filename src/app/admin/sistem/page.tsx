@@ -22,14 +22,16 @@ export default async function PusatSistemPage() {
       <AdminPageHeader title="Pusat Sistem" subtitle="Lisensi, status sistem, pembaruan, riwayat aktivitas, dan bantuan" />
       {isOwner ? (
         <>
-          <SystemCenter />
-          <div className="mt-8 max-w-3xl">
-            <div className="text-[10px] tracking-[0.16em] uppercase text-ar-gold mb-3">Pengaturan lisensi &amp; identitas</div>
-            <OwnerIdentityPanel />
-            <PackagePanel />
-            <ResetAppearance />
-            <ResetData />
-          </div>
+          {/* The owner panels are passed in so the copyright plate can stay the very last block of the page. */}
+          <SystemCenter>
+            <div className="mt-3 max-w-3xl">
+              <div className="font-unique text-[11px] tracking-[0.16em] uppercase text-ar-gold mb-3">Pengaturan lisensi &amp; identitas</div>
+              <OwnerIdentityPanel />
+              <PackagePanel />
+              <ResetAppearance />
+              <ResetData />
+            </div>
+          </SystemCenter>
         </>
       ) : (
         <div className="mt-5.5 py-6 px-5 bg-ar-surface2 border border-ar-line rounded-2xl text-[12.5px] text-ar-dim">
