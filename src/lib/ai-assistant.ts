@@ -18,6 +18,7 @@ import {
 } from "./constants";
 import {
   buildSystemPrompt,
+  asksForExplanation,
   matchIntent,
   ruleAnswer,
   suggestLinks,
@@ -193,7 +194,10 @@ export async function answerEmployee(employeeId: string, message: string, histor
 
   // A short, clear question is answered by the rules (free, instant). A long or unclear one deserves real
   // understanding — that's where Claude is worth its cost.
-  if (intent && (!useAi || wordCount(message) <= 10 || requestLike)) {
+  // The exception: a request to explain or compare ("jelaskan VCR itu apa") needs the AI, because the rule answer
+  // only prints numbers. If the AI is unavailable the rule answer is still used (see the fallbacks below).
+  const wantsExplanation = intent !== null && !requestLike && asksForExplanation(message);
+  if (intent && (!useAi || requestLike || (wordCount(message) <= 10 && !wantsExplanation))) {
     const text = ruleAnswer(intent, facts);
     return { text, source: "rules", intent, links: suggestLinks(message), canForward: requestLike };
   }

@@ -2,6 +2,7 @@ import { COMPANY_EMAIL, COMPANY_WEBSITE_HOST } from "./constants";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  asksForExplanation,
   buildSystemPrompt,
   matchIntent,
   ruleAnswer,
@@ -41,6 +42,18 @@ test("matchIntent recognises everyday questions", () => {
   assert.equal(matchIntent("terima kasih ya"), "thanks");
   assert.equal(matchIntent("apa kabar cuaca di bandung"), null);
   assert.equal(matchIntent("   "), null);
+});
+
+test("asksForExplanation spots explain/compare questions but not plain lookups", () => {
+  assert.equal(asksForExplanation("tolong jelaskan vcr itu apa"), true);
+  assert.equal(asksForExplanation("Kenapa VCR saya minggu ini sedikit?"), true);
+  assert.equal(asksForExplanation("bandingkan voucher hari ini dengan biasanya"), true);
+  assert.equal(asksForExplanation("apa itu slip pay"), true);
+  assert.equal(asksForExplanation("berapa vcr saya hari ini"), false);
+  assert.equal(asksForExplanation("sudah absen belum ya saya?"), false);
+  assert.equal(asksForExplanation("   "), false);
+  // the intent is unchanged, so the rule answer stays the fallback when the AI is unavailable
+  assert.equal(matchIntent("tolong jelaskan vcr itu apa"), "vcr");
 });
 
 test("wishes for the office win over attendance questions", () => {

@@ -79,6 +79,18 @@ export function matchIntent(text: string): Intent | null {
   return null;
 }
 
+const EXPLAIN_TEST =
+  /\b(jelaskan|jelasin|penjelasan|apa itu|itu apa|apa maksud|maksudnya|artinya|apa arti|kenapa|mengapa|bandingkan|perbedaan)\b/;
+
+/**
+ * True when the employee asks for an explanation or reasoning ("jelaskan VCR itu apa", "kenapa VCR saya sedikit").
+ * The canned rule answer only prints numbers, so these go to the AI when it is available (the rule answer stays
+ * the fallback when it is not).
+ */
+export function asksForExplanation(text: string): boolean {
+  return EXPLAIN_TEST.test(normalize(text));
+}
+
 const LINKS: Record<string, AssistantLink> = {
   home: { href: "/app", label: "Buka Home (kotak absen)" },
   voucher: { href: "/app/voucher", label: "Buka Voucher" },
