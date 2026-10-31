@@ -115,6 +115,15 @@ test("system prompt carries the employee's facts but no one else's", () => {
   assert.ok(prompt.includes(COMPANY_WEBSITE_HOST));
 });
 
+test("system prompt forbids guessing causes, targets or performance (the model once invented them)", () => {
+  for (const anonymous of [false, true]) {
+    const prompt = buildSystemPrompt(facts(), { anonymous });
+    assert.match(prompt, /TIDAK punya data tentang penyebab naik atau turunnya VCR/);
+    assert.match(prompt, /jangan menyebut target\/performa/);
+    assert.match(prompt, /VCR berasal dari voucher yang dicatat sendiri/);
+  }
+});
+
 test("anonymous system prompt leaves out the employee's name and code but keeps the facts", () => {
   const prompt = buildSystemPrompt(facts(), { anonymous: true });
   assert.doesNotMatch(prompt, /Siti/);
