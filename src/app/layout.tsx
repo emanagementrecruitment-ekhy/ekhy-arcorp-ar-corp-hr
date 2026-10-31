@@ -47,7 +47,23 @@ const sansBold = localFont({
   display: "swap",
 });
 
+// Sidebar-only fonts (see ./fonts/README.md): the "AR CORP" wordmark and the role label.
+const fontIso = localFont({
+  src: "./fonts/3DIsometric-Bold.ttf",
+  variable: "--font-iso",
+  weight: "700",
+  display: "swap",
+});
+const fontUnique = localFont({
+  src: "./fonts/Unique.ttf",
+  variable: "--font-unique",
+  weight: "400",
+  display: "swap",
+});
+
 const fontVariables = [
+  fontIso.variable,
+  fontUnique.variable,
   displayClassic.variable,
   sansClassic.variable,
   displayModern.variable,
