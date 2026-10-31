@@ -32,5 +32,5 @@ export type AiGate = { ok: true } | { ok: false; reason: "user" | "global" };
 export function limitNotice(reason: "user" | "global"): string {
   return reason === "user"
     ? "Batas pertanyaan bebas ke AI untuk hari ini sudah tercapai, jadi saya hanya bisa menjawab pertanyaan umum (absen, VCR, Slip Pay, kasbon). Pertanyaan bebas bisa dicoba lagi besok."
-    : "Pertanyaan bebas ke AI hari ini sudah mencapai batas harian, jadi saya hanya bisa menjawab pertanyaan umum (absen, VCR, Slip Pay, kasbon). Coba lagi besok atau hubungi Call Center.";
+    : "Pertanyaan bebas ke AI hari ini sudah mencapai batas harian, jadi saya hanya bisa menjawab pertanyaan umum (absen, VCR, Slip Pay, kasbon). Pertanyaan bebas bisa dicoba lagi besok.";
 }
