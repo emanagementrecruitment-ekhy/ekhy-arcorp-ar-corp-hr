@@ -199,7 +199,7 @@ export async function answerEmployee(employeeId: string, message: string, histor
   const wantsExplanation = intent !== null && !requestLike && asksForExplanation(message);
   if (intent && (!useAi || requestLike || (wordCount(message) <= 10 && !wantsExplanation))) {
     const text = ruleAnswer(intent, facts);
-    return { text, source: "rules", intent, links: suggestLinks(message), canForward: requestLike };
+    return { text, source: "rules", intent, links: suggestLinks(message), canForward: requestLike || intent === "contact" };
   }
 
   if (!useAi) {

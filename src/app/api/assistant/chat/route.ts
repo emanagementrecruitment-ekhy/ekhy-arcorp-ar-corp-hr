@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Pelan-pelan ya, tunggu sebentar lalu tanya lagi." }, { status: 429 });
     }
     if (!rateLimit(`assistant:day:${session.employeeId}`, 80, 24 * 60 * 60_000)) {
-      return NextResponse.json({ error: "Batas tanya hari ini sudah tercapai. Coba lagi besok atau hubungi Call Center." }, { status: 429 });
+      return NextResponse.json({ error: "Batas tanya hari ini sudah tercapai. Coba lagi besok." }, { status: 429 });
     }
 
     const reply = await answerEmployee(session.employeeId, message, sanitizeHistory(body?.history));
