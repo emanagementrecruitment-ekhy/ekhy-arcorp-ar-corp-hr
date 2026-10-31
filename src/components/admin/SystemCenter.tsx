@@ -1,6 +1,7 @@
 "use client";
 
 import GoldKoiYinYang from "@/components/admin/GoldKoiYinYang";
+import BackupDownload from "@/components/admin/BackupDownload";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Icon from "@/components/ui/Icon";
 import { cardClass } from "@/components/ui/styles";
@@ -44,7 +45,7 @@ const HELP: Record<string, Array<{ t: string; d: string }>> = {
     { t: "Melihat totalan", d: "Laporan Totalan menampilkan pendapatan, kasbon, dan sisa gaji per periode (harian, mingguan, bulanan). Tersedia tombol CSV dan Print." },
     { t: "Slip pay", d: "Rincian Totalan berisi slip pay per Tera/Karyawan. Kasbon dan voucher masuk otomatis; tambahkan Ambil Barang atau potongan lain lewat Tambah Rincian." },
     { t: "Resign dan Hapus", d: "Dua aksi ini meminta kode konfirmasi yang dikirim ke email Owner, supaya data tidak terhapus tanpa sepengetahuan Owner." },
-    { t: "Backup", d: "Unduh backup database dari kartu Status Sistem di halaman ini, lalu simpan di tempat aman." },
+    { t: "Backup", d: "Unduh backup database dari kartu Status Sistem di halaman ini. Berkasnya dikunci dengan kata sandi yang Anda ketik saat mengunduh; kata sandi tidak disimpan di mana pun, jadi simpan sendiri di tempat aman." },
   ],
   ADMIN_PUSAT: [
     { t: "Memasukkan pendapatan", d: "Buka Input Pendapatan, pilih Tera, level, lokasi, dan jumlah VCR. Voucher langsung masuk ke slip pay Tera." },
@@ -195,13 +196,7 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
                 {system.lastBackup ? `${fmtDateTime(system.lastBackup.at)} · ${system.lastBackup.by}` : "Belum pernah diunduh"}
               </Row>
               <div className="pt-3">
-                <a
-                  href="/api/admin/backup"
-                  onClick={() => setTimeout(() => window.location.reload(), 2500)}
-                  className="inline-flex items-center gap-2 py-2.5 px-4 rounded-[10px] border border-ar-goldline text-ar-gold text-[11.5px] font-semibold tracking-[0.08em] uppercase"
-                >
-                  Unduh backup database
-                </a>
+                <BackupDownload onDone={() => setTimeout(() => window.location.reload(), 1500)} />
               </div>
             </>
           )}
