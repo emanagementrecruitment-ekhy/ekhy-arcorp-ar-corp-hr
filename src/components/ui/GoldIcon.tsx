@@ -2,7 +2,8 @@ import Image from "next/image";
 import Icon, { type IconName } from "@/components/ui/Icon";
 
 /** Gold medallion icons (public/icons/gold). The PNGs have a black background, so
- *  mix-blend-mode: screen makes the black vanish on the dark UI. */
+ *  mix-blend-mode: screen makes the black vanish on the dark UI. On the light UI that same blend would erase the
+ *  icon itself, so globals.css (.ar-blend-screen) shows it on a dark plate there instead. */
 export const GOLD_FILES = {
   screenshot: "screenshot",
   refresh: "refresh",
@@ -36,8 +37,7 @@ export function GoldImg({ name, className = "w-6 h-6", busy = false }: { name: G
       width={80}
       height={80}
       aria-hidden
-      className={`${className} shrink-0 object-contain ${busy ? "animate-spin" : ""}`}
-      style={{ mixBlendMode: "screen" }}
+      className={`${className} ar-blend-screen ar-blend-round shrink-0 object-contain ${busy ? "animate-spin" : ""}`}
     />
   );
 }

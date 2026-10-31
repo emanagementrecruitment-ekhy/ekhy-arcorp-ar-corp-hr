@@ -7,6 +7,9 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Angel untuk Owner dan admin kini menjawab pembukuan: "total penggajian bulan ini" (angka yang sama dengan halaman Laporan Totalan, periode harian, mingguan, atau bulanan), "total VCR bulan ini", dan "total kasbon bulan ini", dihitung langsung dari data tanpa AI. Pertanyaan bebas lain dijawab AI gateway hanya dengan angka agregat (tanpa nama atau data per orang), dan pertanyaan tentang satu orang ("rincian Budi") tetap diproses di server.
+- Angel admin: pesan "Maaf, saya belum paham ... kunci Claude ... Call Center" dihapus. Bila Angel tidak bisa menjawab, muncul tombol "Teruskan ke Owner/Admin" yang membunyikan notifikasi lonceng. Tombol yang sama dipakai di Angel karyawan.
+- Sidebar admin di mode terang: ikon bulat di atas, logo di kartu akun, logo merek, dan ikon menu 3D kini tampil di atas dasar gelap sehingga terlihat dari atas sampai bawah (sebelumnya hilang karena mode campur warna hanya cocok untuk latar gelap). Mode gelap tidak berubah.
 - Asisten AI diganti nama dari "Ara" menjadi "Angel", dengan potret 3D baru sebagai gambar bonekanya (menggantikan boneka gambar lama). Tombol "Kirim ke kantor" kini menandai pesan "Lewat asisten Angel". Gerakan boneka mengikuti keadaan: berdenyut saat berpikir, bergoyang pelan saat menjawab.
 - Halaman login: tampilan baru bergaya render 3D dengan animasi: kartu seperti papan tebal yang condong mengikuti kursor dengan kilau yang menyapu, logo berputar pelan seperti benda di atas meja putar dengan bayangan lantai, bola-bola emas mengambang di belakang, dan tombol timbul yang menekan saat diklik. Semua gerakan berhenti otomatis bila perangkat memakai "kurangi gerakan".
 - Tera di TRAVEL / CLASSIC T5: input pendapatan (VCR) kini terpisah menjadi kolom S dan D, sesuai Slip Pay, dengan rate masing-masing dan total otomatis. Tera di lokasi lain tetap memakai satu kolom Jumlah VCR.

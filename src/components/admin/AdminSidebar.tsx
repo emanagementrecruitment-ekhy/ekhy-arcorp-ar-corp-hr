@@ -145,7 +145,7 @@ export default function AdminSidebar({
   const accountCard = (
     <div className="mt-auto p-3 bg-ar-surface2 border border-ar-line rounded-2xl">
       <div className="flex items-center gap-2.5">
-        <Image src="/brand/login-emas.png" unoptimized alt="Login" width={640} height={480} className="w-16 h-12 shrink-0 object-contain" style={{ mixBlendMode: "screen" }} />
+        <Image src="/brand/login-emas.png" unoptimized alt="Login" width={640} height={480} className="ar-blend-screen ar-blend-rect w-16 h-12 shrink-0 object-contain" />
         <div className="min-w-0">
           <div className="text-[12.5px] truncate">{roleLabel}</div>
         </div>
@@ -166,7 +166,7 @@ export default function AdminSidebar({
           width={30}
           height={30}
           unoptimized
-          className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+          className="ar-brand-logo object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
         />
         <span className="flex items-center gap-1.5">
         <ScreenshotButton />
@@ -195,7 +195,7 @@ export default function AdminSidebar({
                 width={30}
                 height={30}
                 unoptimized
-                className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+                className="ar-brand-logo object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
               />
               <button onClick={() => setMobileOpen(false)} aria-label="Tutup menu" className="p-1.5 text-ar-dim cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -223,10 +223,10 @@ export default function AdminSidebar({
             width={44}
             height={44}
             unoptimized
-            className="object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+            className="ar-brand-logo object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
           />
           <div className="min-w-0">
-            <div className="font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">{BRAND.short}</div>
+            <div className="ar-brand-gold font-display text-[12.5px] tracking-[0.2em] text-ar-gold uppercase whitespace-nowrap">{BRAND.short}</div>
             <div className="text-[9.5px] tracking-[0.08em] text-ar-dim mt-1 uppercase whitespace-nowrap">Kantor Pusat</div>
           </div>
         </div>
