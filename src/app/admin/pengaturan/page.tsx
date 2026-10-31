@@ -4,6 +4,7 @@ import { BRAND } from "@/lib/brand";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import BackupDownload from "@/components/admin/BackupDownload";
 import { THEME_COLORS, THEME_FONTS, LIGHT_MODES, type ThemeColorId, type ThemeFontId, type LightModeId } from "@/lib/constants";
 import { btnPrimaryClass } from "@/components/ui/styles";
 
@@ -237,15 +238,10 @@ export default function PengaturanPage() {
             <div className="font-display text-[19px] text-ar-gold2 mb-1">Cadangkan Data</div>
             <div className="text-[11.5px] text-ar-dim mb-3 leading-[1.6]">
               Unduh seluruh database aplikasi (data karyawan, voucher, kasbon, rincian totalan, dan pengaturan) sebagai
-              satu file. Simpan file ini di tempat aman di luar aplikasi — ini satu-satunya salinan lengkap data
-              bisnis Anda.
+              satu file yang dikunci dengan kata sandi Anda. Simpan file dan kata sandinya di tempat aman di luar
+              aplikasi — ini satu-satunya salinan lengkap data bisnis Anda, dan tanpa kata sandi file ini tidak bisa dibuka.
             </div>
-            <a
-              href="/api/admin/backup"
-              className="inline-block py-2.5 px-4 bg-ar-surface2 border border-ar-goldline rounded-[10px] text-ar-gold text-[11px] font-semibold tracking-[0.1em] uppercase cursor-pointer"
-            >
-              Unduh Cadangan Database
-            </a>
+            <BackupDownload label="Unduh Cadangan Database" />
           </div>
         )}
       </div>
