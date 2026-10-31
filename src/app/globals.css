@@ -775,20 +775,24 @@ button {
   .ar-bubble { display: none; }
 }
 
-/* ---- Ara, the AR Corp doll mascot (src/components/employee/ArMascot.tsx) ---- */
-.arc-mascot { display: block; overflow: visible; }
-.arc-mascot-dots { opacity: 0; }
-.arc-mascot-eyes { transform-box: fill-box; transform-origin: center; animation: arcMascotBlink 4.6s infinite; }
-.arc-mascot-thinking .arc-mascot-dots { opacity: 1; animation: arcMascotDots 1.2s infinite; }
-.arc-mascot-thinking .arc-mascot-eyes { animation: none; transform: translateY(-2px); }
-.arc-mascot-talking .arc-mascot-mouth { transform-box: fill-box; transform-origin: center; animation: arcMascotTalk 0.5s infinite; }
-@keyframes arcMascotBlink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
-@keyframes arcMascotDots { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
-@keyframes arcMascotTalk { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.9) translateY(1px); } }
+/* ---- Angel, the AR Corp assistant portrait (src/components/employee/ArMascot.tsx) ---- */
+.arc-mascot {
+  display: block; position: relative; flex: none; overflow: hidden; border-radius: 9999px;
+  background: radial-gradient(circle at 50% 30%, rgba(var(--ar-accent-rgb), 0.3), rgba(0, 0, 0, 0.4));
+  box-shadow: 0 0 0 1.5px rgba(var(--ar-accent-rgb), 0.7), 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+.arc-mascot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; pointer-events: none; user-select: none; }
+.arc-mascot-thinking { animation: arcMascotThink 1.3s ease-in-out infinite; }
+.arc-mascot-talking img { animation: arcMascotTalk 0.55s ease-in-out infinite; }
+@keyframes arcMascotThink {
+  0%, 100% { box-shadow: 0 0 0 1.5px rgba(var(--ar-accent-rgb), 0.7), 0 0 0 rgba(var(--ar-accent-rgb), 0), 0 4px 10px rgba(0, 0, 0, 0.45); }
+  50% { box-shadow: 0 0 0 1.5px rgba(var(--ar-accent-rgb), 1), 0 0 14px 3px rgba(var(--ar-accent-rgb), 0.55), 0 4px 10px rgba(0, 0, 0, 0.45); }
+}
+@keyframes arcMascotTalk { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06) translateY(-1px); } }
 @keyframes arcAraFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 .arc-ara-fab { animation: arcAraFloat 3.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .arc-mascot-eyes, .arc-mascot-dots, .arc-mascot-mouth, .arc-ara-fab { animation: none !important; }
+  .arc-mascot-thinking, .arc-mascot-talking img, .arc-ara-fab { animation: none !important; }
 }
 
 /* Login logo stage — motion that follows each client's own logo and theme colour.
@@ -931,5 +935,173 @@ button {
     animation: none;
     transform: none;
     background-position: 40% 0;
+  }
+}
+
+/* ── Login: "motion 3D render" ─────────────────────────────────────────────── */
+.ar-scene {
+  --rx: 0deg;
+  --ry: 0deg;
+  z-index: 1;
+  perspective: 1100px;
+  transform-style: preserve-3d;
+}
+/* The card is a thick slab: stacked edge shadows give it depth, it leans toward the pointer, and a light sheen sweeps across. */
+.ar-card-3d {
+  position: relative;
+  overflow: hidden;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.25s ease-out;
+  box-shadow:
+    0 1px 0 rgba(var(--ar-accent-rgb), 0.6),
+    0 2px 0 rgba(var(--ar-accent-rgb), 0.42),
+    0 3px 0 rgba(var(--ar-accent-rgb), 0.3),
+    0 4px 0 rgba(0, 0, 0, 0.28),
+    0 34px 60px -26px rgba(0, 0, 0, 0.75),
+    0 0 40px -12px rgba(var(--ar-accent-rgb), 0.3);
+}
+.ar-card-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.28) 50%, transparent 62%) no-repeat;
+  background-size: 260% 100%;
+  animation: arCardSheen 7s ease-in-out infinite;
+}
+@keyframes arCardSheen {
+  0%,
+  60% {
+    background-position: 130% 0;
+  }
+  100% {
+    background-position: -130% 0;
+  }
+}
+/* The logo stands out of the scene and turns slowly like a turntable object, with a soft contact shadow on the floor. */
+.ar-logo-3d {
+  transform: rotateX(calc(var(--rx) * -0.6)) rotateY(calc(var(--ry) * -0.9)) translateZ(40px);
+  transition: transform 0.25s ease-out;
+  transform-style: preserve-3d;
+}
+.ar-logo-3d .ar-logo-img {
+  animation: arLogoTurn 8s ease-in-out infinite;
+}
+@keyframes arLogoTurn {
+  0%,
+  100% {
+    transform: perspective(700px) rotateY(-16deg) translateY(0) scale(1);
+  }
+  50% {
+    transform: perspective(700px) rotateY(16deg) translateY(-6px) scale(1.03);
+  }
+}
+.ar-logo-floor {
+  position: absolute;
+  left: 50%;
+  bottom: -22px;
+  width: 96px;
+  height: 14px;
+  margin-left: -48px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.45), transparent 70%);
+  filter: blur(3px);
+  pointer-events: none;
+  animation: arLogoFloor 8s ease-in-out infinite;
+}
+@keyframes arLogoFloor {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(0.78);
+    opacity: 0.45;
+  }
+}
+/* Glossy spheres drifting at different depths behind the card. */
+.ar-orb {
+  position: fixed;
+  z-index: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0.6;
+  background: radial-gradient(
+    circle at 32% 28%,
+    rgba(255, 255, 255, 0.9) 0 6%,
+    rgba(var(--ar-accent-rgb), 0.6) 24%,
+    rgba(var(--ar-accent-rgb), 0.22) 58%,
+    rgba(var(--ar-accent-rgb), 0) 72%
+  );
+  animation: arOrbDrift 15s ease-in-out infinite;
+}
+.ar-orb-a {
+  width: 96px;
+  height: 96px;
+  left: 8%;
+  top: 14%;
+}
+.ar-orb-b {
+  width: 58px;
+  height: 58px;
+  right: 10%;
+  top: 30%;
+  animation-duration: 19s;
+  animation-delay: -6s;
+}
+.ar-orb-c {
+  width: 74px;
+  height: 74px;
+  right: 18%;
+  bottom: 10%;
+  animation-duration: 17s;
+  animation-delay: -11s;
+}
+@keyframes arOrbDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(14px, -22px, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-12px, 10px, 0) scale(0.96);
+  }
+}
+/* A raised key: it has a bottom edge and sinks when pressed. */
+.ar-btn3d {
+  box-shadow:
+    0 4px 0 rgba(122, 84, 39, 0.95),
+    0 12px 20px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.ar-btn3d:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.ar-btn3d:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 rgba(122, 84, 39, 0.95),
+    0 5px 10px -6px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-orb,
+  .ar-card-3d::after,
+  .ar-logo-3d .ar-logo-img,
+  .ar-logo-floor {
+    animation: none;
+  }
+  .ar-card-3d,
+  .ar-logo-3d {
+    transform: none;
+    transition: none;
+  }
+  .ar-btn3d {
+    transition: none;
   }
 }

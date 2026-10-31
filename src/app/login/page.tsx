@@ -1,7 +1,7 @@
 "use client";
 
 import { BRAND } from "@/lib/brand";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import DesktopStatusBar from "@/components/DesktopStatusBar";
@@ -21,6 +21,23 @@ export default function LoginPage() {
   const [delivered, setDelivered] = useState(false);
   const [busy, setBusy] = useState(false);
   const [desktopOffline, setDesktopOffline] = useState(false);
+
+  // 3D scene: the card and the logo lean toward the pointer. The angles go straight into CSS variables (no re-render),
+  // and nothing happens for people who asked for reduced motion.
+  const sceneRef = useRef<HTMLDivElement>(null);
+  function tiltScene(e: React.PointerEvent<HTMLDivElement>) {
+    const el = sceneRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = el.getBoundingClientRect();
+    const x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2)));
+    const y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2)));
+    el.style.setProperty("--ry", `${(x * 9).toFixed(2)}deg`);
+    el.style.setProperty("--rx", `${(-y * 7).toFixed(2)}deg`);
+  }
+  function resetTilt() {
+    sceneRef.current?.style.setProperty("--ry", "0deg");
+    sceneRef.current?.style.setProperty("--rx", "0deg");
+  }
 
   useEffect(() => {
     window.arcorpDesktop?.getMode().then((mode) => {
@@ -127,11 +144,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center p-4 sm:p-8 ar-glow-corners ar-stars">
+    <div
+      className="min-h-screen grid place-items-center p-4 sm:p-8 ar-glow-corners ar-stars overflow-hidden"
+      onPointerMove={tiltScene}
+      onPointerLeave={resetTilt}
+    >
       <DesktopStatusBar />
-      <div className="w-full max-w-[380px] ar-in">
+      {/* Floating 3D spheres at different depths behind the card (decorative). */}
+      <span className="ar-orb ar-orb-a" aria-hidden="true" />
+      <span className="ar-orb ar-orb-b" aria-hidden="true" />
+      <span className="ar-orb ar-orb-c" aria-hidden="true" />
+      <div ref={sceneRef} className="ar-scene relative w-full max-w-[380px] ar-in">
         <div className="flex flex-col items-center mb-5">
-          <div className="ar-logo-stage">
+          <div className="ar-logo-stage ar-logo-3d">
             <div
               className="absolute -inset-5 rounded-full opacity-80 blur-xl pointer-events-none"
               style={{ background: "radial-gradient(circle, rgba(var(--ar-accent-rgb),0.28), transparent 70%)" }}
@@ -157,6 +182,7 @@ export default function LoginPage() {
             <span className="ar-logo-spark" aria-hidden="true" />
             <span className="ar-logo-spark" aria-hidden="true" />
             <span className="ar-logo-spark" aria-hidden="true" />
+            <span className="ar-logo-floor" aria-hidden="true" />
           </div>
           <div className="mt-3 font-display text-[15px] tracking-[0.38em] uppercase font-semibold text-center">
             <span className="ar-shimmer-gold">{BRAND.company}</span>
@@ -166,7 +192,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="ar-frame-luxury bg-ar-surface rounded-[18px] px-5 pt-5 pb-5">
+        <div className="ar-frame-luxury ar-card-3d bg-ar-surface rounded-[18px] px-5 pt-5 pb-5">
           <div className="grid grid-cols-2 gap-1.5 p-1 bg-ar-surface2 rounded-xl mb-4">
             <button
               onClick={() => pickPortal("karyawan")}
@@ -222,7 +248,7 @@ export default function LoginPage() {
               <button
                 disabled={busy}
                 onClick={sendOtp}
-                className="w-full py-[13px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.16em] uppercase cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+                className="ar-btn3d w-full py-[13px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.16em] uppercase cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 <span>Kirim Kode Verifikasi</span>
                 <svg
@@ -274,7 +300,7 @@ export default function LoginPage() {
               <button
                 disabled={busy || otp.length < 6}
                 onClick={verifyOtp}
-                className="w-full mt-[14px] py-[13px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer disabled:opacity-60"
+                className="ar-btn3d w-full mt-[14px] py-[13px] ar-grad rounded-[11px] text-ar-ongold text-xs font-bold tracking-[0.18em] uppercase cursor-pointer disabled:opacity-60"
               >
                 Verifikasi &amp; Masuk
               </button>

@@ -7,6 +7,8 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Asisten AI diganti nama dari "Ara" menjadi "Angel", dengan potret 3D baru sebagai gambar bonekanya (menggantikan boneka gambar lama). Tombol "Kirim ke kantor" kini menandai pesan "Lewat asisten Angel". Gerakan boneka mengikuti keadaan: berdenyut saat berpikir, bergoyang pelan saat menjawab.
+- Halaman login: tampilan baru bergaya render 3D dengan animasi: kartu seperti papan tebal yang condong mengikuti kursor dengan kilau yang menyapu, logo berputar pelan seperti benda di atas meja putar dengan bayangan lantai, bola-bola emas mengambang di belakang, dan tombol timbul yang menekan saat diklik. Semua gerakan berhenti otomatis bila perangkat memakai "kurangi gerakan".
 - Tera di TRAVEL / CLASSIC T5: input pendapatan (VCR) kini terpisah menjadi kolom S dan D, sesuai Slip Pay, dengan rate masing-masing dan total otomatis. Tera di lokasi lain tetap memakai satu kolom Jumlah VCR.
 - Profil karyawan: tombol "Keluar & Absen Pulang" di bawah dihapus (tombol Keluar di header tetap ada), tombol "Segarkan Tampilan" menjadi ikon di samping foto profil, dan blok "Riwayat login & lokasi" (data GPS) dihapus.
 - Login: dua permintaan kode OTP yang berdekatan tidak lagi membuat kode dari email yang dibaca lebih dulu ditolak (3 kode aktif terbaru diterima). Kode OTP yang gagal terkirim tidak lagi ditulis ke log produksi.

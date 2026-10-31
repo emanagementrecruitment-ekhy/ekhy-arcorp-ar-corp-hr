@@ -6,7 +6,7 @@ import { BRAND } from "@/lib/brand";
 import { fmtRp } from "./format";
 
 export const CALL_CENTER = BRAND.phone;
-export const ASSISTANT_NAME = "Ara";
+export const ASSISTANT_NAME = "Angel";
 
 export interface EmployeeFacts {
   name: string;
