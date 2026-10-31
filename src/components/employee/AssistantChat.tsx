@@ -118,7 +118,7 @@ export default function AssistantChat({ variant = "employee" }: { variant?: "emp
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Gagal mengirim ke kantor.");
-      setMsgs((cur) => [...cur, { role: "assistant", content: "Sudah saya kirim ke kantor ya. Kamu akan dihubungi setelah ditinjau. 🙏" }]);
+      setMsgs((cur) => [...cur, { role: "assistant", content: "Sudah saya kirim ke kantor ya. Balasan dari Owner/Admin akan muncul di menu Lapor. 🙏" }]);
     } catch (e) {
       setMsgs((cur) => [
         ...cur.map((x, i) => (i === index ? { ...x, forwarded: false } : x)),

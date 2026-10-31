@@ -3,6 +3,8 @@ import { requireSession, apiError } from "@/lib/api-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyOffice } from "@/lib/notify";
+import { prisma } from "@/lib/prisma";
+import { AUTO_RECEIPT_TEXT, forwardedChatText } from "@/lib/ara-forward";
 
 const MAX_MESSAGE = 500;
 
@@ -17,6 +19,18 @@ export async function POST(req: Request) {
     if (!rateLimit(`assistant:forward:${session.employeeId}`, 5, 60 * 60_000)) {
       return NextResponse.json({ error: "Kamu sudah mengirim beberapa pesan. Tunggu sebentar ya." }, { status: 429 });
     }
+
+    // Put it in the employee's chat thread (Lapor ↔ Lapor Lapangan) so Owner/Admin can answer there, then a fixed
+    // receipt. Explicit, increasing timestamps keep the order stable (SQLite stores milliseconds).
+    const now = Date.now();
+    await prisma.$transaction([
+      prisma.chatMessage.create({
+        data: { employeeId: session.employeeId, senderId: session.employeeId, fromSupervisor: false, text: forwardedChatText(message), createdAt: new Date(now) },
+      }),
+      prisma.chatMessage.create({
+        data: { employeeId: session.employeeId, senderId: null, fromSupervisor: true, text: AUTO_RECEIPT_TEXT, createdAt: new Date(now + 1) },
+      }),
+    ]);
 
     await notifyOffice(`Permintaan dari ${session.name} (${session.code}) lewat asisten Ara: "${message}"`);
     await logAudit(session, "ASSISTANT_FORWARD", session.name, message.slice(0, 160));
