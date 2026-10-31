@@ -205,8 +205,16 @@ export function unknownAnswer(f: EmployeeFacts): string {
   return `Maaf ${f.firstName}, saya belum paham maksudnya. Coba tanya soal absen, VCR, Slip Pay, atau kasbon. Untuk hal lain, tekan "Kirim ke kantor" atau hubungi Call Center ${CALL_CENTER}.`;
 }
 
-/** The system prompt for Claude. The employee's own facts go in; other people's data never does. */
-export function buildSystemPrompt(f: EmployeeFacts): string {
+/**
+ * The system prompt for Claude. The employee's own facts go in; other people's data never does.
+ * With `anonymous` the employee's name and code are left out (for an external AI gateway): the model writes the
+ * placeholder {{NAMA}} where the first name belongs and the app swaps the real name in afterwards.
+ */
+export function buildSystemPrompt(f: EmployeeFacts, opts: { anonymous?: boolean } = {}): string {
+  const greeting = opts.anonymous
+    ? `Sapa dengan menulis tepat {{NAMA}} (aplikasi akan menggantinya dengan nama depan karyawan); jangan menebak atau menulis nama apa pun.`
+    : `Sapa dengan nama depan "${f.firstName}".`;
+  const identity = opts.anonymous ? `- Peran: ${f.role}${f.isTera ? " (Tera)" : ""}.` : `- Nama: ${f.name} (${f.code}), peran: ${f.role}${f.isTera ? " (Tera)" : ""}.`;
   const vcr = f.vcr
     ? `VCR hari ini: ${f.vcr.todayCount} voucher (${fmtRp(f.vcr.todayAmount)}); bulan ini: ${f.vcr.monthCount} voucher (${fmtRp(f.vcr.monthAmount)}).`
     : "Karyawan ini tidak memakai VCR (gaji tetap).";
@@ -215,7 +223,7 @@ export function buildSystemPrompt(f: EmployeeFacts): string {
     : "Belum pernah mengajukan kasbon.";
   return `Kamu adalah ${ASSISTANT_NAME}, asisten virtual ${BRAND.company} di aplikasi HR untuk karyawan lapangan. Kamu berbicara dengan satu karyawan saja.
 
-GAYA: Bahasa Indonesia santai tapi sopan, hangat, singkat (maksimal 5 kalimat), tanpa markdown tebal atau tabel. Boleh satu emoji. Sapa dengan nama depan "${f.firstName}".
+GAYA: Bahasa Indonesia santai tapi sopan, hangat, singkat (maksimal 5 kalimat), tanpa markdown tebal atau tabel. Boleh satu emoji. ${greeting}
 
 TUGAS: jawab pertanyaan dan pahami keinginan karyawan seputar absen, VCR, Slip Pay, kasbon, pinalty, dan cara memakai aplikasi. Kalau karyawan menyampaikan keinginan yang harus diputuskan kantor (izin, cuti, libur, tukar jadwal, keluhan, pindah, resign, masalah gaji), tunjukkan empati, ringkas keinginannya, lalu arahkan menekan tombol "Kirim ke kantor" yang muncul di bawah jawabanmu. Kamu tidak bisa menyetujui, mengubah data, atau menjanjikan apa pun.
 
@@ -233,7 +241,7 @@ ATURAN PERUSAHAAN:
 - Call Center: ${CALL_CENTER}. Email resmi: ${COMPANY_EMAIL}. Website: ${COMPANY_WEBSITE_HOST}.
 
 FAKTA KARYAWAN INI (sekarang ${f.now.label} WIB, ${f.now.dateKey}):
-- Nama: ${f.name} (${f.code}), peran: ${f.role}${f.isTera ? " (Tera)" : ""}.
+${identity}
 - Absen hari ini: ${f.today.checkedIn ? `sudah${f.today.checkedInAt ? ` pukul ${f.today.checkedInAt}` : ""}` : "belum"}.
 - Hari hadir bulan ${f.month.label}: ${f.month.hariHadir}.
 - ${vcr}
