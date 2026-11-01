@@ -16,6 +16,7 @@ import {
   LATE_CHECKIN_PENALTY_AMOUNT,
   usesVcr,
 } from "./constants";
+import { matchSupervisorQuery, supervisorAnswer, supervisorPayRefusal, type RosterPerson } from "./ai-supervisor-rules";
 import {
   asksAboutOthers,
   buildSystemPrompt,
@@ -102,6 +103,40 @@ async function buildOwnDetail(
       })),
     kasbons: kasbons.map((k) => ({ date: jakartaClock(k.createdAt).dateKey, amount: k.amount, status: k.status })),
   };
+}
+
+/**
+ * Attendance-only roster for a Kepala Mess: every active employee and Tera (not the asker), with today's check-in and
+ * the days present this month. Deliberately carries no pay, VCR or kasbon. Built for a verified SUPERVISOR session only.
+ */
+async function buildRoster(selfId: string, now = new Date()): Promise<{ roster: RosterPerson[]; dateLabel: string; monthLabel: string }> {
+  const clock = jakartaClock(now);
+  const month = toYm(clock.dateKey);
+  const people = await prisma.employee.findMany({
+    where: { id: { not: selfId }, status: "AKTIF", accessRole: "KARYAWAN" },
+    select: { id: true, name: true, code: true, role: true },
+    orderBy: { name: "asc" },
+  });
+  const rows = await prisma.attendance.findMany({
+    where: { month, employeeId: { in: people.map((p) => p.id) } },
+    select: { employeeId: true, dateKey: true, createdAt: true },
+    orderBy: { dateKey: "asc" },
+  });
+  const byPerson = new Map<string, typeof rows>();
+  for (const r of rows) byPerson.set(r.employeeId, [...(byPerson.get(r.employeeId) ?? []), r]);
+  const roster = people.map((p) => {
+    const mine = byPerson.get(p.id) ?? [];
+    const today = mine.find((r) => r.dateKey === clock.dateKey);
+    return {
+      name: p.name,
+      code: p.code,
+      isTera: usesVcr(p.role),
+      checkedInToday: !!today,
+      checkedInAt: today ? hhmm(jakartaClock(today.createdAt).minutes) : null,
+      days: mine.map((r) => Number(r.dateKey.slice(8, 10))),
+    };
+  });
+  return { roster, dateLabel: clock.dateKey, monthLabel: monthLabel(month) };
 }
 
 /** Everything the assistant may say about this one employee — never anyone else's data. */
@@ -238,18 +273,36 @@ async function askViaGateway(facts: EmployeeFacts, history: ChatTurn[], message:
 }
 
 /** One assistant turn: rules first, the AI for everything the rules cannot understand. */
-export async function answerEmployee(employeeId: string, message: string, history: ChatTurn[]): Promise<AssistantReply> {
+export async function answerEmployee(
+  employeeId: string,
+  message: string,
+  history: ChatTurn[],
+  accessRole: string = "KARYAWAN",
+): Promise<AssistantReply> {
   const facts = await buildEmployeeFacts(employeeId);
   const intent = matchIntent(message);
   const useAi = employeeAiConfigured();
   const requestLike = intent === "request";
+  // The role comes from the verified session (the route passes it in), never from anything the user typed.
+  const isKepalaMess = accessRole === "SUPERVISOR";
+
+  // Kepala Mess: attendance of every employee and Tera, answered by rules on the server (names never reach an AI).
+  if (isKepalaMess) {
+    const { roster, dateLabel, monthLabel: mLabel } = await buildRoster(employeeId);
+    const q = matchSupervisorQuery(message, roster);
+    if (q) {
+      const text = supervisorAnswer(q, roster, { dateLabel, monthLabel: mLabel, minDays: ATTENDANCE_MIN_DAYS });
+      return { text, source: "rules", intent: "checkin", links: [], canForward: false };
+    }
+  }
 
   // Server-side gate: the assistant only talks about the asker's own data. A question that names another person
   // (name, code, first name) or asks about "everyone" is refused here, before any AI is involved — the rule does
   // not depend on the model obeying its prompt. Other people's names stay on the server.
   const others = await prisma.employee.findMany({ where: { id: { not: employeeId } }, select: { name: true, code: true } });
   if (asksAboutOthers(message, others, { name: facts.name, code: facts.code })) {
-    return { text: othersRefusal(facts), source: "rules", intent: null, links: [], canForward: true };
+    const text = isKepalaMess ? supervisorPayRefusal(facts.firstName) : othersRefusal(facts);
+    return { text, source: "rules", intent: null, links: [], canForward: true };
   }
 
   // Detail questions about the asker's own data (which dates, last month, Slip Pay lines, kasbon history).
