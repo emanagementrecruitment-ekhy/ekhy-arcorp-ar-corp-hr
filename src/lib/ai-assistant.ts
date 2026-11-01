@@ -17,8 +17,11 @@ import {
   usesVcr,
 } from "./constants";
 import {
+  asksAboutOthers,
   buildSystemPrompt,
   asksForExplanation,
+  detailAnswer,
+  othersRefusal,
   matchIntent,
   ruleAnswer,
   suggestLinks,
@@ -55,6 +58,52 @@ function toYm(dateKey: string): string {
   return dateKey.slice(0, 7);
 }
 
+function previousMonth(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
+}
+
+/** Richer detail about this one person (dates present, last month, Slip Pay lines, kasbon list). Own rows only. */
+async function buildOwnDetail(
+  employeeId: string,
+  month: string,
+  isTera: boolean,
+  monthStart: Date,
+  payslip: Awaited<ReturnType<typeof buildPayslip>>,
+): Promise<NonNullable<EmployeeFacts["own"]>> {
+  const prev = previousMonth(month);
+  const prevStart = new Date(`${prev}-01T00:00:00+07:00`);
+  const [days, prevHadir, prevVouchers, kasbons] = await Promise.all([
+    prisma.attendance.findMany({ where: { employeeId, month }, select: { dateKey: true }, orderBy: { dateKey: "asc" } }),
+    prisma.attendance.count({ where: { employeeId, month: prev } }),
+    isTera
+      ? prisma.voucher.aggregate({
+          where: { employeeId, occurredAt: { gte: prevStart, lt: monthStart } },
+          _count: true,
+          _sum: { amount: true },
+        })
+      : null,
+    prisma.kasbon.findMany({ where: { employeeId }, orderBy: { createdAt: "desc" }, take: 5 }),
+  ]);
+  return {
+    attendanceDays: days.map((d) => Number(d.dateKey.slice(8, 10))),
+    lastMonth: {
+      label: monthLabel(prev),
+      hariHadir: prevHadir,
+      vcr: prevVouchers ? { count: prevVouchers._count, amount: prevVouchers._sum.amount ?? 0 } : null,
+    },
+    slipLines: (payslip?.rows ?? [])
+      .filter((r) => r.debit > 0 || r.credit > 0)
+      .slice(0, 12)
+      .map((r) => ({
+        label: r.description.trim().slice(0, 60),
+        amount: r.debit > 0 ? r.debit : r.credit,
+        kind: r.debit > 0 ? ("tambah" as const) : ("potong" as const),
+      })),
+    kasbons: kasbons.map((k) => ({ date: jakartaClock(k.createdAt).dateKey, amount: k.amount, status: k.status })),
+  };
+}
+
 /** Everything the assistant may say about this one employee — never anyone else's data. */
 export async function buildEmployeeFacts(employeeId: string, now = new Date()): Promise<EmployeeFacts> {
   const clock = jakartaClock(now);
@@ -88,7 +137,10 @@ export async function buildEmployeeFacts(employeeId: string, now = new Date()): 
         : null,
     ]);
 
+  const own = await buildOwnDetail(employeeId, month, isTera, monthStart, payslip).catch(() => undefined);
+
   return {
+    own,
     name: employee.name,
     firstName: employee.name.trim().split(/\s+/)[0] ?? employee.name,
     code: employee.code,
@@ -191,6 +243,21 @@ export async function answerEmployee(employeeId: string, message: string, histor
   const intent = matchIntent(message);
   const useAi = employeeAiConfigured();
   const requestLike = intent === "request";
+
+  // Server-side gate: the assistant only talks about the asker's own data. A question that names another person
+  // (name, code, first name) or asks about "everyone" is refused here, before any AI is involved — the rule does
+  // not depend on the model obeying its prompt. Other people's names stay on the server.
+  const others = await prisma.employee.findMany({ where: { id: { not: employeeId } }, select: { name: true, code: true } });
+  if (asksAboutOthers(message, others, { name: facts.name, code: facts.code })) {
+    return { text: othersRefusal(facts), source: "rules", intent: null, links: [], canForward: true };
+  }
+
+  // Detail questions about the asker's own data (which dates, last month, Slip Pay lines, kasbon history).
+  // Like the short answers, only for short, plain questions: a long or "jelaskan/kenapa" question deserves the AI
+  // (which sees the same detail in its facts) whenever one is available.
+  const plainQuestion = wordCount(message) <= 12 && !asksForExplanation(message);
+  const detail = !useAi || plainQuestion ? detailAnswer(message, facts) : null;
+  if (detail) return { text: detail, source: "rules", intent, links: suggestLinks(message), canForward: false };
 
   // A short, clear question is answered by the rules (free, instant). A long or unclear one deserves real
   // understanding — that's where Claude is worth its cost.

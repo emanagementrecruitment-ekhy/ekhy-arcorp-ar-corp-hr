@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  asksAboutOthers,
+  detailAnswer,
+  othersRefusal,
   asksForExplanation,
   buildSystemPrompt,
   matchIntent,
@@ -179,4 +182,53 @@ test("sanitizeHistory keeps a short valid tail starting with a user turn", () =>
 test("wordCount ignores punctuation", () => {
   assert.equal(wordCount("Halo, apa kabar?!"), 3);
   assert.equal(wordCount(""), 0);
+});
+
+const OWN = {
+  attendanceDays: [1, 2, 3, 5, 8],
+  lastMonth: { label: 'September 2026', hariHadir: 22, vcr: null },
+  slipLines: [
+    { label: 'GAJI POKOK', amount: 4_000_000, kind: 'tambah' as const },
+    { label: 'Potongan terlambat', amount: 200_000, kind: 'potong' as const },
+  ],
+  kasbons: [
+    { date: '2026-10-02', amount: 500_000, status: 'DISETUJUI' },
+    { date: '2026-09-10', amount: 300_000, status: 'DITOLAK' },
+  ],
+};
+
+test('detailAnswer lists the dates present, last month, slip lines and kasbon history', () => {
+  const f = facts({ own: OWN });
+  assert.match(detailAnswer('absen saya tanggal berapa saja', f) ?? '', /1, 2, 3, 5, 8/);
+  assert.match(detailAnswer('absen bulan lalu berapa hari', f) ?? '', /22 hari hadir/);
+  const slip = detailAnswer('rincian slip gaji saya apa saja', f) ?? '';
+  assert.match(slip, /GAJI POKOK: \+/);
+  assert.match(slip, /Potongan terlambat: −/);
+  const kas = detailAnswer('riwayat kasbon saya', f) ?? '';
+  assert.match(kas, /2026-10-02/);
+  assert.match(kas, /ditolak/);
+});
+
+test('detailAnswer stays quiet for plain questions and when no detail exists', () => {
+  assert.equal(detailAnswer('sudah absen belum', facts({ own: OWN })), null);
+  assert.equal(detailAnswer('absen tanggal berapa', facts()), null);
+});
+
+test('asksAboutOthers refuses other people by name, code or in general', () => {
+  const others = [
+    { name: 'Grace Wijaya', code: 'AR-21' },
+    { name: 'Budi Santoso', code: 'AR-22' },
+    { name: 'Tera Mawar', code: 'AR-23' },
+  ];
+  const self = { name: 'Siti Aminah', code: 'AR-07' };
+  assert.equal(asksAboutOthers('berapa gaji Grace bulan ini', others, self), true);
+  assert.equal(asksAboutOthers('absen budi santoso kemarin', others, self), true);
+  assert.equal(asksAboutOthers('vcr AR-22 hari ini', others, self), true);
+  assert.equal(asksAboutOthers('siapa yang paling banyak vcr', others, self), true);
+  assert.equal(asksAboutOthers('gaji teman saya berapa', others, self), true);
+  // own data, own name and everyday app words are fine
+  assert.equal(asksAboutOthers('berapa gaji saya bulan ini', others, self), false);
+  assert.equal(asksAboutOthers('Siti mau cek absen AR-07', others, self), false);
+  assert.equal(asksAboutOthers('vcr tera saya hari ini', others, self), false);
+  assert.match(othersRefusal(facts()), /datamu sendiri/);
 });
