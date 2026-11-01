@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Batas tanya hari ini sudah tercapai. Coba lagi besok." }, { status: 429 });
     }
 
-    const reply = await answerEmployee(session.employeeId, message, sanitizeHistory(body?.history));
+    const reply = await answerEmployee(session.employeeId, message, sanitizeHistory(body?.history), session.accessRole);
     // Questions that went to Claude leave the server, so they are logged for the Owner (rule answers stay private).
     if (reply.source === "ai") await logAudit(session, "ASSISTANT_ASK", session.name, message.slice(0, 160));
     return NextResponse.json({ ...reply, aiConfigured: employeeAiConfigured() });
