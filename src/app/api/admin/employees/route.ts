@@ -169,7 +169,7 @@ export async function GET(req: Request) {
 async function nextEmployeeCode(role: string) {
   const prefix = codePrefixForRole(role);
   const employees = await prisma.employee.findMany({
-    where: { code: { startsWith: `${prefix}-` } },
+    where: { code: { startsWith: prefix } },
     select: { code: true },
   });
   return formatCode(prefix, nextCodeNumber(employees.map((e) => e.code), prefix));

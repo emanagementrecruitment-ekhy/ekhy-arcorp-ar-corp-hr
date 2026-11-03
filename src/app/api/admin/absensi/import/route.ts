@@ -1,4 +1,5 @@
 import { STAFF_ROLES } from "@/lib/constants";
+import { exampleCode } from "@/lib/employee-code";
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { Prisma } from "@prisma/client";
@@ -141,7 +142,7 @@ export async function GET(req: Request) {
     const today = new Date().toISOString().slice(0, 10);
     const dataSheet = XLSX.utils.aoa_to_sheet([
       TEMPLATE_HEADERS,
-      ["AR-01", "Budi Santoso", today],
+      [exampleCode("staff"), "Budi Santoso", today],
       ["PR-001", "Sari Amelia", today],
     ]);
     const panduan = [

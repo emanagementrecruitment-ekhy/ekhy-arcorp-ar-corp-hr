@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <div className="font-display text-[17px] text-ar-gold2 mb-2">{title}</div>
+      <div className="font-display text-[14px] text-ar-gold2 mb-1.5">{title}</div>
       {children}
     </section>
   );
@@ -24,11 +24,11 @@ export default function PrivacyPage() {
   const ai = aiDisclosure(aiProvider());
   return (
     <div className="min-h-screen bg-ar-bg text-ar-text">
-      <div className="max-w-2xl mx-auto px-5 py-12 sm:py-16">
-        <div className="font-display text-[28px] mb-1">Kebijakan Privasi &amp; Pemberitahuan Data Pribadi</div>
-        <div className="text-[11.5px] text-ar-dim mb-8">{BRAND.short} · Terakhir diperbarui: November 2026</div>
+      <div className="max-w-2xl mx-auto px-5 py-8 sm:py-12">
+        <div className="font-display text-[20px] mb-1">Kebijakan Privasi &amp; Pemberitahuan Data Pribadi</div>
+        <div className="text-[10px] text-ar-dim mb-6">{BRAND.short} · Terakhir diperbarui: November 2026</div>
 
-        <div className="flex flex-col gap-6 text-[13px] leading-[1.8] text-ar-text">
+        <div className="flex flex-col gap-4 text-[11px] leading-[1.7] text-ar-text">
           <p>
             Aplikasi {BRAND.short} (&ldquo;Aplikasi&rdquo;) adalah sistem internal untuk mengelola absensi, komisi/voucher,
             kasbon, dan Slip Pay karyawan {BRAND.short}. Aplikasi ini digunakan oleh karyawan dan staf kantor {BRAND.short} —
@@ -65,15 +65,6 @@ export default function PrivacyPage() {
                 <strong>Token notifikasi</strong> — bila Anda mengaktifkan notifikasi di perangkat.
               </li>
             </ul>
-          </Section>
-
-          <Section title="Lokasi Anda">
-            <p>
-              Selain saat absen, selama aplikasi terbuka dan terlihat di layar, aplikasi mengirim posisi perangkat Anda ke kantor
-              pusat sekitar setiap satu menit (lokasi langsung). Titik hijau kecil di layar menandakan fitur ini aktif.
-              Fitur ini tidak berjalan ketika aplikasi ditutup atau layar mati, dan koordinat tidak ditampilkan kepada Anda.
-              Anda dapat menolak izin lokasi di pengaturan perangkat; hubungi admin bila hal itu mempengaruhi absensi Anda.
-            </p>
           </Section>
 
           <Section title="Untuk Apa Data Digunakan">

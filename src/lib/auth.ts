@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import type { AccessRole } from "./constants";
-import { SESSION_COOKIE, SESSION_TTL_SECONDS } from "./constants";
+import { SESSION_COOKIE, sessionTtlSeconds } from "./constants";
 
 function secretKey() {
   const secret = process.env.SESSION_SECRET;
@@ -22,10 +22,11 @@ export interface SessionPayload {
 }
 
 export async function createSession(payload: SessionPayload) {
+  const ttl = sessionTtlSeconds(payload.accessRole);
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS)
+    .setExpirationTime(Math.floor(Date.now() / 1000) + ttl)
     .sign(secretKey());
 
   const store = await cookies();
@@ -34,7 +35,7 @@ export async function createSession(payload: SessionPayload) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: SESSION_TTL_SECONDS,
+    maxAge: ttl,
   });
 }
 

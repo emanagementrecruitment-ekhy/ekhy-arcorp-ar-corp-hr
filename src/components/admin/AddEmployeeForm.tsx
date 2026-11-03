@@ -4,7 +4,7 @@ import { useState } from "react";
 import EmployeeFields, { emptyEmployeeFields, type EmployeeFieldsValue, type SupervisorOption } from "./EmployeeFields";
 import { btnPrimaryClass } from "@/components/ui/styles";
 
-/** Add panel for one kind of person: "staff" (code AR-xx) or "tera" (code EQ-xx). Open/close is controlled by the page's header button. */
+/** Add panel for one kind of person: "staff" (code e.g. AR001) or "tera" (code e.g. EQ001). Open/close is controlled by the page's header button. */
 export default function AddEmployeeForm({
   kind,
   open,

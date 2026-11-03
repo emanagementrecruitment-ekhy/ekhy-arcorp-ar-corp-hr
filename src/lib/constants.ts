@@ -124,7 +124,13 @@ export const HQ_ADDRESS = "Jl. Mangga Besar IX No.1 Blok B2, RT.7/RW.1, Pinangsi
 export const ATTENDANCE_RADIUS_KM = 1000;
 
 export const SESSION_COOKIE = "arcorp_session";
-export const SESSION_TTL_SECONDS = 60 * 60 * 12; // one field shift
+export const SESSION_TTL_SECONDS = 60 * 60 * 12; // office accounts (Owner/Konsultan/Admin Pusat/Manager): one working day
+// Field accounts (Karyawan/Tera/Supervisor) sign in on their own phone and stay signed in until they press Logout.
+export const FIELD_SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
+
+export function sessionTtlSeconds(accessRole: string): number {
+  return (OFFICE_ROLES as string[]).includes(accessRole) ? SESSION_TTL_SECONDS : FIELD_SESSION_TTL_SECONDS;
+}
 
 export const OTP_TTL_SECONDS = 5 * 60;
 export const OTP_MAX_ATTEMPTS = 5;
@@ -276,6 +282,10 @@ export const THEME_FONTS = [
   { id: "classic", label: "Klasik", desc: "Cormorant Garamond + Manrope (tampilan asli)" },
   { id: "modern", label: "Modern", desc: "Playfair Display + Inter" },
   { id: "bold", label: "Tegas", desc: "Montserrat + Work Sans" },
+  { id: "royal", label: "Kerajaan", desc: "Cinzel + Josefin Sans — anggun seperti prasasti" },
+  { id: "tech", label: "Futuristik", desc: "Orbitron + Exo 2 — modern bergaya teknologi" },
+  { id: "art", label: "Seni", desc: "Abril Fatface + Raleway — judul tebal dekoratif" },
+  { id: "courier", label: "Courier New Tebal", desc: "Courier New tebal (mesin ketik); cadangan Courier Prime bila perangkat tak punya" },
 ] as const;
 export type ThemeFontId = (typeof THEME_FONTS)[number]["id"];
 export const THEME_FONT_IDS = THEME_FONTS.map((t) => t.id) as ThemeFontId[];

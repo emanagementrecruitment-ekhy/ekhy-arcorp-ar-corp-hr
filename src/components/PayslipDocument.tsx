@@ -102,13 +102,13 @@ export default function PayslipDocument({
   const k = payslip.karyawan;
   return (
     <div id="payslip-print-area" className="relative bg-ar-surface border border-ar-goldline rounded-2xl p-6 print:border-0 print:rounded-none print:p-0 print:bg-white">
-      {/* E-MANAGEMENT watermark: only shows on paper / Save-as-PDF, centered behind the table. */}
+      {/* Company-logo watermark (this client's own logo): only shows on paper / Save-as-PDF, centered behind the table. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/watermark-emanagement.png"
+        src="/api/brand-logo"
         alt=""
         aria-hidden
-        className="hidden print:block absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2 opacity-[0.09] pointer-events-none select-none"
+        className="hidden print:block absolute left-1/2 top-1/2 w-[62%] max-h-[70%] object-contain -translate-x-1/2 -translate-y-1/2 opacity-[0.09] pointer-events-none select-none"
       />
       <div className="flex items-center gap-3 mb-5 print:mb-4">
         <Image

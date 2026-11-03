@@ -123,6 +123,26 @@
   --font-display: var(--font-display-bold);
   --font-sans: var(--font-sans-bold);
 }
+[data-font="royal"] {
+  --font-display: var(--font-display-royal);
+  --font-sans: var(--font-sans-royal);
+}
+[data-font="tech"] {
+  --font-display: var(--font-display-tech);
+  --font-sans: var(--font-sans-tech);
+}
+[data-font="art"] {
+  --font-display: var(--font-display-art);
+  --font-sans: var(--font-sans-art);
+}
+/* Courier New (system font) first, bundled Courier Prime as the fallback; always bold. */
+[data-font="courier"] {
+  --font-display: "Courier New", var(--font-courier-prime), Courier, monospace;
+  --font-sans: "Courier New", var(--font-courier-prime), Courier, monospace;
+}
+[data-font="courier"] body {
+  font-weight: 700;
+}
 
 @theme inline {
   --color-ar-bg: var(--ar-bg);

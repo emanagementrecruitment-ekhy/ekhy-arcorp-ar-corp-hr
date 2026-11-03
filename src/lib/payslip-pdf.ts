@@ -1,7 +1,6 @@
 import { BRAND } from "@/lib/brand";
 import "server-only";
-import fs from "node:fs";
-import path from "node:path";
+import { loadPdfLogo } from "./brand-logo";
 import PDFDocument from "pdfkit";
 import { FIXED_BLUE_LABELS } from "./payslip-sheet";
 import { HQ_ADDRESS, OFFICE2_ADDRESS } from "./constants";
@@ -29,7 +28,8 @@ export function payslipFilename(payslip: Payslip): string {
  * Kept deliberately plain (no logo image, no custom fonts) since pdfkit's
  * built-in Helvetica avoids shipping/loading any font files.
  */
-export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
+export async function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
+  const logo = await loadPdfLogo();
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 36 });
     const chunks: Buffer[] = [];
@@ -37,16 +37,17 @@ export function generatePayslipPdf(payslip: Payslip): Promise<Buffer> {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    // E-MANAGEMENT watermark behind everything (kept in the PDF so a copy still carries it).
-    try {
-      const wm = fs.readFileSync(path.join(process.cwd(), "public", "watermark-emanagement.png"));
-      const size = 330;
-      doc.save();
-      doc.opacity(0.09);
-      doc.image(wm, (doc.page.width - size) / 2, (doc.page.height - size) / 2, { width: size });
-      doc.restore();
-    } catch {
-      // watermark file missing: still produce the slip
+    // Company-logo watermark behind everything (kept in the PDF so a copy still carries it).
+    if (logo) {
+      try {
+        const size = 330;
+        doc.save();
+        doc.opacity(0.09);
+        doc.image(logo, (doc.page.width - size) / 2, (doc.page.height - size) / 2, { fit: [size, size], align: "center", valign: "center" });
+        doc.restore();
+      } catch {
+        // unreadable image: still produce the slip
+      }
     }
 
     // Karyawan (non-Tera): the "Slip Gaji Karyawan" format — identity left, earnings/deductions right.
