@@ -2,6 +2,7 @@ import "server-only";
 import * as XLSX from "xlsx";
 import { jakartaClock } from "./assistant-rules";
 import { SHEET_BLOCK_CATEGORIES } from "./payslip-sheet";
+import { exampleCode } from "./employee-code";
 
 // Fill-in-the-blanks Excel templates for the bulk importers. The "Data" sheet is left EMPTY apart from its header
 // row on purpose: sample rows live on the "Contoh & Panduan" sheet, so a template uploaded as-is can never import
@@ -94,7 +95,7 @@ export function kasbonTemplate(): Buffer {
     ["Panduan — Kasbon"],
     [],
     ["Untuk memasukkan kasbon lama/banyak sekaligus tanpa mengetik satu per satu."],
-    ["Kode Karyawan: wajib, lihat di Data Karyawan/Data Tera (mis. AR-07, EQ-01). Kolom Nama hanya bantu memeriksa."],
+    [`Kode Karyawan: wajib, lihat di Data Karyawan/Data Tera (mis. ${exampleCode("staff", 7)}, ${exampleCode("tera")}). Kolom Nama hanya bantu memeriksa.`],
     ["Tanggal: wajib, format YYYY-MM-DD (mis. 2026-10-13) atau 13/10/2026. Tidak boleh tanggal yang belum terjadi."],
     ["Nominal: wajib, angka rupiah (1500000 atau 1.500.000). Alasan: wajib."],
     ["Status: MENUNGGU (default bila kosong — belum menyentuh gaji), DISETUJUI, atau DITOLAK."],
@@ -103,7 +104,7 @@ export function kasbonTemplate(): Buffer {
     [],
     ["Contoh baris (jangan disalin ke sheet Data):"],
     KASBON_TEMPLATE_HEADERS,
-    ["AR-07", "Rina Marlina", today, 500000, "Keperluan keluarga", "DISETUJUI", "Ya"],
+    [exampleCode("staff", 7), "Rina Marlina", today, 500000, "Keperluan keluarga", "DISETUJUI", "Ya"],
   ]);
   widths(guide, [110]);
   return book([["Data", data], ["Contoh & Panduan", guide]]);
@@ -127,8 +128,8 @@ export function rincianTemplate(): Buffer {
     [],
     ["Contoh baris (jangan disalin ke sheet Data):"],
     RINCIAN_TEMPLATE_HEADERS,
-    ["EQ-01", "Dewi Lestari", ym, today, "Biaya Mess", "", "", "", 300000, ""],
-    ["EQ-01", "Dewi Lestari", ym, today, "Bonus target", "", "", 250000, "", "Bonus akhir bulan"],
+    [exampleCode("tera"), "Dewi Lestari", ym, today, "Biaya Mess", "", "", "", 300000, ""],
+    [exampleCode("tera"), "Dewi Lestari", ym, today, "Bonus target", "", "", 250000, "", "Bonus akhir bulan"],
   ]);
   widths(guide, [110]);
   return book([["Data", data], ["Contoh & Panduan", guide]]);

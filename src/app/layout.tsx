@@ -47,6 +47,23 @@ const sansBold = localFont({
   display: "swap",
 });
 
+// Extra pairs for Pengaturan Tampilan (see ./fonts/README.md). Courier New itself is a system font that cannot
+// be bundled, so the "courier" look asks for it first and falls back to the bundled Courier Prime.
+const displayRoyal = localFont({ src: "./fonts/cinzel-latin-wght-normal.woff2", variable: "--font-display-royal", weight: "400 900", display: "swap" });
+const sansRoyal = localFont({ src: "./fonts/josefin-sans-latin-wght-normal.woff2", variable: "--font-sans-royal", weight: "100 700", display: "swap" });
+const displayTech = localFont({ src: "./fonts/orbitron-latin-wght-normal.woff2", variable: "--font-display-tech", weight: "400 900", display: "swap" });
+const sansTech = localFont({ src: "./fonts/exo-2-latin-wght-normal.woff2", variable: "--font-sans-tech", weight: "100 900", display: "swap" });
+const displayArt = localFont({ src: "./fonts/abril-fatface-latin-400-normal.woff2", variable: "--font-display-art", weight: "400", display: "swap" });
+const sansArt = localFont({ src: "./fonts/raleway-latin-wght-normal.woff2", variable: "--font-sans-art", weight: "100 900", display: "swap" });
+const courierPrime = localFont({
+  src: [
+    { path: "./fonts/courier-prime-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/courier-prime-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-courier-prime",
+  display: "swap",
+});
+
 // Sidebar-only fonts (see ./fonts/README.md): the "AR CORP" wordmark and the role label.
 const fontIso = localFont({
   src: "./fonts/3DIsometric-Bold.ttf",
@@ -70,6 +87,13 @@ const fontVariables = [
   sansModern.variable,
   displayBold.variable,
   sansBold.variable,
+  displayRoyal.variable,
+  sansRoyal.variable,
+  displayTech.variable,
+  sansTech.variable,
+  displayArt.variable,
+  sansArt.variable,
+  courierPrime.variable,
 ].join(" ");
 
 export const metadata: Metadata = {

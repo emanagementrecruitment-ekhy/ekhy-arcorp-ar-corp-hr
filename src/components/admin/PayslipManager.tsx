@@ -7,7 +7,9 @@ import PayslipDocument from "@/components/PayslipDocument";
 import type { Payslip } from "@/lib/payslip";
 import { PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
 import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
-import { downloadFile } from "@/lib/client-download";
+import { fetchFile } from "@/lib/client-download";
+import { monthFolderName, saveFileToChosenFolder } from "@/lib/save-to-folder";
+import SlipFolderBar from "@/components/admin/SlipFolderBar";
 import { describePayslipDelivery } from "@/lib/payslip-delivery-message";
 import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
 
@@ -261,8 +263,13 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
 
   async function saveAsPdf() {
     setPdfBusy(true);
+    setSendMsg("");
     try {
-      await downloadFile(`/api/admin/payslip/pdf?employeeId=${employeeId}&month=${month}`, "Slip Pay.pdf");
+      const { blob, filename } = await fetchFile(`/api/admin/payslip/pdf?employeeId=${employeeId}&month=${month}`, "Slip Pay.pdf");
+      const res = await saveFileToChosenFolder(blob, filename, monthFolderName(month));
+      setSendMsg(res.where === "folder" ? `Tersimpan di ${res.folder}` : "Tersimpan di folder Unduhan.");
+    } catch {
+      setSendMsg("Gagal menyimpan PDF.");
     } finally {
       setPdfBusy(false);
     }
@@ -965,7 +972,12 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
           )}
         </div>
 
-        <div>
+        <div className="flex flex-col gap-3">
+          <SlipFolderBar
+            month={month}
+            people={employees.map((e) => ({ id: e.id, name: e.name }))}
+            pdfUrl={(id) => `/api/admin/payslip/pdf?employeeId=${id}&month=${month}`}
+          />
           {!employeeId && (
             <div className="p-8 bg-ar-surface border border-ar-line rounded-2xl text-center text-[12.5px] text-ar-faint">
               Pilih karyawan untuk melihat Slip Pay-nya.

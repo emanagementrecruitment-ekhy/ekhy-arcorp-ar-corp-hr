@@ -329,7 +329,7 @@ export default function LoginPage() {
           <div className="text-[9.5px] tracking-[0.3em] uppercase ar-shimmer-gold font-semibold">
             {BRAND.slogan}
           </div>
-          <Link href="/privacy" className="mt-3 inline-block text-[10.5px] text-ar-dim underline underline-offset-4">
+          <Link href="/privacy" className="mt-3 inline-block text-[9px] text-ar-dim underline underline-offset-4">
             Kebijakan Privasi &amp; Data Pribadi
           </Link>
         </div>

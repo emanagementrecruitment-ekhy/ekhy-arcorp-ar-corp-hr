@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { btnPrimaryClass, cardClass } from "@/components/ui/styles";
+import { exampleCode } from "@/lib/employee-code";
 
 interface Card {
   id: string;
@@ -20,7 +21,7 @@ const CARDS: Card[] = [
   {
     id: "karyawan",
     title: "Karyawan & Tera baru",
-    purpose: "Daftarkan banyak karyawan/Tera sekaligus. Kode (AR-xx / EQ-xx) dibuat otomatis, mereka bisa langsung login.",
+    purpose: `Daftarkan banyak karyawan/Tera sekaligus. Kode (mis. ${exampleCode("staff")} / ${exampleCode("tera")}) dibuat otomatis, mereka bisa langsung login.`,
     columns: "Nama, Email, No HP, Peran, Lokasi, Level Pendapatan (Tera) atau Gaji (selain Tera)",
     endpoint: "/api/admin/employees/import",
     templates: [{ href: "/api/admin/employees/import", label: "Template Karyawan & Tera" }],

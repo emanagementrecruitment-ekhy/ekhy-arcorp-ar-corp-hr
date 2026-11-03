@@ -10,6 +10,7 @@ import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
 import { VOUCHER_LABEL, usesVcr, type EmployeeLevel } from "@/lib/constants";
 import { isLink, shortRp } from "@/lib/format";
 import { joinedLabel } from "@/lib/joined-date";
+import { exampleCode } from "@/lib/employee-code";
 
 interface EmpRow {
   id: string;
@@ -488,7 +489,7 @@ export default function EmployeeListPage({
 
         <div className="mt-3.5 py-4 px-4.5 bg-ar-surface2 border border-ar-line rounded-2xl text-[11.5px] leading-[1.75] text-ar-dim">
           Hak akses: <span className="text-ar-gold">Owner</span> dan <span className="text-ar-gold">Admin</span> dapat menambahkan
-          data lewat tombol <b>+ Tambah</b> di sebelah tab Aktif/Resign (kode Staff berawalan AR-, Terapis EQ-).{" "}
+          data lewat tombol <b>+ Tambah</b> di sebelah tab Aktif/Resign (kode Staff berawalan {exampleCode("staff").replace(/\d+$/, "")}, Terapis {exampleCode("tera").replace(/\d+$/, "")}).{" "}
           <span className="text-ar-gold">Owner</span>, Konsultan, dan Manager dapat mengedit data, menandai resign, dan menghapus —
           <b> Resign dan Hapus</b> selalu meminta kode konfirmasi yang dikirim ke email Owner. Perubahan nilai voucher dan
           persetujuan kasbon tetap di tangan Owner dan Manager.
