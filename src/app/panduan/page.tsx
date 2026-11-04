@@ -79,14 +79,14 @@ export default function PanduanPage() {
           <WalletCard3D label={BRAND.short} />
         </Section>
 
-        <div className="ar-copyright-plate rounded-3xl border border-ar-goldline px-6 py-10 text-center">
-          <div className="font-iso text-[26px] sm:text-[34px] leading-[1.15]" style={{ color: "#e9dfc3" }}>
+        <div className="ar-copyright-plate rounded-3xl border border-ar-goldline px-5 py-6 text-center">
+          <div className="font-iso text-[18px] sm:text-[22px] leading-[1.2]" style={{ color: "#e9dfc3" }}>
             {COMPANY_NAME}
           </div>
-          <div className="font-unique text-[11px] tracking-[0.28em] uppercase mt-3" style={{ color: "#d8c28a" }}>
+          <div className="font-unique text-[9.5px] tracking-[0.24em] uppercase mt-2" style={{ color: "#d8c28a" }}>
             Terima kasih telah bekerja bersama kami
           </div>
-          <div className="mt-6 flex flex-col gap-2 font-iso text-[16px]">
+          <div className="mt-4 flex flex-col gap-1 font-iso text-[12px]">
             <a href={COMPANY_WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4" style={{ color: "#f1d27a" }}>
               {COMPANY_WEBSITE_HOST}
             </a>
