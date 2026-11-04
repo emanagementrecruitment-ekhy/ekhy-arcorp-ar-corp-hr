@@ -4,6 +4,8 @@ import { BRAND } from "@/lib/brand";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import DownloadLinks from "@/components/DownloadLinks";
 import DesktopStatusBar from "@/components/DesktopStatusBar";
 
 type Portal = "karyawan" | "pusat";
@@ -328,6 +330,12 @@ export default function LoginPage() {
           <div className="text-[9.5px] tracking-[0.3em] uppercase ar-shimmer-gold font-semibold">
             {BRAND.slogan}
           </div>
+          <div className="mt-3">
+            <DownloadLinks />
+          </div>
+          <Link href="/panduan" className="inline-block mt-4 text-[10.5px] text-ar-faint underline underline-offset-4">
+            Panduan Aplikasi
+          </Link>
         </div>
 
       </div>
