@@ -219,7 +219,7 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle icon="chart">Ringkasan Server</CardTitle>
             <span className="flex gap-2 print:hidden">
-              <button onClick={() => downloadSummaryCsv(summaryRows(data))} className="py-1 px-3 rounded-[9px] border border-ar-goldline text-ar-gold text-[10.5px] font-bold tracking-[0.1em] uppercase cursor-pointer">CSV</button>
+              <button onClick={() => downloadSummaryCsv(summaryRows(data))} className="py-1 px-3 rounded-[9px] border border-ar-goldline text-ar-gold text-[10.5px] font-bold tracking-[0.1em] uppercase cursor-pointer">Unduh CSV</button>
               <button onClick={() => printSummary(summaryRows(data))} className="py-1 px-3 rounded-[9px] border border-ar-goldline text-ar-gold text-[10.5px] font-bold tracking-[0.1em] uppercase cursor-pointer">Print</button>
             </span>
           </div>
