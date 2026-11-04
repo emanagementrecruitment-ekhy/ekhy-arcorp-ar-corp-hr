@@ -257,7 +257,7 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
                   onDone={() => setTimeout(() => window.location.reload(), 1500)}
                 />
                 <div className="mt-1.5 text-[10.5px] leading-[1.6] text-ar-faint">
-                  Daftar karyawan &amp; Terapis (aktif dan resign, dipisah) sebagai tabel di PDF terkunci kata sandi, file Excel ikut terlampir di dalamnya. Data disimpan 12 bulan sejak Owner terakhir login.
+                  Daftar karyawan &amp; Terapis (aktif dan resign, dipisah) sebagai tabel di PDF terkunci kata sandi, file Excel ikut terlampir di dalamnya. Data (slip pay, kasbon, absensi, dll) tetap tersimpan selama karyawan/Terapis masih bekerja.
                 </div>
               </div>
             </>
@@ -359,6 +359,17 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
             Hubungi Support (WhatsApp)
           </a>
           <span className="text-[11.5px] text-ar-dim">Call Center {support.phone}</span>
+        </div>
+      </div>
+
+      <div className={cardClass}>
+        <CardTitle icon="briefcase">Aplikasi Desktop</CardTitle>
+        <div className="text-[12px] leading-[1.6] text-ar-dim">
+          {process.env.NEXT_PUBLIC_DOWNLOAD_DESKTOP ? (
+            <a href={process.env.NEXT_PUBLIC_DOWNLOAD_DESKTOP} className="text-ar-gold underline underline-offset-4">Unduh pemasang Desktop</a>
+          ) : (
+            <>Buka website ini di <b>Chrome</b> atau <b>Edge</b> di komputer, lalu tekan ikon <b>Pasang</b> di ujung kanan kolom alamat (atau menu ⋮ → <b>Instal aplikasi</b>).</>
+          )}
         </div>
       </div>
 

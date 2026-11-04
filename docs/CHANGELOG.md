@@ -11,7 +11,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Kode karyawan baru dimulai dari nomor 003 (contoh AR003, EQ003) untuk AR Corp dan semua client.
 - Peta lokasi kembali berwarna akurat di Mode Siang maupun Malam. Tulisan "Konsultan" disembunyikan dari tampilan.
 - Kebijakan Privasi dihapus dari portal masuk dan dari dalam aplikasi karyawan. Gantinya halaman Panduan Aplikasi: cara memakai aplikasi, asisten Angel, simulasi project, dompet digital (render 3D, segera hadir), dan penutup berisi alamat web serta email AR Corporation.
-- Halaman depan kembali tampil untuk pengunjung yang belum login, berisi tombol Masuk dan unduhan aplikasi untuk Android (APK), iPhone/iPad, dan Desktop.
+- Halaman depan kembali tampil untuk pengunjung yang belum login, berisi tombol Masuk dan unduhan aplikasi untuk Android (APK) dan iPhone/iPad. Unduhan aplikasi Desktop dipindah ke website kantor (Pusat Sistem).
 - Unduh data di Pengaturan Tampilan dan Pusat Sistem: tambahan "Data (Excel dalam PDF)", yaitu tabel karyawan dan Terapis (aktif dan resign dipisah) di PDF terkunci kata sandi, file Excel ikut terlampir di dalamnya.
 - Pusat Sistem: kartu "Ringkasan Server" kini punya tombol Unduh CSV dan Print.
 - Slip Pay: tombol "Simpan PDF" kini menyimpan ke folder yang dipilih client sendiri di komputernya (Chrome/Edge), dirapikan otomatis per bulan ("Slip Pay November 2026"), plus tombol "Simpan semua slip bulan ini". Pilihan folder hanya tersimpan di komputer itu; di browser yang belum mendukung, PDF masuk ke folder Unduhan seperti biasa. Print, Email, dan WhatsApp tidak berubah.

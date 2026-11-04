@@ -6,11 +6,10 @@ import { BRAND } from "@/lib/brand";
 import { OFFICE_ROLES, type AccessRole } from "@/lib/constants";
 
 // Download targets. Android defaults to the APK shipped with the app; every client can point any of them at its own file
-// or store page with NEXT_PUBLIC_DOWNLOAD_ANDROID / _IOS / _DESKTOP (inlined at build time). Without an own file,
-// iPhone/iPad and Desktop install the web app straight from the browser, which needs no store.
+// or store page with NEXT_PUBLIC_DOWNLOAD_ANDROID / _IOS (inlined at build time). Without an own file,
+// iPhone/iPad install the web app straight from the browser, which needs no store.
 const ANDROID_URL = process.env.NEXT_PUBLIC_DOWNLOAD_ANDROID || "/downloads/arcorp.apk";
 const IOS_URL = process.env.NEXT_PUBLIC_DOWNLOAD_IOS || "";
-const DESKTOP_URL = process.env.NEXT_PUBLIC_DOWNLOAD_DESKTOP || "";
 
 function Card({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
   return (
@@ -68,21 +67,6 @@ export default async function Home() {
           </Card>
           <Card title="iPad" icon="📱">
             Sama seperti iPhone: buka di <b>Safari</b>, tekan <b>Bagikan</b>, lalu <b>Tambah ke Layar Utama</b>.
-          </Card>
-          <Card title="Desktop (Windows / Mac)" icon="🖥️">
-            {DESKTOP_URL ? (
-              <>
-                Unduh pemasang desktop.
-                <br />
-                <a href={DESKTOP_URL} className={btn}>
-                  Unduh untuk Desktop
-                </a>
-              </>
-            ) : (
-              <>
-                Buka di <b>Chrome</b> atau <b>Edge</b>, lalu tekan ikon <b>Pasang</b> di ujung kanan kolom alamat (atau menu ⋮ → <b>Instal aplikasi</b>).
-              </>
-            )}
           </Card>
         </div>
 
