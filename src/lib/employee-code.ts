@@ -23,6 +23,8 @@ export function codePrefixForRole(role: string): string {
  * Next free number for `prefix`, looking only at codes shaped exactly "PREFIX<digits>" or the older
  * "PREFIX-<digits>" (existing employees keep their old code, but still count so numbers never collide).
  */
+export const FIRST_CODE_NUMBER = 3; // numbering starts at 003 (001 and 002 stay reserved)
+
 export function nextCodeNumber(codes: string[], prefix: string): number {
   const re = new RegExp(`^${prefix}-?(\\d+)$`);
   let max = 0;
@@ -30,7 +32,7 @@ export function nextCodeNumber(codes: string[], prefix: string): number {
     const m = re.exec(c);
     if (m) max = Math.max(max, Number(m[1]));
   }
-  return max + 1;
+  return Math.max(max + 1, FIRST_CODE_NUMBER);
 }
 
 export function formatCode(prefix: string, n: number): string {
@@ -38,6 +40,6 @@ export function formatCode(prefix: string, n: number): string {
 }
 
 /** Example code for UI hints and import templates, e.g. exampleCode("staff", 7) -> "AR007". */
-export function exampleCode(kind: "staff" | "tera", n = 1): string {
+export function exampleCode(kind: "staff" | "tera", n = FIRST_CODE_NUMBER): string {
   return formatCode(kind === "tera" ? TERA_CODE_PREFIX : STAFF_CODE_PREFIX, n);
 }

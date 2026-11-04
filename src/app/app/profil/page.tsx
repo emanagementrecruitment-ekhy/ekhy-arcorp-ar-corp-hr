@@ -86,9 +86,9 @@ export default async function ProfilPage() {
         </Link>
       )}
 
-      <Link href="/privacy" className="flex items-center justify-between mt-2.5 px-4 py-3 bg-ar-surface border border-ar-line rounded-2xl">
-        <span className="text-[11px]">🔒 Kebijakan Privasi &amp; Data Pribadi</span>
-        <span className="text-ar-gold text-[10px]">Baca →</span>
+      <Link href="/panduan" className="flex items-center justify-between mt-2.5 px-4 py-3 bg-ar-surface border border-ar-line rounded-2xl">
+        <span className="text-[11px]">📖 Panduan Aplikasi</span>
+        <span className="text-ar-gold text-[10px]">Buka →</span>
       </Link>
     </div>
   );

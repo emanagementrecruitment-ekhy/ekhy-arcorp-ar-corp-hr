@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import OwnerCodeBox from "@/components/admin/OwnerCodeBox";
+import { SlipFolderBox } from "@/components/admin/SlipFolderBar";
+import { fetchFile } from "@/lib/client-download";
+import { saveFileToChosenFolder, slipSubfolder, type SlipGroup } from "@/lib/save-to-folder";
+import { usesVcr } from "@/lib/constants";
 
 interface ArchiveItem {
   id: string;
@@ -15,6 +19,19 @@ interface ArchiveItem {
 export default function ResignPayslipArchive() {
   const [items, setItems] = useState<ArchiveItem[] | null>(null);
   const [locked, setLocked] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
+  // Saves the frozen PDF into <chosen folder>/Slip Pay <Bulan Tahun>/Resign Karyawan|Resign Terapis.
+  async function savePdf(it: ArchiveItem) {
+    const group: SlipGroup = usesVcr(it.employee.role) ? "Resign Terapis" : "Resign Karyawan";
+    try {
+      const { blob, filename } = await fetchFile(`/api/admin/resign-payslip/${it.id}`, it.filename || "Slip Pay.pdf");
+      const res = await saveFileToChosenFolder(blob, filename, slipSubfolder(it.month, group));
+      setSaveMsg(res.where === "folder" ? `Tersimpan di ${res.folder}` : "Tersimpan di folder Unduhan.");
+    } catch {
+      setSaveMsg("Gagal menyimpan PDF.");
+    }
+  }
 
   const load = useCallback(() => {
     fetch("/api/admin/resign-payslip")
@@ -64,6 +81,9 @@ export default function ResignPayslipArchive() {
   }
 
   return (
+    <div className="flex flex-col gap-2.5">
+      <SlipFolderBox month={items[0].month} group="Resign Karyawan" />
+      {saveMsg && <div className="text-[11.5px] text-ar-dim">{saveMsg}</div>}
     <div className="bg-ar-surface border border-ar-line rounded-2xl overflow-x-auto">
       <div className="min-w-[640px]">
         <div
@@ -93,15 +113,13 @@ export default function ResignPayslipArchive() {
               {it.employee.status === "RESIGN" ? "Resign" : "Aktif kembali"}
             </span>
             <span className="text-[11px] text-ar-dim">{new Date(it.createdAt).toLocaleDateString("id-ID")}</span>
-            <a
-              href={`/api/admin/resign-payslip/${it.id}`}
-              className="text-[11px] text-ar-gold cursor-pointer whitespace-nowrap"
-            >
-              Unduh PDF
-            </a>
+            <button onClick={() => savePdf(it)} className="text-[11px] text-ar-gold cursor-pointer whitespace-nowrap">
+              Simpan PDF
+            </button>
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

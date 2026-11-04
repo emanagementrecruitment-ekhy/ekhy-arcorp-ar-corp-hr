@@ -8,7 +8,7 @@ import type { Payslip } from "@/lib/payslip";
 import { PAYSLIP_COST_CATEGORIES, usesVcr } from "@/lib/constants";
 import { SHEET_BLOCK_CATEGORIES } from "@/lib/payslip-sheet";
 import { fetchFile } from "@/lib/client-download";
-import { monthFolderName, saveFileToChosenFolder } from "@/lib/save-to-folder";
+import { saveFileToChosenFolder, slipSubfolder } from "@/lib/save-to-folder";
 import SlipFolderBar from "@/components/admin/SlipFolderBar";
 import { describePayslipDelivery } from "@/lib/payslip-delivery-message";
 import { btnPrimaryClass, cardClass, inputClass } from "@/components/ui/styles";
@@ -266,7 +266,7 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
     setSendMsg("");
     try {
       const { blob, filename } = await fetchFile(`/api/admin/payslip/pdf?employeeId=${employeeId}&month=${month}`, "Slip Pay.pdf");
-      const res = await saveFileToChosenFolder(blob, filename, monthFolderName(month));
+      const res = await saveFileToChosenFolder(blob, filename, slipSubfolder(month, mode === "tera" ? "Terapis" : "Karyawan"));
       setSendMsg(res.where === "folder" ? `Tersimpan di ${res.folder}` : "Tersimpan di folder Unduhan.");
     } catch {
       setSendMsg("Gagal menyimpan PDF.");
@@ -975,6 +975,7 @@ export default function PayslipManager({ mode }: { mode: "tera" | "karyawan" }) 
         <div className="flex flex-col gap-3">
           <SlipFolderBar
             month={month}
+            group={mode === "tera" ? "Terapis" : "Karyawan"}
             people={employees.map((e) => ({ id: e.id, name: e.name }))}
             pdfUrl={(id) => `/api/admin/payslip/pdf?employeeId=${id}&month=${month}`}
           />
