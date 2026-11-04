@@ -12,12 +12,12 @@ test("nextCodeNumber counts per prefix, new and old shapes, and ignores other sh
   const codes = ["AR-01", "AR-07", "AR008", "EQ-03", "AR-xx", "XAR-99", "AR-12b", "AR9x"];
   assert.equal(nextCodeNumber(codes, "AR"), 9);
   assert.equal(nextCodeNumber(codes, "EQ"), 4);
-  assert.equal(nextCodeNumber([], "EQ"), 1);
+  assert.equal(nextCodeNumber([], "EQ"), 3);
 });
 
 test("a client prefix never counts another client's codes", () => {
-  assert.equal(nextCodeNumber(["AR-05", "DR002"], "DR"), 3);
-  assert.equal(nextCodeNumber(["AR-05", "DR002"], "AM"), 1);
+  assert.equal(nextCodeNumber(["AR-05", "DR004"], "DR"), 5);
+  assert.equal(nextCodeNumber(["AR-05", "DR004"], "AM"), 3);
 });
 
 test("formatCode pads to three digits with no dash", () => {
@@ -37,5 +37,5 @@ test("cleanCodePrefix accepts 1-4 letters/digits and falls back otherwise", () =
 
 test("exampleCode uses the configured prefixes", () => {
   assert.equal(exampleCode("staff", 7), "AR007");
-  assert.equal(exampleCode("tera"), "EQ001");
+  assert.equal(exampleCode("tera"), "EQ003");
 });

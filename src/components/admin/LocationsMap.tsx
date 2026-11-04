@@ -33,8 +33,8 @@ const COLOR_REGISTERED = "#8A93A3";
 const COLOR_HQ = "#D6AE5F";
 
 // OpenFreeMap: free hosted vector tiles, no API key. Dark style for night mode.
-const STYLE_DARK = "https://tiles.openfreemap.org/styles/dark";
-const STYLE_LIGHT = "https://tiles.openfreemap.org/styles/positron";
+const STYLE_DARK = "https://tiles.openfreemap.org/styles/liberty"; // colored in night mode too
+const STYLE_LIGHT = "https://tiles.openfreemap.org/styles/liberty";
 
 const RADIUS_SRC = "arc-radius";
 

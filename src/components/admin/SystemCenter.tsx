@@ -79,6 +79,50 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+/** The server summary as label/value rows — shared by the CSV and Print buttons. */
+function summaryRows(d: {
+  product: { name: string; version: string };
+  license: { employeeCount: number; employeeLimit: number | null };
+  system: { uptimeMin: number; database: { ok: boolean; ms: number; sizeKb: number | null }; otp: { email: boolean; whatsapp: boolean }; lastBackup: { at: string; by: string } | null };
+}): [string, string][] {
+  const s = d.system;
+  return [
+    ["Produk", `${d.product.name} ${d.product.version}`],
+    ["Server", `Berjalan ${s.uptimeMin < 60 ? `${s.uptimeMin} menit` : `${Math.floor(s.uptimeMin / 60)} jam`}`],
+    ["Database", s.database.ok ? `Normal ${s.database.ms} ms${s.database.sizeKb !== null ? ` · ${(s.database.sizeKb / 1024).toFixed(1)} MB` : ""}` : "Bermasalah"],
+    ["Kode OTP via email", s.otp.email ? "Aktif" : "Belum diatur"],
+    ["Kode OTP via WhatsApp", s.otp.whatsapp ? "Aktif" : "Belum diatur"],
+    ["Karyawan/Tera terpakai", `${d.license.employeeCount}${d.license.employeeLimit === null ? "" : ` dari ${d.license.employeeLimit}`}`],
+    ["Backup terakhir", s.lastBackup ? `${fmtDateTime(s.lastBackup.at)} oleh ${s.lastBackup.by}` : "Belum pernah diunduh"],
+    ["Dicetak", fmtDateTime(new Date().toISOString())],
+  ];
+}
+
+function downloadSummaryCsv(rows: [string, string][]) {
+  const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const csv = "\uFEFF" + [["Keterangan", "Nilai"], ...rows].map((r) => r.map(q).join(",")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ringkasan-server-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function printSummary(rows: [string, string][]) {
+  const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const w = window.open("", "_blank", "width=720,height=640");
+  if (!w) return;
+  w.document.write(
+    `<!doctype html><title>Ringkasan Server</title><style>body{font:14px Arial,sans-serif;padding:32px}h1{font-size:20px}table{border-collapse:collapse;width:100%}td{border-bottom:1px solid #ccc;padding:8px 6px}td:first-child{width:40%;color:#555}</style><h1>Ringkasan Server</h1><table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table>`
+  );
+  w.document.close();
+  w.focus();
+  w.print();
+}
+
 function CardTitle({ icon, children }: { icon: "shield" | "chart" | "receipt" | "briefcase" | "megaphone" | "calendar-check"; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2 mb-3 text-[10px] tracking-[0.16em] uppercase text-ar-gold">
@@ -172,7 +216,13 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
         </div>
 
         <div className={cardClass}>
-          <CardTitle icon="chart">Status Sistem</CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle icon="chart">Ringkasan Server</CardTitle>
+            <span className="flex gap-2 print:hidden">
+              <button onClick={() => downloadSummaryCsv(summaryRows(data))} className="py-1 px-3 rounded-[9px] border border-ar-goldline text-ar-gold text-[10.5px] font-bold tracking-[0.1em] uppercase cursor-pointer">CSV</button>
+              <button onClick={() => printSummary(summaryRows(data))} className="py-1 px-3 rounded-[9px] border border-ar-goldline text-ar-gold text-[10.5px] font-bold tracking-[0.1em] uppercase cursor-pointer">Print</button>
+            </span>
+          </div>
           <Row label="Server">
             <span className="inline-flex items-center gap-1.5">
               <Dot ok /> Berjalan · {system.uptimeMin < 60 ? `${system.uptimeMin} menit` : `${Math.floor(system.uptimeMin / 60)} jam`}
@@ -197,6 +247,18 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
               </Row>
               <div className="pt-3">
                 <BackupDownload onDone={() => setTimeout(() => window.location.reload(), 1500)} />
+              </div>
+              <div className="pt-2.5">
+                <BackupDownload
+                  label="Unduh data (Excel dalam PDF)"
+                  icon="📄"
+                  endpoint="/api/admin/backup/report"
+                  fallbackName="backup-data.pdf"
+                  onDone={() => setTimeout(() => window.location.reload(), 1500)}
+                />
+                <div className="mt-1.5 text-[10.5px] leading-[1.6] text-ar-faint">
+                  Daftar karyawan &amp; Terapis (aktif dan resign, dipisah) sebagai tabel di PDF terkunci kata sandi, file Excel ikut terlampir di dalamnya. Data disimpan 12 bulan sejak Owner terakhir login.
+                </div>
               </div>
             </>
           )}

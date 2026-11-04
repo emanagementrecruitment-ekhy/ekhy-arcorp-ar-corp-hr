@@ -8,7 +8,20 @@ import { MIN_PASSPHRASE_LENGTH } from "@/lib/backup-crypto-rules";
  * used to encrypt the file and never stored. Without it the backup cannot be opened, and nobody (including the
  * vendor) can recover it.
  */
-export default function BackupDownload({ label = "Unduh backup terenkripsi", onDone }: { label?: string; onDone?: () => void }) {
+export default function BackupDownload({
+  label = "Unduh backup terenkripsi",
+  onDone,
+  endpoint = "/api/admin/backup",
+  fallbackName = "arcorp-backup.db.enc",
+  icon = "🔒",
+}: {
+  label?: string;
+  onDone?: () => void;
+  /** "/api/admin/backup/report" = readable Excel-in-PDF backup instead of the encrypted database file. */
+  endpoint?: string;
+  fallbackName?: string;
+  icon?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
@@ -28,7 +41,7 @@ export default function BackupDownload({ label = "Unduh backup terenkripsi", onD
     if (pass !== pass2) return setError("Kata sandi dan pengulangannya tidak sama.");
     setBusy(true);
     try {
-      const res = await fetch("/api/admin/backup", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ passphrase: pass }),
@@ -38,7 +51,7 @@ export default function BackupDownload({ label = "Unduh backup terenkripsi", onD
         throw new Error(d.error ?? "Gagal membuat backup.");
       }
       const blob = await res.blob();
-      const name = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ?? "arcorp-backup.db.enc";
+      const name = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ?? fallbackName;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -63,7 +76,7 @@ export default function BackupDownload({ label = "Unduh backup terenkripsi", onD
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-2 py-2.5 px-4 rounded-[10px] border border-ar-goldline text-ar-gold text-[11.5px] font-semibold tracking-[0.08em] uppercase cursor-pointer"
       >
-        🔒 {label}
+        {icon} {label}
       </button>
     );
   }

@@ -241,7 +241,13 @@ export default function PengaturanPage() {
               satu file yang dikunci dengan kata sandi Anda. Simpan file dan kata sandinya di tempat aman di luar
               aplikasi — ini satu-satunya salinan lengkap data bisnis Anda, dan tanpa kata sandi file ini tidak bisa dibuka.
             </div>
-            <BackupDownload label="Unduh Cadangan Database" />
+            <div className="flex flex-wrap gap-2.5">
+              <BackupDownload label="Unduh Cadangan Database" />
+              <BackupDownload label="Unduh Data (Excel dalam PDF)" icon="📄" endpoint="/api/admin/backup/report" fallbackName="backup-data.pdf" />
+            </div>
+            <div className="text-[11px] text-ar-faint mt-2 leading-[1.6]">
+              Data keluar sistem berformat Excel yang dibungkus PDF terkunci (karyawan &amp; Terapis, aktif dan resign dipisah). Penyimpanan data dijaga 12 bulan sejak Owner terakhir login.
+            </div>
           </div>
         )}
       </div>

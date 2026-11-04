@@ -84,6 +84,14 @@ export function monthFolderName(month: string): string {
   return `Slip Pay ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
 }
 
+/** Where in "Slip Pay <Bulan Tahun>/" a slip goes: active staff / Terapis, and the same two for people who resigned. */
+export type SlipGroup = "Karyawan" | "Terapis" | "Resign Karyawan" | "Resign Terapis";
+
+/** "2026-10" + "Terapis" -> "Slip Pay Oktober 2026/Terapis". */
+export function slipSubfolder(month: string, group: SlipGroup): string {
+  return `${monthFolderName(month)}/${group}`;
+}
+
 function safeSegment(name: string): string {
   return name.replace(/[\\/:*?"<>|]/g, "").trim() || "file";
 }
@@ -100,12 +108,14 @@ export async function saveFileToChosenFolder(blob: Blob, filename: string, subfo
       let perm = await root.queryPermission({ mode: "readwrite" });
       if (perm !== "granted") perm = await root.requestPermission({ mode: "readwrite" });
       if (perm === "granted") {
-        const dir = await root.getDirectoryHandle(safeSegment(subfolder), { create: true });
+        // subfolder may be nested, e.g. "Slip Pay Oktober 2026/Terapis"
+        let dir: DirHandle = root;
+        for (const part of subfolder.split("/")) dir = await dir.getDirectoryHandle(safeSegment(part), { create: true });
         const file = await dir.getFileHandle(safeSegment(filename), { create: true });
         const w = await file.createWritable();
         await w.write(blob);
         await w.close();
-        return { where: "folder", folder: `${root.name}/${safeSegment(subfolder)}` };
+        return { where: "folder", folder: `${root.name}/${subfolder.split("/").map(safeSegment).join("/")}` };
       }
     } catch {
       // folder moved/deleted or permission lost: fall through to the normal download
