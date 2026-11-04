@@ -257,7 +257,7 @@ export default function SystemCenter({ children }: { children?: ReactNode }) {
                   onDone={() => setTimeout(() => window.location.reload(), 1500)}
                 />
                 <div className="mt-1.5 text-[10.5px] leading-[1.6] text-ar-faint">
-                  Daftar karyawan &amp; Terapis (aktif dan resign, dipisah) sebagai tabel di PDF terkunci kata sandi, file Excel ikut terlampir di dalamnya. Data (slip pay, kasbon, absensi, dll) tetap tersimpan selama karyawan/Terapis masih bekerja.
+                  Daftar karyawan &amp; Terapis (aktif dan resign, dipisah) sebagai tabel di PDF terkunci kata sandi, file Excel ikut terlampir di dalamnya. Data (slip pay, kasbon, absensi, dll) tetap tersimpan di server setelah karyawan/Terapis tidak lagi bekerja (tidak aktif), tanpa penghapusan otomatis, sehingga berkas tetap terlihat saat audit tahunan.
                 </div>
               </div>
             </>

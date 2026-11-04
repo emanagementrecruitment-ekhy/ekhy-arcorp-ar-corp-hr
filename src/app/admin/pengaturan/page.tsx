@@ -246,7 +246,7 @@ export default function PengaturanPage() {
               <BackupDownload label="Unduh Data (Excel dalam PDF)" icon="📄" endpoint="/api/admin/backup/report" fallbackName="backup-data.pdf" />
             </div>
             <div className="text-[11px] text-ar-faint mt-2 leading-[1.6]">
-              Data keluar sistem berformat Excel yang dibungkus PDF terkunci (karyawan &amp; Terapis, aktif dan resign dipisah). Data (slip pay, kasbon, absensi, dll) tetap tersimpan selama karyawan/Terapis masih bekerja.
+              Data keluar sistem berformat Excel yang dibungkus PDF terkunci (karyawan &amp; Terapis, aktif dan resign dipisah). Data (slip pay, kasbon, absensi, dll) tetap tersimpan di server setelah karyawan/Terapis tidak lagi bekerja (tidak aktif), tanpa penghapusan otomatis, sehingga berkas tetap terlihat saat audit tahunan.
             </div>
           </div>
         )}

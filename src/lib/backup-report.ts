@@ -82,7 +82,7 @@ export function buildBackupPdf(people: BackupPerson[], passphrase: string, owner
 
     doc.font("Helvetica-Bold").fontSize(15).fillColor("#111111").text(`BACKUP DATA ${BRAND.short.toUpperCase()}`);
     doc.font("Helvetica").fontSize(8.5).fillColor("#555555").text(`Dibuat ${stamp} oleh ${owner}. File Excel (.xlsx) ikut terlampir di dalam PDF ini (panel Lampiran).`);
-    doc.text("Data (slip pay, kasbon, absensi, dll) tetap tersimpan selama karyawan/Terapis masih bekerja. Dokumen ini dikunci dengan kata sandi backup Anda; simpan di tempat aman.");
+    doc.text("Data (slip pay, kasbon, absensi, dll) tetap tersimpan di server setelah karyawan/Terapis tidak lagi bekerja (tidak aktif), tanpa penghapusan otomatis, sehingga berkas tetap terlihat saat audit tahunan. Dokumen ini dikunci dengan kata sandi backup Anda; simpan di tempat aman.");
     doc.moveDown(0.6);
     doc.font("Helvetica-Bold").fontSize(9).fillColor("#111111").text(groups.map((g) => `${g.title}: ${g.rows.length}`).join("   |   "));
     doc.moveDown(0.6);
