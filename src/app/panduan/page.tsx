@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 import { COMPANY_EMAIL, COMPANY_NAME, COMPANY_WEBSITE_HOST, COMPANY_WEBSITE_URL } from "@/lib/constants";
 import ProjectSimulation from "@/components/ProjectSimulation";
-import WalletCard3D from "@/components/WalletCard3D";
+import WalletMenu from "@/components/WalletMenu";
 
 export const metadata: Metadata = {
   title: `Panduan Aplikasi · ${BRAND.short}`,
@@ -74,9 +74,9 @@ export default function PanduanPage() {
         <Section title="4. Dompet digital (e-wallet) · segera hadir">
           <p className="text-[12.5px] leading-[1.7] text-ar-dim mb-3">
             Dompet digital sedang disiapkan: terima gaji dan komisi langsung di aplikasi dan lihat saldonya kapan saja. Tampilan di
-            bawah adalah render 3D rancangannya. Sentuh atau geser untuk memutar.
+            bawah adalah rancangan menunya, memakai nama perusahaan kamu.
           </p>
-          <WalletCard3D label={BRAND.short} />
+          <WalletMenu label={BRAND.short} />
         </Section>
 
         <div className="ar-copyright-plate rounded-3xl border border-ar-goldline px-5 py-6 text-center">
