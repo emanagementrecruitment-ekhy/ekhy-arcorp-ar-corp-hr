@@ -2,6 +2,15 @@ name: Build Desktop App (Windows installer)
 
 on:
   workflow_dispatch:
+    inputs:
+      client_name:
+        description: "Nama client, mis. Bintang Management (kosong = AR Corp). Nama aplikasi, judul jendela, appId, shortcut dan nama installer dibuat otomatis dari sini."
+        required: false
+        default: ""
+      server_url:
+        description: "Alamat server Railway client, mis. https://bintang-management-hr-production.up.railway.app (kosong = server AR Corp)"
+        required: false
+        default: ""
   push:
     branches: [main]
     paths:
@@ -28,25 +37,27 @@ jobs:
 
       - name: Build app + template database + Windows installer
         shell: bash
+        env:
+          DESKTOP_CLIENT_NAME: ${{ inputs.client_name }}
+          DESKTOP_SERVER_URL: ${{ inputs.server_url }}
         run: bash desktop/build-desktop.sh
 
-      - name: Resolve product name from desktop/package.json
-        # Every white-label clone already renames build.productName in
-        # desktop/package.json for its own branding — reading it here means
-        # this workflow never needs a manual edit (and can't be forgotten)
-        # when the app is cloned for a new client.
+      - name: Read generated client identity
+        # build-desktop.sh generated desktop/client.json from the client name
+        # (see desktop/client-config.js), so nothing is hand-edited per client.
         id: product
         shell: bash
         run: |
-          name=$(node -p "require('./desktop/package.json').build.productName")
-          slug=$(echo "$name" | tr ' ' '-')
-          echo "name=$name" >> "$GITHUB_OUTPUT"
-          echo "slug=$slug" >> "$GITHUB_OUTPUT"
+          node -e '
+            const c = require("./desktop/client.json");
+            const out = [`name=${c.productName}`, `slug=${c.slug}`, `installer=${c.installerName}`, `default=${c.slug === "ar-corp"}`];
+            require("fs").appendFileSync(process.env.GITHUB_OUTPUT, out.join("\n") + "\n");
+          '
 
       - name: Upload installer as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-installer-${{ github.run_number }}
+          name: desktop-installer-${{ steps.product.outputs.slug }}-${{ github.run_number }}
           path: desktop/dist/*.exe
           retention-days: 90
 
@@ -72,9 +83,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           installer=$(ls desktop/dist/*.exe)
-          exeName="${{ steps.product.outputs.slug }}-Setup.exe"
+          exeName="${{ steps.product.outputs.installer }}"
           cp "$installer" "$exeName"
-          gh release create "desktop-${{ github.run_number }}" "$exeName" \
+          # Only the default (AR Corp) build moves the /releases/latest/ alias;
+          # a client build must never replace AR Corp's stable download link.
+          if [ "${{ steps.product.outputs.default }}" = "true" ]; then
+            tag="desktop-${{ github.run_number }}"; latest="--latest"
+          else
+            tag="desktop-${{ steps.product.outputs.slug }}-${{ github.run_number }}"; latest="--latest=false"
+          fi
+          gh release create "$tag" "$exeName" \
             --title "${{ steps.product.outputs.name }} — installer terbaru" \
             --notes "Dibuat otomatis dari commit ${{ github.sha }} (build #${{ github.run_number }}). Unduh dan jalankan langsung di komputer/laptop Windows kantor." \
-            --latest
+            $latest
+          url="https://github.com/${{ github.repository }}/releases/download/$tag/$(basename "$exeName")"
+          echo "Link unduhan installer: $url" >> "$GITHUB_STEP_SUMMARY"
+          echo "Isi NEXT_PUBLIC_DOWNLOAD_DESKTOP di Railway client dengan link di atas." >> "$GITHUB_STEP_SUMMARY"
