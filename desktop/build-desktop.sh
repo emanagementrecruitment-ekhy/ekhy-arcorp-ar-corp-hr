@@ -15,6 +15,25 @@ DESKTOP_DIR="$REPO_ROOT/desktop"
 # preload.js, etc. from the build. Any other name sidesteps it.
 APP_STAGE="$DESKTOP_DIR/nextapp"
 TEMPLATE_DB="$DESKTOP_DIR/template.db"
+CLIENT_JSON="$DESKTOP_DIR/client.json"
+
+# Which client this installer is for. Everything else (app name, window title,
+# appId, shortcut, Documents folder, installer file name) is generated from the
+# name by client-config.js. Unset = the AR Corp defaults.
+#   DESKTOP_CLIENT_NAME="Bintang Management" \
+#   DESKTOP_SERVER_URL="https://bintang-management-hr-production.up.railway.app" \
+#   bash desktop/build-desktop.sh
+echo "== 0/5 Resolving client identity =="
+node "$DESKTOP_DIR/client-config.js" "${DESKTOP_CLIENT_NAME:-}" "${DESKTOP_SERVER_URL:-}" > "$CLIENT_JSON"
+cat "$CLIENT_JSON"
+# Relative require: on the Windows runner Git Bash paths (/d/a/...) are not
+# valid inside a JS string, so resolve client.json from DESKTOP_DIR instead.
+client_field() { (cd "$DESKTOP_DIR" && node -p "require('./client.json').$1"); }
+CLIENT_NAME="$(client_field name)"
+# The bundled offline copy of the web app must carry the client's brand too
+# (NEXT_PUBLIC_* values are inlined at build time). Explicit env wins.
+export NEXT_PUBLIC_BRAND_COMPANY="${NEXT_PUBLIC_BRAND_COMPANY:-$CLIENT_NAME}"
+export NEXT_PUBLIC_BRAND_SHORT="${NEXT_PUBLIC_BRAND_SHORT:-$CLIENT_NAME}"
 
 echo "== 1/5 Building Next.js (standalone output) =="
 cd "$REPO_ROOT"
@@ -49,6 +68,10 @@ cd "$DESKTOP_DIR"
 npm install
 
 echo "== 5/5 Building Windows installer (electron-builder + wine) =="
-npm run dist:win
+npx electron-builder --win --x64 \
+  -c.productName="$(client_field productName)" \
+  -c.appId="$(client_field appId)" \
+  -c.nsis.shortcutName="$(client_field productName)" \
+  -c.win.artifactName="$(client_field installerName)"
 
 echo "Done. Installer output: $DESKTOP_DIR/dist"

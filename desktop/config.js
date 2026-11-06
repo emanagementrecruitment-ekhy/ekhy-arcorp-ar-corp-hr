@@ -1,5 +1,11 @@
+const { loadClient } = require("./client-config");
+
+const CLIENT = loadClient();
+
 module.exports = {
-  RAILWAY_URL: "https://ekhy-arcorp-ar-corp-hr-production.up.railway.app",
+  CLIENT,
+  // This client's own Railway server (from client.json, written by build-desktop.sh).
+  RAILWAY_URL: CLIENT.serverUrl,
   // How long to wait for Railway to answer before falling back to local mode.
   ONLINE_CHECK_TIMEOUT_MS: 5000,
   // How often to re-check connectivity while running in local/offline mode,

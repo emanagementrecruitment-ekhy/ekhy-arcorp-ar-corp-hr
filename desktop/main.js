@@ -5,6 +5,11 @@ const crypto = require("crypto");
 const https = require("https");
 const { fork } = require("child_process");
 const config = require("./config");
+
+/** The client name is injected into a data: HTML page, so escape it. */
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
 const { runSync } = require("./sync");
 
 let mainWindow = null;
@@ -109,7 +114,7 @@ function setupDownloadInterception() {
     const match = filename.match(/^Slip Pay (.+?) - .+\.pdf$/i);
     if (!match) return;
     const monthLabel = match[1].trim();
-    const folder = path.join(app.getPath("documents"), "AR Corp", `Slip Pay ${monthLabel}`);
+    const folder = path.join(app.getPath("documents"), config.CLIENT.documentsFolder, `Slip Pay ${monthLabel}`);
     fs.mkdirSync(folder, { recursive: true });
     item.setSavePath(path.join(folder, filename));
   });
@@ -147,7 +152,7 @@ async function goOffline() {
     currentMode = "waiting";
     const html =
       "<body style='margin:0;background:#08080a;color:#e8dcc0;font-family:Segoe UI,sans-serif;display:grid;place-items:center;height:100vh;text-align:center'>" +
-      "<div><div style='font-size:20px;letter-spacing:.2em;color:#c9a24b'>AR CORP</div>" +
+      "<div><div style='font-size:20px;letter-spacing:.2em;color:#c9a24b'>" + escapeHtml(config.CLIENT.name.toUpperCase()) + "</div>" +
       "<p style='margin:18px 0 6px;font-size:16px'>Server sedang diperbarui atau internet belum tersambung.</p>" +
       "<p style='opacity:.65;font-size:13px'>Aplikasi mencoba menyambung lagi otomatis — tidak perlu ditutup.</p></div></body>";
     await mainWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(html));
@@ -164,7 +169,7 @@ async function createWindow() {
     height: 880,
     minWidth: 960,
     minHeight: 640,
-    title: "AR Corp · E-Management",
+    title: config.CLIENT.windowTitle,
     backgroundColor: "#08080a",
     autoHideMenuBar: true,
     show: false,
@@ -248,7 +253,7 @@ async function getRailwaySessionCookie() {
 ipcMain.handle("arcorp:get-mode", () => currentMode);
 ipcMain.handle("arcorp:sync-now", () => syncNow());
 ipcMain.handle("arcorp:open-slip-folder", () => {
-  const folder = path.join(app.getPath("documents"), "AR Corp");
+  const folder = path.join(app.getPath("documents"), config.CLIENT.documentsFolder);
   fs.mkdirSync(folder, { recursive: true });
   shell.openPath(folder);
 });
