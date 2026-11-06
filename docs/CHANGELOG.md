@@ -7,6 +7,7 @@ dan project ini mengikuti [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+- Panduan Aplikasi, bagian Dompet digital: kartu 3D diganti tampilan menu layanan (Terima Gaji, Tarik Tunai, Kirim ke Bank, dan lainnya) bergaya aplikasi dompet, memakai nama perusahaan masing-masing client.
 - Halaman depan sebelum login dihapus: yang belum masuk langsung ke halaman login. Tulisan nama, web, dan email ARCorporation di akhir Panduan Aplikasi diperkecil.
 - Halaman depan dan halaman login: unduhan APK Android, iOS/iPhone, dan iPad kini berupa tulisan link sederhana (di login, di bawah slogan). "Panduan Aplikasi" dipindah ke paling bawah.
 - Slip Pay: kotak "Folder penyimpanan slip" dirapikan. Di dalam folder pilihan client, slip masuk ke "Slip Pay <Bulan Tahun>" lalu dipisah Karyawan, Terapis, Resign Karyawan, dan Resign Terapis. Arsip slip resign kini bisa disimpan lewat kotak yang sama.
