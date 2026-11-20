@@ -17,6 +17,12 @@ import { SETTING_ID } from "@/lib/settings";
 // keeps this reading the real database on every request instead.
 export const dynamic = "force-dynamic";
 
+// Uploaded SVGs may contain script; if this URL is opened directly (same origin) the CSP sandbox neutralises it. <img>/CSS mask rendering is unaffected.
+const SECURITY_HEADERS = {
+  "Content-Security-Policy": "default-src 'none'; sandbox",
+  "X-Content-Type-Options": "nosniff",
+};
+
 export async function GET() {
   const setting = await prisma.appSetting.findUnique({ where: { id: SETTING_ID } });
   const match = setting?.logoDataUrl?.match(/^data:([^;]+);base64,([A-Za-z0-9+/=]+)$/);
@@ -24,12 +30,12 @@ export async function GET() {
   if (match) {
     const [, mimeType, base64] = match;
     return new Response(Buffer.from(base64, "base64"), {
-      headers: { "Content-Type": mimeType, "Cache-Control": "private, max-age=30, stale-while-revalidate=600" },
+      headers: { ...SECURITY_HEADERS, "Content-Type": mimeType, "Cache-Control": "private, max-age=30, stale-while-revalidate=600" },
     });
   }
 
   const defaultMark = await readFile(path.join(process.cwd(), "public", "ar-corp-logo.png"));
   return new Response(defaultMark, {
-    headers: { "Content-Type": "image/png", "Cache-Control": "private, max-age=30, stale-while-revalidate=600" },
+    headers: { ...SECURITY_HEADERS, "Content-Type": "image/png", "Cache-Control": "private, max-age=30, stale-while-revalidate=600" },
   });
 }
